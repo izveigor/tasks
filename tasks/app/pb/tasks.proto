@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package pb;
+
+message PermissionRequest {
+    string receiverUsername = 1;
+    string senderUsername = 2;
+}
+
+message PermissionResponse {
+    bool is_permission_exist = 1;
+}
+
+message ConfirmEmailRequest {
+    string username = 1;
+}
+
+message ConfirmEmailResponse {
+    bool is_permission_exist = 1;
+}
+
+message GetUserFromTokenRequest {
+    string token = 1;
+}
+
+message GetUserFromTokenResponse {
+    string username = 1;
+}
+
+message GetTokenFromUsernameRequest {
+    string username = 1;
+}
+
+message GetTokenFromUsernameResponse {
+    string token = 1;
+}
+
+service Tasks {
+    rpc ConfirmEmail (ConfirmEmailRequest) returns (ConfirmEmailResponse);
+    rpc CheckPermission (PermissionRequest) returns (PermissionResponse);
+    rpc GetUserFromToken (GetUserFromTokenRequest) returns (GetUserFromTokenResponse);
+    rpc GetTokenFromUsername (GetTokenFromUsernameRequest) returns (GetTokenFromUsernameResponse);
+}

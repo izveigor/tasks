@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package pb;
+
+import "google/protobuf/timestamp.proto";
+
+message NotificationRequest {
+    string text = 1;
+    string image = 3;
+    google.protobuf.Timestamp time = 4;
+    repeated string tokens = 2;
+}
+
+message NotificationResponse {}
+
+service Notifications {
+    rpc Notify (NotificationRequest) returns (NotificationResponse);
+}

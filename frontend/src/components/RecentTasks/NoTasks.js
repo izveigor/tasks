@@ -1,0 +1,10 @@
+import React from 'react';
+
+
+export default function NoTasks() {
+    return (
+        <div className="text-center my-[10em]">
+            <h1 className="text-xl text-gray-600">Задания отсутствуют!</h1>
+        </div>
+    );
+};
