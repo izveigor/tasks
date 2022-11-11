@@ -1,0 +1,25 @@
+version: '3'
+
+
+services:
+
+  server:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    command: ./notifications
+    restart: always
+    container_name: tasks_notifications_production_server
+    ports:
+      - 8002:8002
+      - 50053:50053
+    depends_on:
+      - mongo
+  
+  mongo:
+    image: mongo:6
+    container_name: tasks_notifications_production_mongo
+    ports:
+      - 27017:27017
+    env_file:
+      - ./src/pkg/config/envs/.env.prod.mongo

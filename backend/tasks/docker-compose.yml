@@ -1,0 +1,56 @@
+version: '3'
+
+
+services:
+
+  server:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    restart: always
+    container_name: tasks_tasks_production_server
+    command: python3 -m flask run --host=0.0.0.0 -p 8001
+    environment:
+      - FLASK_APP=./app/__init__.py
+    env_file:
+      - ./config/.env.prod
+      - ./config/.env.prod.db
+      - ./config/.env.prod.redis
+    ports:
+      - 8001:8001
+      - 50051:50051
+    networks:
+      - tasks-tasks-production
+    depends_on:
+      - db
+      - redis
+  
+  redis:
+    image: redis:7
+    restart: always
+    container_name: tasks_tasks_production_redis
+    env_file:
+      - ./config/.env.prod.redis
+    ports:
+      - 6379:6379
+  
+  db:
+    image: postgres:15
+    restart: always
+    container_name: tasks_tasks_production_db
+    env_file:
+      - ./config/.env.prod.db
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - tasks-tasks-production
+    ports:
+      - 5433:5432
+
+
+volumes:
+  data:
+
+
+networks:
+  tasks-tasks-production:

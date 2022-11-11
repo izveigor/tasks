@@ -9,7 +9,6 @@ import (
 
 type ConfigType struct {
 	NotificationSvcUrl string `mapstructure:"NOTIFICATION_SVC_URL"`
-	Host               string `mapstructure:"HOST"`
 	MongoUrl           string `mapstructure:"MONGO_URL"`
 }
 
@@ -20,7 +19,7 @@ func LoadConfig() (c *ConfigType) {
 		viper.AddConfigPath("../config/envs")
 	}
 
-	viper.SetConfigName("dev")
+	viper.SetConfigName("prod")
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()

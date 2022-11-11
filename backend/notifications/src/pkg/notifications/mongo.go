@@ -45,7 +45,7 @@ func ConnectToMongo() {
 }
 
 func AddNotificationFunction(notification Notification) {
-	insertResult, err := notificationsCollection.InsertOne(context.TODO(), notification)
+	_, err := notificationsCollection.InsertOne(context.TODO(), notification)
 	if err != nil {
 		log.Fatal(err)
 	}

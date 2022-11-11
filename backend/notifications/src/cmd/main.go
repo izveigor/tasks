@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/izveigor/tasks/notifications/pkg/config"
@@ -8,10 +9,11 @@ import (
 )
 
 func main() {
+	fmt.Println("Сервер был запущен.")
 	notifications.ConnectToMongo()
 	go notifications.InitNotificationsServiceServer(config.Config.NotificationSvcUrl)
 	time.Sleep(time.Millisecond * 2000)
-	go notifications.AddRoutes(config.Config.Host)
+	go notifications.AddRoutes(":8002")
 	for {
 	}
 }

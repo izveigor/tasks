@@ -18,7 +18,6 @@ from .constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 def create_app(config: str = "PRODUCTION", **kwargs) -> Flask:
     app = Flask(__name__)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SECRET_KEY"] = "secret"
     app.config["TESTING"] = True if config == "TESTING" else False
     app.config[
         "SQLALCHEMY_DATABASE_URI"

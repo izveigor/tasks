@@ -1,0 +1,49 @@
+version: '3'
+
+
+services:
+
+  server:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    restart: always
+    container_name: tasks_account_production_server
+    command: bash -c "python3 manage.py runserver 0.0.0.0:8000 &
+                      python3 manage.py start_grpc"
+    volumes:
+      - images:/home/app/tasks/account/images
+    environment:
+      - GRPC_VERBOSITY=debug
+    env_file:
+      - ./config/.env.prod
+      - ./config/.env.prod.db
+    ports:
+      - 8000:8000
+      - 50052:50052
+    networks:
+      - tasks-account-production
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:15
+    restart: always
+    container_name: tasks_account_production_db
+    env_file:
+      - ./config/.env.prod.db
+    volumes:
+      - data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - tasks-account-production
+
+
+volumes:
+  data:
+  images:
+
+
+networks:
+  tasks-account-production:

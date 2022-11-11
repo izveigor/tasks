@@ -9,8 +9,8 @@ DEFAULT_PROFILE_JOB_TITLE = "отсутствует"
 DEFAULT_PROFILE_DESCRIPTION = "Описание отсутствует."
 DEFAULT_PROFILE_IMAGE = "default.png"
 
-NOTIFICATIONS_HOST = "localhost:50053"
-TASKS_HOST = "localhost:50052"
-USERS_HOST = "localhost:50051"
+NOTIFICATIONS_HOST = os.environ.get("NOTIFICATIONS_HOST")
+TASKS_HOST = os.environ.get("TASKS_HOST")
+USERS_HOST = os.environ.get("USERS_HOST")
 
 FRONTEND_HOST = "localhost:3000"
