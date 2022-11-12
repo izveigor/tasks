@@ -8,13 +8,12 @@ services:
       context: ./src
       dockerfile: Dockerfile
     restart: always
+    image: izveigor/tasks-account
     container_name: tasks_account_production_server
     command: bash -c "python3 manage.py runserver 0.0.0.0:8000 &
                       python3 manage.py start_grpc"
     volumes:
       - images:/home/app/tasks/account/images
-    environment:
-      - GRPC_VERBOSITY=debug
     env_file:
       - ./config/.env.prod
       - ./config/.env.prod.db
@@ -23,6 +22,7 @@ services:
       - 50052:50052
     networks:
       - tasks-account-production
+      - gateway_network
     depends_on:
       - db
   
@@ -46,4 +46,6 @@ volumes:
 
 
 networks:
+  gateway_network:
+    external: true
   tasks-account-production:

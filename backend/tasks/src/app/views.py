@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_restful import Resource, Api, reqparse
-from app.constants import TASKS_NUMBER_FOR_PAGE, PROCESSING_TASK_STATUS
+from app.constants import PREFIX_HOST, TASKS_NUMBER_FOR_PAGE, PROCESSING_TASK_STATUS
 from .authorization import authorization
 from .get_permission import get_permission
 from models import db, Task, TaskUser
@@ -252,8 +252,8 @@ class TaskClose(Resource):
         return "ok", 200
 
 
-api.add_resource(TaskView, "/task/<int:task_id>/")
-api.add_resource(CurrentTaskView, "/current_task/")
-api.add_resource(TasksView, "/tasks/")
-api.add_resource(ProcessingView, "/processing/")
-api.add_resource(TaskClose, "/close/")
+api.add_resource(TaskView, PREFIX_HOST+"/task/<int:task_id>/")
+api.add_resource(CurrentTaskView, PREFIX_HOST+"/current_task/")
+api.add_resource(TasksView, PREFIX_HOST+"/tasks/")
+api.add_resource(ProcessingView, PREFIX_HOST+"/processing/")
+api.add_resource(TaskClose, PREFIX_HOST+"/close/")

@@ -1,0 +1,24 @@
+version: '3'
+
+
+services:
+
+  client:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    command: serve -s build
+    restart: always
+    image: izveigor/tasks-frontend
+    container_name: tasks_frontend_client
+    volumes:
+      - /src/node_modules
+  
+  nginx:
+    build: ./client
+    restart: always
+    container_name: tasks_frontend_nginx
+    ports:
+      - 3050:80
+    depends_on:
+      - client

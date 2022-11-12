@@ -31,3 +31,4 @@ TASKS_HOST = "localhost:50052"
 USERS_HOST = "localhost:50051"
 
 TASKS_NUMBER_FOR_PAGE = 10
+PREFIX_HOST = "/tasks"

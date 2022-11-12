@@ -79,11 +79,13 @@ func ClearUnreadNotificationsView(responseWriter http.ResponseWriter, request *h
 	responseWriter.WriteHeader(http.StatusOK)
 }
 
+const PREFIX_HOST = "/notifications"
+
 func AddRoutes(address string) {
-	http.HandleFunc("/notifications/", GetNotificationsView)
-	http.HandleFunc("/get_number_unread_notifications/", GetNumberUnreadNotificationsView)
-	http.HandleFunc("/clear_unread_notifications/", ClearUnreadNotificationsView)
-	http.HandleFunc("/ws/notify/", WSNotify)
+	http.HandleFunc(PREFIX_HOST + "/notifications/", GetNotificationsView)
+	http.HandleFunc(PREFIX_HOST + "/get_number_unread_notifications/", GetNumberUnreadNotificationsView)
+	http.HandleFunc(PREFIX_HOST + "/clear_unread_notifications/", ClearUnreadNotificationsView)
+	http.HandleFunc(PREFIX_HOST + "/ws/notify/", WSNotify)
 
 	http.ListenAndServe(address, nil)
 	log.Println("Маршруты успешно загрузились.")

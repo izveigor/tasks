@@ -1,0 +1,5 @@
+export const USERS_URL = "http://localhost:1337/account/"
+export const TASKS_URL = "http://localhost:1337/tasks/"
+export const NOTIFICATION_URL = "http://localhost:1337/notifications/"
+export const WS_NOTIFICATION_URL = "ws://localhost:1337/notifications/"
+export const USERS_URL_WITHOUT_SLASH = "http://localhost:1337/account"

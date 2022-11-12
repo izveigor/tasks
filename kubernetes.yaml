@@ -1,0 +1,149 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account
+  labels:
+    app: account
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: account
+  template:
+    metadata:
+      labels:
+        app: account
+    spec:
+      containers:
+        - name: tasks-account
+          image: izveigor/tasks-account:latest
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasks
+  labels:
+    app: tasks
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tasks
+  template:
+    metadata:
+      labels:
+        app: tasks
+    spec:
+      containers:
+        - name: tasks-tasks
+          image: izveigor/tasks-tasks:latest
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications
+  labels:
+    app: notifications
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: notifications
+  template:
+    metadata:
+      labels:
+        app: notifications
+    spec:
+      containers:
+        - name: tasks-notifications
+          image: izveigor/tasks-notifications:latest
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: tasks-gateway
+          image: izveigor/tasks-gateway:latest
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: tasks-frontend
+          image: izveigor/tasks-frontend:latest
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: account
+spec:
+    selector:
+        app: account
+    ports:
+        - protocol: TCP
+          port: 50052
+          targetPort: 50052
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: tasks
+spec:
+    selector:
+        app: tasks
+    ports:
+        - protocol: TCP
+          port: 50051
+          targetPort: 50051
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: notifications
+spec:
+    selector:
+        app: notifications
+    ports:
+        - protocol: TCP
+          port: 50053
+          targetPort: 50053

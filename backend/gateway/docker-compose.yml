@@ -1,0 +1,18 @@
+version: '3'
+
+
+services:
+  nginx:
+    build: .
+    restart: always
+    image: izveigor/tasks-gateway
+    container_name: tasks_tasks_gateway_nginx
+    ports:
+      - 1337:80
+    networks:
+      - gateway_network
+
+
+networks:
+  gateway_network:
+    external: true
