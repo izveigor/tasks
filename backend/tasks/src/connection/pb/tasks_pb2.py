@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x63onnection/pb/tasks.proto\x12\x02pb\":\n\x0bUserRequest\x12\n\n\x02id\x18\x03 \x01(\x03\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05image\x18\x01 \x01(\t\"\x0e\n\x0cUserResponse\"\x17\n\tIDRequest\x12\n\n\x02id\x18\x01 \x01(\x03\x32\x95\x01\n\x05Tasks\x12,\n\x07\x41\x64\x64User\x12\x0f.pb.UserRequest\x1a\x10.pb.UserResponse\x12/\n\nChangeUser\x12\x0f.pb.UserRequest\x1a\x10.pb.UserResponse\x12-\n\nDeleteUser\x12\r.pb.IDRequest\x1a\x10.pb.UserResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x63onnection/pb/tasks.proto\x12\x02pb\":\n\x0bUserRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05image\x18\x03 \x01(\t\"\x0e\n\x0cUserResponse\"\x17\n\tIDRequest\x12\n\n\x02id\x18\x01 \x01(\t2\x95\x01\n\x05Tasks\x12,\n\x07\x41\x64\x64User\x12\x0f.pb.UserRequest\x1a\x10.pb.UserResponse\x12/\n\nChangeUser\x12\x0f.pb.UserRequest\x1a\x10.pb.UserResponse\x12-\n\nDeleteUser\x12\r.pb.IDRequest\x1a\x10.pb.UserResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'connection.pb.tasks_pb2', globals())

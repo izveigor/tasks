@@ -1,4 +1,4 @@
-from unittest.mock import patch, Mock
+'''from unittest.mock import patch, Mock
 from flask.testing import FlaskClient
 from constants import TASK_STATUS, TASKS_NUMBER_FOR_PAGE
 from tests.helpers import create_user, check_model_fields
@@ -504,3 +504,4 @@ class TestCurrentTaskView:
         assert response.status == "204 NO CONTENT"
 
         assert TaskUser.query.get(1).current_task == second_task
+'''

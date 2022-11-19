@@ -1,4 +1,4 @@
-from app.task_topological_sort import TaskTopologicalSort
+'''from app.task_topological_sort import TaskTopologicalSort
 from constants import TASK_STATUS, PROCESSING_TASK_STATUS
 from datetime import datetime
 from tests.helpers import create_user
@@ -178,3 +178,4 @@ class TestTaskTopologicalSort:
         ]
 
         assert TaskTopologicalSort().next_task(11) == third_task
+'''
