@@ -6,13 +6,12 @@ from flask_migrate import Migrate
 
 from models import db
 
-from .constants import POSTGRESQL_SETTINGS
-from .views import bp_views
+# from .views import bp_views
 from .serializers import bp_marhmallow
-from .server import users_serve
+from connection.tasks_server import tasks_serve
 from threading import Thread
 from .celery import make_celery
-from .constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
+from constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND, POSTGRESQL_SETTINGS
 
 
 def create_app(config: str = "PRODUCTION", **kwargs) -> Flask:
@@ -25,11 +24,11 @@ def create_app(config: str = "PRODUCTION", **kwargs) -> Flask:
     app.app_context().push()
     db.init_app(app)
     CORS(app)
-    app.register_blueprint(bp_views)
+    # app.register_blueprint(bp_views)
     app.register_blueprint(bp_marhmallow)
     make_celery(app)
     if config != "TESTING":
         db.create_all()
-        thread = Thread(target=users_serve, args=(app,))
+        thread = Thread(target=tasks_serve, args=(app,))
         thread.start()
     return app

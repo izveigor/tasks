@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package pb;
+
+message AuthorizationRequest {
+    string token = 1;
+}
+
+message PermissionRequest {
+    string receiverUsername = 2;
+    string senderToken = 1;
+}
+
+message AuthorizationResponse {
+    bool is_permission_exist = 2;
+    string username = 1;
+}
+
+service Users {
+    rpc AuthorizationLikeTeammate (AuthorizationRequest) returns (AuthorizationResponse);
+    rpc CheckPermission (PermissionRequest) returns (AuthorizationResponse);
+}

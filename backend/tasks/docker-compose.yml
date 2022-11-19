@@ -19,7 +19,7 @@ services:
       - ./config/.env.prod.redis
     ports:
       - 8001:8001
-      - 50051:50051
+      - 50052:50052
     networks:
       - tasks-tasks-production
       - gateway_network

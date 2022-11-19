@@ -1,13 +1,12 @@
-from flask import Blueprint, request, jsonify
+'''from flask import Blueprint, request, jsonify
 from flask_restful import Resource, Api, reqparse
-from app.constants import PREFIX_HOST, TASKS_NUMBER_FOR_PAGE, PROCESSING_TASK_STATUS
-from .authorization import authorization
-from .get_permission import get_permission
+from constants import PREFIX_HOST, TASKS_NUMBER_FOR_PAGE, PROCESSING_TASK_STATUS
+from .features import authorization, get_permission
 from models import db, Task, TaskUser
 from .serializers import task_schema, tasks_schema
 from .celery_tasks import validate_task_data
-from .notifications_client import notifications_client
-from app.pb.notifications_pb2 import NotificationRequest
+from connection.notifications_client import notifications_client
+from connection.pb.notifications_pb2 import NotificationRequest
 from .task_topological_sort import TaskTopologicalSort
 import datetime
 
@@ -257,3 +256,4 @@ api.add_resource(CurrentTaskView, PREFIX_HOST+"/current_task/")
 api.add_resource(TasksView, PREFIX_HOST+"/tasks/")
 api.add_resource(ProcessingView, PREFIX_HOST+"/processing/")
 api.add_resource(TaskClose, PREFIX_HOST+"/close/")
+'''

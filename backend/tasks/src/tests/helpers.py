@@ -1,34 +1,40 @@
 from models import db, TaskUser
 from typing import Any
 import grpc
-from app.pb import tasks_pb2_grpc
-from app.pb.tasks_pb2 import (
-    PermissionRequest,
-    PermissionResponse,
-    GetUserFromTokenRequest,
-    GetUserFromTokenResponse,
-)
+from connection.pb import users_pb2_grpc
+from connection.pb.users_pb2 import AuthorizationResponse
 from concurrent import futures
-from threading import Thread
-from app.constants import TASKS_HOST
+from constants import USERS_HOST
 
 
-class TasksServicer(tasks_pb2_grpc.TasksServicer):
-    def CheckPermission(self, request, context):
-        return PermissionResponse(
-            is_permission_exist=True,
+class UsersServicer(users_pb2_grpc.UsersServicer):
+    def AuthorizationLikeTeammate(self, request, context):
+        if request.token == "11111":
+            return AuthorizationResponse(
+                is_permission_exist=True,
+                username="username"
+            )
+        return AuthorizationResponse(
+            is_permission_exist=False,
+            username="",
         )
 
-    def GetUserFromToken(self, request, context):
-        return GetUserFromTokenResponse(
-            username="username",
+    def CheckPermission(self, request, context):
+        if request.senderToken == "11111" and request.receiverUsername == "username1":
+            return AuthorizationResponse(
+                is_permission_exist=True,
+                username="username"
+            )
+        return AuthorizationResponse(
+            is_permission_exist=False,
+            username="",
         )
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    tasks_pb2_grpc.add_TasksServicer_to_server(TasksServicer(), server)
-    server.add_insecure_port(TASKS_HOST)
+    users_pb2_grpc.add_UsersServicer_to_server(UsersServicer(), server)
+    server.add_insecure_port(USERS_HOST)
     server.start()
 
 

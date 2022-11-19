@@ -1,5 +1,5 @@
 from app.task_topological_sort import TaskTopologicalSort
-from app.constants import TASK_STATUS, PROCESSING_TASK_STATUS
+from constants import TASK_STATUS, PROCESSING_TASK_STATUS
 from datetime import datetime
 from tests.helpers import create_user
 from models import Task, db

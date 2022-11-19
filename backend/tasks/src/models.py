@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from app.constants import TASK_STATUS, DEFAULT_TASK_STATUS
+from sqlalchemy.dialects.postgresql import UUID
+from constants import TASK_STATUS, DEFAULT_TASK_STATUS
 from sqlalchemy.orm import backref
+import uuid
 
 db = SQLAlchemy()
 
@@ -22,7 +24,7 @@ subsequent_task = db.Table(
 
 class TaskUser(db.Model):  # type: ignore
     __tablename__ = "task_user"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = db.Column(db.String(150), nullable=False, unique=True)
     image = db.Column(db.String(150), nullable=False)
     current_task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=True)
@@ -46,10 +48,10 @@ class Task(db.Model):  # type: ignore
     )
 
     receiver_user_id = db.Column(
-        db.Integer, db.ForeignKey("task_user.id"), nullable=False
+        UUID(as_uuid=True), db.ForeignKey("task_user.id"), nullable=False
     )
     sender_user_id = db.Column(
-        db.Integer, db.ForeignKey("task_user.id"), nullable=False
+        UUID(as_uuid=True), db.ForeignKey("task_user.id"), nullable=False
     )
     receiver_user = db.relationship("TaskUser", foreign_keys=[receiver_user_id])
     sender_user = db.relationship("TaskUser", foreign_keys=[sender_user_id])

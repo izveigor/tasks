@@ -1,5 +1,5 @@
 from celery import Celery
-from .constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
+from constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 
 
 celery = Celery(

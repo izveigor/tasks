@@ -1,28 +1,31 @@
-from tabnanny import check
 from flask.testing import FlaskClient
 
 from models import TaskUser, db, Task
 from tests.helpers import check_model_fields, create_user
-from app.constants import TASK_STATUS
+from constants import TASK_STATUS
 from datetime import datetime, timezone
+import uuid
 
 
 class TestModels:
     receiver_user = {
-        "id": 1,
+        "id": uuid.uuid4(),
         "username": "username1",
+        "image": "http://image1",
         "current_task_id": None,
     }
 
     sender_user = {
-        "id": 2,
+        "id": uuid.uuid4(),
         "username": "username2",
+        "image": "http://image2",
         "current_task_id": None,
     }
 
     simple_user = {
-        "id": 3,
+        "id": uuid.uuid4(),
         "username": "username3",
+        "image": "http://image3",
         "current_task_id": None,
     }
 
@@ -31,14 +34,16 @@ class TestModels:
         check_model_fields(TaskUser.query.all()[0], self.simple_user)
 
     def test_task(self, client: FlaskClient) -> None:
+        receiver_user_id = self.receiver_user["id"]
+        sender_user_id = self.sender_user["id"]
         first_previous_task = {
             "id": 1,
             "title": "Выполнить задание 1",
             "time": datetime.now(),
             "description": "Описание отсутствует.",
             "status": TASK_STATUS[0],
-            "receiver_user_id": 1,
-            "sender_user_id": 2,
+            "receiver_user_id": receiver_user_id,
+            "sender_user_id": sender_user_id,
         }
 
         second_previous_task = {
@@ -47,8 +52,8 @@ class TestModels:
             "time": datetime.now(),
             "description": "Описание отсутствует.",
             "status": TASK_STATUS[0],
-            "receiver_user_id": 1,
-            "sender_user_id": 2,
+            "receiver_user_id": receiver_user_id,
+            "sender_user_id": sender_user_id,
         }
 
         first_subsequent_task = {
@@ -57,8 +62,8 @@ class TestModels:
             "time": datetime.now(),
             "description": "Описание отсутствует.",
             "status": TASK_STATUS[0],
-            "receiver_user_id": 1,
-            "sender_user_id": 2,
+            "receiver_user_id": receiver_user_id,
+            "sender_user_id": sender_user_id,
         }
 
         second_subsequent_task = {
@@ -67,8 +72,8 @@ class TestModels:
             "time": datetime.now(),
             "description": "Описание отсутствует.",
             "status": TASK_STATUS[0],
-            "receiver_user_id": 1,
-            "sender_user_id": 2,
+            "receiver_user_id": receiver_user_id,
+            "sender_user_id": sender_user_id,
         }
 
         task_data = {
@@ -77,8 +82,8 @@ class TestModels:
             "time": datetime.now(),
             "description": "Описание отсутствует.",
             "status": TASK_STATUS[0],
-            "receiver_user_id": 1,
-            "sender_user_id": 2,
+            "receiver_user_id": receiver_user_id,
+            "sender_user_id": sender_user_id,
         }
 
         first_previous_task_model = Task(**first_previous_task)
@@ -119,10 +124,13 @@ class TestModels:
         )
 
     def test_current_task(self, client: FlaskClient):
+        receiver_user_id = uuid.uuid4()
+        sender_user_id = uuid.uuid4()
         create_user(
             {
-                "id": 5,
+                "id": receiver_user_id,
                 "username": "username5",
+                "image": "http://image5",
             }
         )
 
@@ -132,13 +140,14 @@ class TestModels:
             time=datetime.now(),
             description="Описание отсутствует.",
             status=TASK_STATUS[0],
-            receiver_user_id=4,
-            sender_user_id=5,
+            receiver_user_id=receiver_user_id,
+            sender_user_id=sender_user_id,
         )
 
         user_data = {
-            "id": 4,
+            "id": sender_user_id,
             "username": "username4",
+            "image": "http://image4",
             "current_task_id": None,
         }
 

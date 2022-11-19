@@ -1,11 +1,11 @@
 import grpc
-from app.pb.tasks_pb2 import (
+from connte.pb.tasks_pb2 import (
     PermissionRequest,
     PermissionResponse,
     GetUserFromTokenRequest,
     GetUserFromTokenResponse,
 )
-from app.client import tasks_client
+from app.tasks_client import tasks_client
 from concurrent import futures
 from threading import Thread
 from tests.helpers import serve

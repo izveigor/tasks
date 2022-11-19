@@ -2,8 +2,8 @@ import grpc
 from concurrent import futures
 
 from account.constants import TASKS_HOST
-from users.pb.tasks_pb2_grpc import TasksServicer, add_TasksServicer_to_server
-from users.pb.tasks_pb2 import (
+from account.pb.tasks_pb2_grpc import TasksServicer, add_TasksServicer_to_server
+from account.pb.tasks_pb2 import (
     GetTokenFromUsernameResponse,
     PermissionResponse,
     GetUserFromTokenResponse,

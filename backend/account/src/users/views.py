@@ -28,8 +28,8 @@ from .permissions import (
 )
 from .notifications_client import notifications_client
 from .users_client import users_client
-from users.pb.notifications_pb2 import NotificationRequest
-from users.pb.users_pb2 import UserRequest
+from account.pb.notifications_pb2 import NotificationRequest
+from account.pb.users_pb2 import UserRequest
 import json
 from account.constants import DEFAULT_PROFILE_IMAGE
 from django.db.models import Q

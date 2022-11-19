@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from models import TaskUser, Task, db
-from app.constants import PROCESSING_TASK_STATUS
+from constants import PROCESSING_TASK_STATUS
 from sqlalchemy import or_
 from dataclasses import dataclass
 from enum import Enum

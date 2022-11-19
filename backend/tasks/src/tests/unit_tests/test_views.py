@@ -1,6 +1,6 @@
 from unittest.mock import patch, Mock
 from flask.testing import FlaskClient
-from app.constants import TASK_STATUS, TASKS_NUMBER_FOR_PAGE
+from constants import TASK_STATUS, TASKS_NUMBER_FOR_PAGE
 from tests.helpers import create_user, check_model_fields
 from models import TaskUser, Task, db
 from datetime import datetime

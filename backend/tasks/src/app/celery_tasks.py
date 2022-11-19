@@ -1,7 +1,7 @@
 from .celery import celery
 from .task_topological_sort import TaskTopologicalSort
 from typing import Any
-from .constants import TASK_STATUS
+from constants import TASK_STATUS
 from models import Task
 
 

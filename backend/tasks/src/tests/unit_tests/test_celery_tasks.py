@@ -1,7 +1,7 @@
 from unittest.mock import patch, Mock
 from app.celery_tasks import validate_task_data
 from tests.helpers import create_user
-from app.constants import TASK_STATUS
+from constants import TASK_STATUS
 from models import TaskUser, Task
 from datetime import datetime
 from flask.testing import FlaskClient

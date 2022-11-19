@@ -19,7 +19,7 @@ services:
       - ./config/.env.prod.db
     ports:
       - 8000:8000
-      - 50052:50052
+      - 50051:50051
     networks:
       - tasks-account-production
       - gateway_network
