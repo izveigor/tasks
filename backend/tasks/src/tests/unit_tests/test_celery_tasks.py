@@ -1,22 +1,27 @@
-'''from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock
 from app.celery_tasks import validate_task_data
 from tests.helpers import create_user
 from constants import TASK_STATUS
 from models import TaskUser, Task
 from datetime import datetime
 from flask.testing import FlaskClient
+import uuid
 
 
 class TestValidateTaskData:
+    uuids = [uuid.uuid4() for _ in range(2)]
+
     def create_users(self):
         receiver_user = {
-            "id": 1,
+            "id": self.uuids[0],
             "username": "username1",
+            "image": "http://image1",
             "current_task_id": None,
         }
         sender_user = {
-            "id": 2,
+            "id": self.uuids[1],
             "username": "username2",
+            "image": "http://image2",
             "current_task_id": None,
         }
 
@@ -31,8 +36,8 @@ class TestValidateTaskData:
             time=time,
             description="Описание отсутствует.",
             status=TASK_STATUS[0],
-            receiver_user_id=1,
-            sender_user_id=2,
+            receiver_user_id=self.uuids[0],
+            sender_user_id=self.uuids[1],
         )
 
         second_task = Task(
@@ -41,8 +46,8 @@ class TestValidateTaskData:
             time=time,
             description="Описание отсутствует.",
             status=TASK_STATUS[0],
-            receiver_user_id=1,
-            sender_user_id=2,
+            receiver_user_id=self.uuids[0],
+            sender_user_id=self.uuids[1],
         )
 
         return first_task, second_task
@@ -54,8 +59,8 @@ class TestValidateTaskData:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
-            "receiver_user": TaskUser.query.filter_by(id=1).first(),
-            "sender_user": TaskUser.query.filter_by(id=2).first(),
+            "receiver_user_id": self.uuids[0],
+            "sender_user_id": self.uuids[1],
         }
 
         first_task, second_task = self.create_tasks()
@@ -77,8 +82,8 @@ class TestValidateTaskData:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
-            "receiver_user": TaskUser.query.filter_by(id=1).first(),
-            "sender_user": TaskUser.query.filter_by(id=2).first(),
+            "receiver_user_id": self.uuids[0],
+            "sender_user_id": self.uuids[1],
         }
 
         first_task, second_task = self.create_tasks()
@@ -100,8 +105,8 @@ class TestValidateTaskData:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
-            "receiver_user": TaskUser.query.filter_by(id=1).first(),
-            "sender_user": TaskUser.query.filter_by(id=2).first(),
+            "receiver_user_id": self.uuids[0],
+            "sender_user_id": self.uuids[1],
         }
 
         first_task, second_task = self.create_tasks()
@@ -123,8 +128,8 @@ class TestValidateTaskData:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
-            "receiver_user": TaskUser.query.filter_by(id=1).first(),
-            "sender_user": TaskUser.query.filter_by(id=2).first(),
+            "receiver_user_id": self.uuids[0],
+            "sender_user_id": self.uuids[1],
         }
 
         time = datetime.now()
@@ -134,8 +139,8 @@ class TestValidateTaskData:
             time=time,
             description="Описание отсутствует.",
             status=TASK_STATUS[0],
-            receiver_user_id=2,
-            sender_user_id=1,
+            receiver_user_id=self.uuids[1],
+            sender_user_id=self.uuids[0],
         )
 
         second_task = Task(
@@ -144,8 +149,8 @@ class TestValidateTaskData:
             time=time,
             description="Описание отсутствует.",
             status=TASK_STATUS[0],
-            receiver_user_id=1,
-            sender_user_id=2,
+            receiver_user_id=self.uuids[0],
+            sender_user_id=self.uuids[1],
         )
         previous_tasks = [first_task]
         subsequent_tasks = [second_task]
@@ -165,8 +170,8 @@ class TestValidateTaskData:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
-            "receiver_user": TaskUser.query.filter_by(id=1).first(),
-            "sender_user": TaskUser.query.filter_by(id=2).first(),
+            "receiver_user_id": self.uuids[0],
+            "sender_user_id": self.uuids[1],
         }
 
         time = datetime.now()
@@ -176,8 +181,8 @@ class TestValidateTaskData:
             time=time,
             description="Описание отсутствует.",
             status=TASK_STATUS[0],
-            receiver_user_id=1,
-            sender_user_id=2,
+            receiver_user_id=self.uuids[0],
+            sender_user_id=self.uuids[1],
         )
 
         second_task = Task(
@@ -186,8 +191,8 @@ class TestValidateTaskData:
             time=time,
             description="Описание отсутствует.",
             status=TASK_STATUS[0],
-            receiver_user_id=2,
-            sender_user_id=1,
+            receiver_user_id=self.uuids[1],
+            sender_user_id=self.uuids[0],
         )
         previous_tasks = [first_task]
         subsequent_tasks = [second_task]
@@ -198,4 +203,4 @@ class TestValidateTaskData:
             subsequent_tasks,
         )
 
-        assert not is_validated'''
+        assert not is_validated

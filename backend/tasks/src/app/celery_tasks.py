@@ -16,15 +16,15 @@ def validate_task_data(
 
     for previous_task in previous_tasks:
         if not (
-            previous_task.receiver_user_id == task_json["receiver_user"].id
-            and previous_task.sender_user_id == task_json["sender_user"].id
+            previous_task.receiver_user_id == task_json["receiver_user_id"]
+            and previous_task.sender_user_id == task_json["sender_user_id"]
         ):
             return False
 
     for subsequent_task in subsequent_tasks:
         if not (
-            subsequent_task.receiver_user_id == task_json["receiver_user"].id
-            and subsequent_task.sender_user_id == task_json["sender_user"].id
+            subsequent_task.receiver_user_id == task_json["receiver_user_id"]
+            and subsequent_task.sender_user_id == task_json["sender_user_id"]
         ):
             return False
 

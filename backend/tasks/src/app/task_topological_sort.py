@@ -5,6 +5,7 @@ from sqlalchemy import or_
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
+import uuid
 
 
 class Color(Enum):
@@ -68,7 +69,7 @@ class TaskTopologicalSort:
         self._DFS(nodes)
         return self.result[::-1]
 
-    def next_task(self, tasks, id_: int):
+    def next_task(self, id_: uuid):
         tasks = Task.query.filter_by(
             receiver_user_id=id_,
             status=PROCESSING_TASK_STATUS,

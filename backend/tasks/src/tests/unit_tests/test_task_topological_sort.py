@@ -1,34 +1,24 @@
-'''from app.task_topological_sort import TaskTopologicalSort
+from app.task_topological_sort import TaskTopologicalSort
 from constants import TASK_STATUS, PROCESSING_TASK_STATUS
 from datetime import datetime
 from tests.helpers import create_user
 from models import Task, db
 from flask.testing import FlaskClient
+import uuid
 
 
 class TestTaskTopologicalSort:
     def test_task_topological_sort(self, client: FlaskClient):
-        create_user(
-            {
-                "id": 11,
-                "username": "username11",
-                "current_task_id": None,
-            }
-        )
-        create_user(
-            {
-                "id": 12,
-                "username": "username12",
-                "current_task_id": None,
-            }
-        )
-        create_user(
-            {
-                "id": 13,
-                "username": "username13",
-                "current_task_id": None,
-            }
-        )
+        uuids = [uuid.uuid4() for _ in range(3)]
+        for i in range(3):
+            create_user(
+                {
+                    "id": uuids[i],
+                    "username": "username" + str(i),
+                    "image": "http://image" + str(i),
+                    "current_task_id": None,
+                }
+            )
 
         not_processing_tasks = list(TASK_STATUS)
         not_processing_tasks.remove(PROCESSING_TASK_STATUS)
@@ -40,8 +30,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": not_processing_tasks[0],
-                "receiver_user_id": 11,
-                "sender_user_id": 12,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[1],
             }
         )
         second_task = Task(
@@ -51,8 +41,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": PROCESSING_TASK_STATUS,
-                "receiver_user_id": 11,
-                "sender_user_id": 13,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[2],
             }
         )
         third_task = Task(
@@ -62,8 +52,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": PROCESSING_TASK_STATUS,
-                "receiver_user_id": 11,
-                "sender_user_id": 13,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[2],
             }
         )
         fourth_task = Task(
@@ -73,8 +63,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": not_processing_tasks[0],
-                "receiver_user_id": 11,
-                "sender_user_id": 12,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[1],
             }
         )
         fifth_task = Task(
@@ -84,8 +74,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": PROCESSING_TASK_STATUS,
-                "receiver_user_id": 11,
-                "sender_user_id": 12,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[1],
             }
         )
         sixth_task = Task(
@@ -95,8 +85,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": not_processing_tasks[0],
-                "receiver_user_id": 11,
-                "sender_user_id": 13,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[2],
             }
         )
         seventh_task = Task(
@@ -106,8 +96,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": PROCESSING_TASK_STATUS,
-                "receiver_user_id": 11,
-                "sender_user_id": 12,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[1],
             }
         )
         eighth_task = Task(
@@ -117,8 +107,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": PROCESSING_TASK_STATUS,
-                "receiver_user_id": 11,
-                "sender_user_id": 12,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[1],
             }
         )
         nineth_task = Task(
@@ -128,8 +118,8 @@ class TestTaskTopologicalSort:
                 "time": datetime.now(),
                 "description": "Описание отсутствует.",
                 "status": PROCESSING_TASK_STATUS,
-                "receiver_user_id": 11,
-                "sender_user_id": 12,
+                "receiver_user_id": uuids[0],
+                "sender_user_id": uuids[1],
             }
         )
 
@@ -165,7 +155,7 @@ class TestTaskTopologicalSort:
 
         assert TaskTopologicalSort().topological_sort(
             Task.query.filter_by(
-                receiver_user_id=11,
+                receiver_user_id=uuids[0],
                 status=PROCESSING_TASK_STATUS,
             ).all()
         ) == [
@@ -177,5 +167,4 @@ class TestTaskTopologicalSort:
             seventh_task,
         ]
 
-        assert TaskTopologicalSort().next_task(11) == third_task
-'''
+        assert TaskTopologicalSort().next_task(uuids[0]) == third_task
