@@ -1,7 +1,7 @@
-'''from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_restful import Resource, Api, reqparse
 from constants import PREFIX_HOST, TASKS_NUMBER_FOR_PAGE, PROCESSING_TASK_STATUS
-from .features import authorization, get_permission
+from .features import authorization_like_user, authorization_like_teammate, get_permission
 from models import db, Task, TaskUser
 from .serializers import task_schema, tasks_schema
 from .celery_tasks import validate_task_data
@@ -22,11 +22,13 @@ class TaskView(Resource):
             return "not found", 404
 
         try:
-            _, user = authorization(request)
+            _, user = authorization_like_user(request)
         except ValueError:
             return "unauthorized", 401
 
-        return task_schema.dump(task)
+        if task.receiver_user == user or task.sender_user == user:
+            return task_schema.dump(task)
+        return "forbidden", 403
 
     def put(self, task_id: int):
         task = Task.query.filter_by(id=task_id).first()
@@ -34,7 +36,7 @@ class TaskView(Resource):
             return "not found", 404
 
         try:
-            _, sender_user = authorization(request)
+            _, sender_user = authorization_like_teammate(request)
         except ValueError:
             return "unauthorized", 401
 
@@ -79,7 +81,7 @@ class TaskView(Resource):
             else:
                 return "bad request", 400
         else:
-            return "unauthorized", 401
+            return "forbidden", 403
 
     def delete(self, task_id):
         task = Task.query.filter_by(id=task_id).first()
@@ -87,7 +89,7 @@ class TaskView(Resource):
             return "not found", 404
 
         try:
-            _, sender_user = authorization(request)
+            _, sender_user = authorization_like_teammate(request)
         except ValueError:
             return "unauthorized", 401
 
@@ -101,7 +103,7 @@ class TaskView(Resource):
 class CurrentTaskView(Resource):
     def get(self):
         try:
-            _, user = authorization(request)
+            _, user = authorization_like_teammate(request)
         except ValueError:
             return "unauthorized", 401
 
@@ -113,7 +115,7 @@ class CurrentTaskView(Resource):
 
     def put(self):
         try:
-            _, user = authorization(request)
+            _, user = authorization_like_teammate(request)
         except ValueError:
             return "unauthorized", 401
 
@@ -132,7 +134,7 @@ class CurrentTaskView(Resource):
 class ProcessingView(Resource):
     def get(self):
         try:
-            _, user = authorization(request)
+            _, user = authorization_like_teammate(request)
         except ValueError:
             return "unauthorized", 401
 
@@ -147,14 +149,13 @@ class ProcessingView(Resource):
 
 class TasksView(Resource):
     def get(self):
-        page = request.args.get("page", type=int)
         try:
-            _, user = authorization(request)
+            _, user = authorization_like_user(request)
         except ValueError:
             return "unauthorized", 401
 
         page = request.args.get("page", type=int)
-        if page == 0:
+        if page <= 0:
             return "bad request", 400
 
         tasks = tasks_schema.dump(
@@ -171,7 +172,7 @@ class TasksView(Resource):
 
     def post(self):
         try:
-            token, sender_user = authorization(request)
+            token, sender_user = authorization_like_teammate(request)
         except ValueError:
             return "unauthorized", 401
 
@@ -237,7 +238,7 @@ class TasksView(Resource):
 class TaskClose(Resource):
     def put(self):
         try:
-            _, user = authorization(request)
+            _, user = authorization_like_teammate(request)
         except ValueError:
             return "unauthorized", 401
 
@@ -253,7 +254,6 @@ class TaskClose(Resource):
 
 api.add_resource(TaskView, PREFIX_HOST+"/task/<int:task_id>/")
 api.add_resource(CurrentTaskView, PREFIX_HOST+"/current_task/")
-api.add_resource(TasksView, PREFIX_HOST+"/tasks/")
 api.add_resource(ProcessingView, PREFIX_HOST+"/processing/")
+api.add_resource(TasksView, PREFIX_HOST+"/tasks/")
 api.add_resource(TaskClose, PREFIX_HOST+"/close/")
-'''

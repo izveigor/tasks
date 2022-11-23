@@ -20,7 +20,6 @@ class TestFeatures:
         client: FlaskClient,
     ):
         mock_get_token.return_value = "11111"
-        print(uuid.uuid4())
         create_user({
             "id": uuid.uuid4(),
             "username": "username",

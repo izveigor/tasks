@@ -5,6 +5,7 @@ from connection.pb import users_pb2_grpc
 from connection.pb.users_pb2 import AuthorizationResponse
 from concurrent import futures
 from constants import USERS_HOST
+import uuid
 
 
 class UsersServicer(users_pb2_grpc.UsersServicer):
@@ -54,3 +55,23 @@ def check_model_fields(model: db.Model, data: dict[Any, Any], *args) -> None:
 
     for key in fields.keys():
         assert fields[key] == data[key]
+
+
+def create_receiver_and_sender_users():
+    receiver_user = {
+        "id": uuid.uuid4(),
+        "username": "username1",
+        "image": "http://image1",
+        "current_task_id": None,
+    }
+    sender_user = {
+        "id": uuid.uuid4(),
+        "username": "username2",
+        "image": "http://image2",
+        "current_task_id": None,
+    }
+
+    create_user(receiver_user)
+    create_user(sender_user)
+
+    return receiver_user, sender_user

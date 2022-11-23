@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 
 from models import db
 
-# from .views import bp_views
+from .views import bp_views
 from .serializers import bp_marhmallow
 from connection.tasks_server import tasks_serve
 from threading import Thread
@@ -24,7 +24,7 @@ def create_app(config: str = "PRODUCTION", **kwargs) -> Flask:
     app.app_context().push()
     db.init_app(app)
     CORS(app)
-    # app.register_blueprint(bp_views)
+    app.register_blueprint(bp_views)
     app.register_blueprint(bp_marhmallow)
     make_celery(app)
     if config != "TESTING":

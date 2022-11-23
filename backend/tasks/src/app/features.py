@@ -18,6 +18,27 @@ def get_token(auth_header) -> str:
     return auth_token
 
 
+def authorization_like_user(request: Request) -> tuple[str, TaskUser]:
+    auth_headers = request.headers.get("Authorization")
+    token = get_token(auth_headers)
+    if not token:
+        raise ValueError()
+    else:
+        users_response = users_client.AuthorizationLikeTeammate(
+            AuthorizationRequest(
+                token=token,
+            )
+        )
+        users_response.is_permission_exist
+        if users_response.is_permission_exist:
+            user = TaskUser.query.filter_by(
+                username=users_response.username,
+            ).first()
+            return (token, user)
+        else:
+            raise ValueError()
+
+
 def authorization_like_teammate(request: Request) -> tuple[str, TaskUser]:
     auth_headers = request.headers.get("Authorization")
     token = get_token(auth_headers)

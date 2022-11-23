@@ -17,6 +17,7 @@ message AuthorizationResponse {
 }
 
 service Users {
+    rpc AuthorizationLikeUser (AuthorizationRequest) returns (AuthorizationResponse);
     rpc AuthorizationLikeTeammate (AuthorizationRequest) returns (AuthorizationResponse);
     rpc CheckPermission (PermissionRequest) returns (AuthorizationResponse);
 }
