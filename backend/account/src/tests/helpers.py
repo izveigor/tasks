@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.db.models import Model
 from typing import Any
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 def check_model_fields(
@@ -16,3 +18,11 @@ def check_model_fields(
 
     for key in fields.keys():
         self.assertEqual(fields[key], data[key])
+
+
+def create_user(user_data):
+    user = User.objects.create_user(
+        **user_data,
+    )
+
+    return user

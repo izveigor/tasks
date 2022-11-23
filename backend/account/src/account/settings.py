@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "users",
+    "teams",
 ]
 
 MIDDLEWARE = [
@@ -87,10 +88,6 @@ DATABASES = {
         "NAME": os.environ.get("POSTGRES_DB", ""),
         "USER": os.environ.get("POSTGRES_USER", ""),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
-        "TEST": {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
     }
 }
 
@@ -155,3 +152,5 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+
+AUTH_USER_MODEL = "users.User"

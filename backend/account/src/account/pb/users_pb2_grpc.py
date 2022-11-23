@@ -5,7 +5,7 @@ import grpc
 from account.pb import users_pb2 as account_dot_pb_dot_users__pb2
 
 
-class TasksStub(object):
+class UsersStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -14,32 +14,33 @@ class TasksStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ConfirmEmail = channel.unary_unary(
-                '/pb.Tasks/ConfirmEmail',
-                request_serializer=account_dot_pb_dot_users__pb2.ConfirmEmailRequest.SerializeToString,
-                response_deserializer=account_dot_pb_dot_users__pb2.ConfirmEmailResponse.FromString,
+        self.AuthorizationLikeUser = channel.unary_unary(
+                '/pb.Users/AuthorizationLikeUser',
+                request_serializer=account_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
+                response_deserializer=account_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
+                )
+        self.AuthorizationLikeTeammate = channel.unary_unary(
+                '/pb.Users/AuthorizationLikeTeammate',
+                request_serializer=account_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
+                response_deserializer=account_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
                 )
         self.CheckPermission = channel.unary_unary(
-                '/pb.Tasks/CheckPermission',
+                '/pb.Users/CheckPermission',
                 request_serializer=account_dot_pb_dot_users__pb2.PermissionRequest.SerializeToString,
-                response_deserializer=account_dot_pb_dot_users__pb2.PermissionResponse.FromString,
-                )
-        self.GetUserFromToken = channel.unary_unary(
-                '/pb.Tasks/GetUserFromToken',
-                request_serializer=account_dot_pb_dot_users__pb2.GetUserFromTokenRequest.SerializeToString,
-                response_deserializer=account_dot_pb_dot_users__pb2.GetUserFromTokenResponse.FromString,
-                )
-        self.GetTokenFromUsername = channel.unary_unary(
-                '/pb.Tasks/GetTokenFromUsername',
-                request_serializer=account_dot_pb_dot_users__pb2.GetTokenFromUsernameRequest.SerializeToString,
-                response_deserializer=account_dot_pb_dot_users__pb2.GetTokenFromUsernameResponse.FromString,
+                response_deserializer=account_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
                 )
 
 
-class TasksServicer(object):
+class UsersServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ConfirmEmail(self, request, context):
+    def AuthorizationLikeUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AuthorizationLikeTeammate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -51,53 +52,36 @@ class TasksServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetUserFromToken(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
 
-    def GetTokenFromUsername(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-
-def add_TasksServicer_to_server(servicer, server):
+def add_UsersServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ConfirmEmail': grpc.unary_unary_rpc_method_handler(
-                    servicer.ConfirmEmail,
-                    request_deserializer=account_dot_pb_dot_users__pb2.ConfirmEmailRequest.FromString,
-                    response_serializer=account_dot_pb_dot_users__pb2.ConfirmEmailResponse.SerializeToString,
+            'AuthorizationLikeUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.AuthorizationLikeUser,
+                    request_deserializer=account_dot_pb_dot_users__pb2.AuthorizationRequest.FromString,
+                    response_serializer=account_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
+            ),
+            'AuthorizationLikeTeammate': grpc.unary_unary_rpc_method_handler(
+                    servicer.AuthorizationLikeTeammate,
+                    request_deserializer=account_dot_pb_dot_users__pb2.AuthorizationRequest.FromString,
+                    response_serializer=account_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
             ),
             'CheckPermission': grpc.unary_unary_rpc_method_handler(
                     servicer.CheckPermission,
                     request_deserializer=account_dot_pb_dot_users__pb2.PermissionRequest.FromString,
-                    response_serializer=account_dot_pb_dot_users__pb2.PermissionResponse.SerializeToString,
-            ),
-            'GetUserFromToken': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetUserFromToken,
-                    request_deserializer=account_dot_pb_dot_users__pb2.GetUserFromTokenRequest.FromString,
-                    response_serializer=account_dot_pb_dot_users__pb2.GetUserFromTokenResponse.SerializeToString,
-            ),
-            'GetTokenFromUsername': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetTokenFromUsername,
-                    request_deserializer=account_dot_pb_dot_users__pb2.GetTokenFromUsernameRequest.FromString,
-                    response_serializer=account_dot_pb_dot_users__pb2.GetTokenFromUsernameResponse.SerializeToString,
+                    response_serializer=account_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'pb.Tasks', rpc_method_handlers)
+            'pb.Users', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Tasks(object):
+class Users(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ConfirmEmail(request,
+    def AuthorizationLikeUser(request,
             target,
             options=(),
             channel_credentials=None,
@@ -107,9 +91,26 @@ class Tasks(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Tasks/ConfirmEmail',
-            account_dot_pb_dot_users__pb2.ConfirmEmailRequest.SerializeToString,
-            account_dot_pb_dot_users__pb2.ConfirmEmailResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/pb.Users/AuthorizationLikeUser',
+            account_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
+            account_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def AuthorizationLikeTeammate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/pb.Users/AuthorizationLikeTeammate',
+            account_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
+            account_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -124,42 +125,8 @@ class Tasks(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Tasks/CheckPermission',
+        return grpc.experimental.unary_unary(request, target, '/pb.Users/CheckPermission',
             account_dot_pb_dot_users__pb2.PermissionRequest.SerializeToString,
-            account_dot_pb_dot_users__pb2.PermissionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetUserFromToken(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Tasks/GetUserFromToken',
-            account_dot_pb_dot_users__pb2.GetUserFromTokenRequest.SerializeToString,
-            account_dot_pb_dot_users__pb2.GetUserFromTokenResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetTokenFromUsername(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Tasks/GetTokenFromUsername',
-            account_dot_pb_dot_users__pb2.GetTokenFromUsernameRequest.SerializeToString,
-            account_dot_pb_dot_users__pb2.GetTokenFromUsernameResponse.FromString,
+            account_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

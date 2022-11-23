@@ -1,4 +1,4 @@
-from users.methods import suggest_username
+'''from users.methods import suggest_username
 from users.serializers import UserSerializer
 from .models import Team, ConfirmEmail, Profile
 from rest_framework import status
@@ -586,3 +586,4 @@ class LeaveTeamView(APIView):
         self.request.user.profile.team = None
         self.request.user.profile.save()
         return Response(status=status.HTTP_200_OK)
+'''

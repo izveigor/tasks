@@ -1,12 +1,14 @@
 from datetime import datetime
-from django.contrib.auth.models import User
-from django.core.files.uploadedfile import SimpleUploadedFile
 from users.models import Profile, ConfirmEmail, Team
-from .base import UnitTest
-from tests.helpers import check_model_fields
+from tests.unit_tests.base import UnitTest
+from tests.helpers import check_model_fields, create_user
 from django.conf import settings
 import datetime
 from account.constants import EXPIRY_TIME, MAX_AVAILABLE_TRIES
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class ModelsTest(UnitTest):
@@ -17,37 +19,6 @@ class ModelsTest(UnitTest):
         "email": "email@email.com",
         "password": "password",
     }
-
-    def _create_user(self) -> None:
-        user = User.objects.create_user(
-            **self.user_data,
-        )
-
-        return user
-
-    def test_team(self) -> None:
-        admin = self._create_user()
-        team_data = {
-            "name": "Команда1",
-            "description": "Мы первая команда!",
-            "admin_id": admin.id,
-        }
-
-        Team.objects.create(
-            **team_data,
-            image=SimpleUploadedFile(
-                name="default.png",
-                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
-                content_type="image/png",
-            ),
-        )
-
-        check_model_fields(
-            self,
-            Team.objects.all()[0],
-            team_data,
-            "image",
-        )
 
     def test_user(self) -> None:
         user_data_for_check = {
@@ -60,7 +31,7 @@ class ModelsTest(UnitTest):
 
         user_data_for_check.pop("password")
 
-        self._create_user()
+        create_user(self.user_data)
         check_model_fields(
             self,
             User.objects.all()[0],
@@ -70,7 +41,7 @@ class ModelsTest(UnitTest):
         )
 
     def test_profile(self) -> None:
-        user = self._create_user()
+        user = create_user(self.user_data)
         profile_data = {
             "user_id": user.id,
             "team_id": None,
@@ -91,7 +62,7 @@ class ModelsTest(UnitTest):
         check_model_fields(self, Profile.objects.all()[0], profile_data, "image")
 
     def test_confirm(self) -> None:
-        user = self._create_user()
+        user = create_user(self.user_data)
         confirm_data = {
             "user_id": user.id,
             "code": "123456",

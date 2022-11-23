@@ -5,7 +5,7 @@ import grpc
 from account.pb import tasks_pb2 as account_dot_pb_dot_tasks__pb2
 
 
-class UsersStub(object):
+class TasksStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,23 +15,23 @@ class UsersStub(object):
             channel: A grpc.Channel.
         """
         self.AddUser = channel.unary_unary(
-                '/pb.Users/AddUser',
+                '/pb.Tasks/AddUser',
                 request_serializer=account_dot_pb_dot_tasks__pb2.UserRequest.SerializeToString,
                 response_deserializer=account_dot_pb_dot_tasks__pb2.UserResponse.FromString,
                 )
         self.ChangeUser = channel.unary_unary(
-                '/pb.Users/ChangeUser',
+                '/pb.Tasks/ChangeUser',
                 request_serializer=account_dot_pb_dot_tasks__pb2.UserRequest.SerializeToString,
                 response_deserializer=account_dot_pb_dot_tasks__pb2.UserResponse.FromString,
                 )
         self.DeleteUser = channel.unary_unary(
-                '/pb.Users/DeleteUser',
+                '/pb.Tasks/DeleteUser',
                 request_serializer=account_dot_pb_dot_tasks__pb2.IDRequest.SerializeToString,
                 response_deserializer=account_dot_pb_dot_tasks__pb2.UserResponse.FromString,
                 )
 
 
-class UsersServicer(object):
+class TasksServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def AddUser(self, request, context):
@@ -53,7 +53,7 @@ class UsersServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_UsersServicer_to_server(servicer, server):
+def add_TasksServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'AddUser': grpc.unary_unary_rpc_method_handler(
                     servicer.AddUser,
@@ -72,12 +72,12 @@ def add_UsersServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'pb.Users', rpc_method_handlers)
+            'pb.Tasks', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Users(object):
+class Tasks(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -91,7 +91,7 @@ class Users(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Users/AddUser',
+        return grpc.experimental.unary_unary(request, target, '/pb.Tasks/AddUser',
             account_dot_pb_dot_tasks__pb2.UserRequest.SerializeToString,
             account_dot_pb_dot_tasks__pb2.UserResponse.FromString,
             options, channel_credentials,
@@ -108,7 +108,7 @@ class Users(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Users/ChangeUser',
+        return grpc.experimental.unary_unary(request, target, '/pb.Tasks/ChangeUser',
             account_dot_pb_dot_tasks__pb2.UserRequest.SerializeToString,
             account_dot_pb_dot_tasks__pb2.UserResponse.FromString,
             options, channel_credentials,
@@ -125,7 +125,7 @@ class Users(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Users/DeleteUser',
+        return grpc.experimental.unary_unary(request, target, '/pb.Tasks/DeleteUser',
             account_dot_pb_dot_tasks__pb2.IDRequest.SerializeToString,
             account_dot_pb_dot_tasks__pb2.UserResponse.FromString,
             options, channel_credentials,

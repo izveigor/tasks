@@ -13,29 +13,19 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x61\x63\x63ount/pb/users.proto\x12\x02pb\"E\n\x11PermissionRequest\x12\x18\n\x10receiverUsername\x18\x01 \x01(\t\x12\x16\n\x0esenderUsername\x18\x02 \x01(\t\"1\n\x12PermissionResponse\x12\x1b\n\x13is_permission_exist\x18\x01 \x01(\x08\"\'\n\x13\x43onfirmEmailRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"3\n\x14\x43onfirmEmailResponse\x12\x1b\n\x13is_permission_exist\x18\x01 \x01(\x08\"(\n\x17GetUserFromTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\",\n\x18GetUserFromTokenResponse\x12\x10\n\x08username\x18\x01 \x01(\t\"/\n\x1bGetTokenFromUsernameRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"-\n\x1cGetTokenFromUsernameResponse\x12\r\n\x05token\x18\x01 \x01(\t2\xb6\x02\n\x05Tasks\x12\x41\n\x0c\x43onfirmEmail\x12\x17.pb.ConfirmEmailRequest\x1a\x18.pb.ConfirmEmailResponse\x12@\n\x0f\x43heckPermission\x12\x15.pb.PermissionRequest\x1a\x16.pb.PermissionResponse\x12M\n\x10GetUserFromToken\x12\x1b.pb.GetUserFromTokenRequest\x1a\x1c.pb.GetUserFromTokenResponse\x12Y\n\x14GetTokenFromUsername\x12\x1f.pb.GetTokenFromUsernameRequest\x1a .pb.GetTokenFromUsernameResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x61\x63\x63ount/pb/users.proto\x12\x02pb\"%\n\x14\x41uthorizationRequest\x12\r\n\x05token\x18\x01 \x01(\t\"B\n\x11PermissionRequest\x12\x18\n\x10receiverUsername\x18\x02 \x01(\t\x12\x13\n\x0bsenderToken\x18\x01 \x01(\t\"F\n\x15\x41uthorizationResponse\x12\x1b\n\x13is_permission_exist\x18\x02 \x01(\x08\x12\x10\n\x08username\x18\x01 \x01(\t2\xec\x01\n\x05Users\x12L\n\x15\x41uthorizationLikeUser\x12\x18.pb.AuthorizationRequest\x1a\x19.pb.AuthorizationResponse\x12P\n\x19\x41uthorizationLikeTeammate\x12\x18.pb.AuthorizationRequest\x1a\x19.pb.AuthorizationResponse\x12\x43\n\x0f\x43heckPermission\x12\x15.pb.PermissionRequest\x1a\x19.pb.AuthorizationResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'account.pb.users_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _PERMISSIONREQUEST._serialized_start=30
-  _PERMISSIONREQUEST._serialized_end=99
-  _PERMISSIONRESPONSE._serialized_start=101
-  _PERMISSIONRESPONSE._serialized_end=150
-  _CONFIRMEMAILREQUEST._serialized_start=152
-  _CONFIRMEMAILREQUEST._serialized_end=191
-  _CONFIRMEMAILRESPONSE._serialized_start=193
-  _CONFIRMEMAILRESPONSE._serialized_end=244
-  _GETUSERFROMTOKENREQUEST._serialized_start=246
-  _GETUSERFROMTOKENREQUEST._serialized_end=286
-  _GETUSERFROMTOKENRESPONSE._serialized_start=288
-  _GETUSERFROMTOKENRESPONSE._serialized_end=332
-  _GETTOKENFROMUSERNAMEREQUEST._serialized_start=334
-  _GETTOKENFROMUSERNAMEREQUEST._serialized_end=381
-  _GETTOKENFROMUSERNAMERESPONSE._serialized_start=383
-  _GETTOKENFROMUSERNAMERESPONSE._serialized_end=428
-  _TASKS._serialized_start=431
-  _TASKS._serialized_end=741
+  _AUTHORIZATIONREQUEST._serialized_start=30
+  _AUTHORIZATIONREQUEST._serialized_end=67
+  _PERMISSIONREQUEST._serialized_start=69
+  _PERMISSIONREQUEST._serialized_end=135
+  _AUTHORIZATIONRESPONSE._serialized_start=137
+  _AUTHORIZATIONRESPONSE._serialized_end=207
+  _USERS._serialized_start=210
+  _USERS._serialized_end=446
 # @@protoc_insertion_point(module_scope)

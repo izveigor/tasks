@@ -7,20 +7,16 @@ from account.constants import (
 )
 from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 import re
 from enum import Enum
 from dataclasses import dataclass
+import uuid
+from django.contrib.auth.models import AbstractUser
+from teams.models import Team
 
 
-class Team(models.Model):
-    name = models.CharField("Название команды:", max_length=30, unique=True)
-    description = models.TextField("Описание команды:", max_length=1500)
-    image = models.ImageField("Изображение команды:", upload_to="images")
-    admin = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
+class User(AbstractUser):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
 
 class Profile(models.Model):
