@@ -10,21 +10,22 @@ import (
 )
 
 func TestAddNotification(t *testing.T) {
-	ConnectToMongo()
 	defer func() {
 		notificationsCollection.Drop(context.TODO())
 		tokensCollection.Drop(context.TODO())
 	}()
+	ConnectToMongo()
 
-	var notification = &Notification{
+	notification := Notification{
+		Image:  "image",
 		Text:   "Внимание!",
 		Time:   time.Date(2009, time.November, 10, 23, 0, 10, 0, time.UTC),
 		Tokens: []string{"a", "b"},
 	}
 
-	AddNotification(*notification)
+	AddNotification(notification)
 
-	notificationsFilter := bson.D{{"title", "Уведомление 1"}}
+	notificationsFilter := bson.D{{"text", "Внимание!"}}
 	var notificationsResult Notification
 	notificationsErr := notificationsCollection.FindOne(context.TODO(), notificationsFilter).Decode(&notificationsResult)
 	if notificationsErr != nil {
@@ -39,7 +40,7 @@ func TestAddNotification(t *testing.T) {
 	}
 
 	assert.Equal(t, tokensResult.Number, 1)
-	assert.Equal(t, notification, &notificationsResult)
+	assert.Equal(t, notification, notificationsResult)
 }
 
 func TestGetLastNotifications(t *testing.T) {
