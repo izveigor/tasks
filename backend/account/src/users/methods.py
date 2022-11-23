@@ -1,5 +1,7 @@
 import re
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 DIGITS_PATTERN = "^[0-9]+$"
 DIGIT_PATTERN = "[0-9]"
@@ -21,6 +23,9 @@ def suggest_username(username):
     users = User.objects.filter(username__contains=username_without_digits).order_by(
         "username"
     )
+    if username_without_digits == username:
+        return username + "1"
+
     for counter, user in enumerate(users, start=1):
         try:
             number = int(user.username[len(username_without_digits) :])
