@@ -192,6 +192,43 @@ class AuthorizationWithEmail(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class ConfirmEmailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        confirm = ConfirmEmail.objects.get(user=self.request.user)
+        serializer = serializers.EmailAvailableTriesSerializer(confirm)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        serializer = serializers.EmailCodeSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=False)
+        code = serializer.data["code"]
+        response = {}
+        confirm_email = ConfirmEmail.objects.get(user=self.request.user)
+
+        expiry = confirm_email.expiry
+        timedelta = datetime.timedelta(
+            hours=expiry.hour,
+            minutes=expiry.minute,
+            seconds=expiry.second,
+        )
+
+        if timezone.now() <= (self.request.user.date_joined + timedelta):
+            if confirm_email.code == code:
+                response["confirmed"] = True
+                confirm_email.confirmed = True
+            else:
+                response["confirmed"] = False
+                confirm_email.available_tries -= 1
+                response["available_tries"] = confirm_email.available_tries
+            confirm_email.save()
+
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 '''
 class UserView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
@@ -328,45 +365,6 @@ class TeamsView(APIView):
         )
 
         return Response(status=status.HTTP_201_CREATED)
-
-
-class ConfirmEmailView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, format=None):
-        confirm = ConfirmEmail.objects.get(user=self.request.user)
-        serializer = serializers.AvailableTriesSerializer(confirm)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, format=None):
-        serializer = serializers.ConfirmEmailSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=False)
-        code = serializer.data["code"]
-        response = {}
-        confirm_email = ConfirmEmail.objects.get(
-            user=self.request.user,
-        )
-
-        expiry = confirm_email.expiry
-        timedelta = datetime.timedelta(
-            hours=expiry.hour,
-            minutes=expiry.minute,
-            seconds=expiry.second,
-        )
-
-        if timezone.now() <= (self.request.user.date_joined + timedelta):
-            if confirm_email.code == code:
-                response["confirmed"] = True
-                confirm_email.confirmed = True
-            else:
-                response["confirmed"] = False
-                confirm_email.available_tries -= 1
-                response["available_tries"] = confirm_email.available_tries
-            confirm_email.save()
-
-            return Response(response, status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class JoinTeamView(APIView):

@@ -136,6 +136,18 @@ class EmailSerializer(serializers.ModelSerializer):
         fields = ["email"]
 
 
+class EmailAvailableTriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConfirmEmail
+        fields = ["available_tries"]
+
+
+class EmailCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConfirmEmail
+        fields = ["code"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -192,12 +204,6 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = ["name", "description", "image"]
 
 
-class ConfirmEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ConfirmEmail
-        fields = ["code"]
-
-
 class GroupPutSerializer(serializers.Serializer):
     supervisor_username = serializers.CharField(
         write_only=True,
@@ -242,12 +248,6 @@ class GroupDeleteSerializer(serializers.Serializer):
             return serializers.ValidationError("Имя пользователя не было найдено.")
 
         return kwargs
-
-
-class AvailableTriesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ConfirmEmail
-        fields = ["available_tries"]
 
 
 class AvatarSerializer(serializers.ModelSerializer):

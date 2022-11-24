@@ -341,35 +341,34 @@ class TestAuthorizationWithEmail(UnitTest):
         self.assertEqual(authorized_response.status_code, 200)
 
 
-'''
 class TestConfirmEmailView(UnitTest):
-    def test_post_if_code_is_right(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-
-        user = User.objects.create_user(
-            **user_data,
+    def test_get(self):
+        user = User.objects.create_user(**user_data)
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
         )
 
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        response = self.client.get(TEST_PREFIX_HOST+"confirm_email/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["available_tries"], 3)
+
+    def test_post_if_code_is_right(self):
+        user = User.objects.create_user(**user_data)
+
         ConfirmEmail.objects.create(
-            code=123456,
+            code="123456",
             user=user,
         )
 
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.post(
-            "/confirm_email/",
-            data=json.dumps(
-                {
-                    "code": 123456,
-                }
-            ),
+            TEST_PREFIX_HOST+"confirm_email/",
+            data=json.dumps({"code": "123456"}),
             content_type="application/json",
         )
 
@@ -377,32 +376,18 @@ class TestConfirmEmailView(UnitTest):
         self.assertTrue(response.data["confirmed"])
 
     def test_post_if_code_is_wrong(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-
-        user = User.objects.create_user(
-            **user_data,
-        )
+        user = User.objects.create_user(**user_data)
 
         ConfirmEmail.objects.create(
-            code=123456,
+            code="123456",
             user=user,
         )
 
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.post(
-            "/confirm_email/",
-            data=json.dumps(
-                {
-                    "code": 123457,
-                }
-            ),
+            TEST_PREFIX_HOST+"confirm_email/",
+            data=json.dumps({"code": "123457"}),
             content_type="application/json",
         )
 
@@ -412,39 +397,27 @@ class TestConfirmEmailView(UnitTest):
         self.assertEqual(response.data["available_tries"], 2)
 
     def test_post_if_expiry(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-
-        user_data["date_joined"] = datetime.datetime(1970, 1, 1)
-        user = User.objects.create_user(
-            **user_data,
-        )
+        changed_user_data = user_data.copy()
+        changed_user_data["date_joined"] = datetime.datetime(1970, 1, 1)
+        user = User.objects.create_user(**changed_user_data)
 
         ConfirmEmail.objects.create(
-            code=123456,
+            code="123456",
             user=user,
         )
 
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.post(
-            "/confirm_email/",
-            data=json.dumps(
-                {
-                    "code": 123456,
-                }
-            ),
+            TEST_PREFIX_HOST+"confirm_email/",
+            data=json.dumps({"code": "123456"}),
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 400)
 
 
+'''
 class TestTeamView(UnitTest):
     def test_get(self):
         user_data = {

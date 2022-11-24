@@ -22,10 +22,11 @@ class TestAuthorizationLikeTeammate(UnitTest):
     def test_get(self):
         admin = User.objects.create_user(**user_data)
 
-        user_data["email"] = "email1@email.com"
-        user_data["username"] = "username1"
+        changed_user_data = user_data.copy()
+        changed_user_data["email"] = "email1@email.com"
+        changed_user_data["username"] = "username1"
 
-        user = User.objects.create_user(**user_data)
+        user = User.objects.create_user(**changed_user_data)
         token = Token.objects.create(user=user)
 
         for u in [user, admin]:
@@ -111,10 +112,11 @@ class TestAuthorizationLikeCreator(UnitTest):
     def test_get(self):
         user = User.objects.create_user(**user_data)
 
-        user_data["email"] = "email1@email.com"
-        user_data["username"] = "username2"
+        changed_user_data = user_data.copy()
+        changed_user_data["email"] = "email1@email.com"
+        changed_user_data["username"] = "username2"
 
-        supervisor = User.objects.create_user(**user_data)
+        supervisor = User.objects.create_user(**changed_user_data)
         token = Token.objects.create(user=supervisor)
 
         ConfirmEmail.objects.create(

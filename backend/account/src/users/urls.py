@@ -14,11 +14,12 @@ urlpatterns = [
 
     path("authorization/", views.Authorization.as_view()),
     path("authorization_with_email/", views.AuthorizationWithEmail.as_view()),
+
+    path("confirm_email/", views.ConfirmEmailView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 '''
     path("avatar/", views.AvatarView.as_view()),
     path("authorization_with_email/", views.CheckAuthorizationWithEmail.as_view()),
-    path("confirm_email/", views.ConfirmEmailView.as_view()),
     path("team/", views.TeamView.as_view()),
     path("teams/", views.TeamsView.as_view()),
     path("profile/<int:user_id>", views.ProfileView.as_view()),
