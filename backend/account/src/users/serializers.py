@@ -162,6 +162,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["job_title", "description", "image", "user"]
 
 
+class AvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ["image"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -248,9 +254,3 @@ class GroupDeleteSerializer(serializers.Serializer):
             return serializers.ValidationError("Имя пользователя не было найдено.")
 
         return kwargs
-
-
-class AvatarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ["image"]

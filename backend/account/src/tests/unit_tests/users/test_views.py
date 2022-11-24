@@ -522,6 +522,25 @@ class TestSettingsView(UnitTest):
         mock_tasks_client_DeleteUser.assert_called_once_with(UserRequest(id=str(user.id)))
 
 
+class TestAvatarView(UnitTest):
+    def test_get(self):
+        user = User.objects.create_user(**user_data)
+        Profile.objects.create(user=user)
+
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
+            confirmed=True,
+        )
+
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        response = self.client.get(TEST_PREFIX_HOST+"avatar/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["image"], "/images/default.png")
+
 '''
 class TestTeamView(UnitTest):
     def test_get(self):

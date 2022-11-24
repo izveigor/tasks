@@ -258,6 +258,14 @@ class SettingsProfileView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class AvatarView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission]
+
+    def get(self, request, format=None):
+        serializer = serializers.AvatarSerializer(self.request.user.profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 '''
 class UserView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
@@ -269,14 +277,6 @@ class UserView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = serializers.UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class AvatarView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def get(self, request, format=None):
-        serializer = serializers.AvatarSerializer(self.request.user.profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
