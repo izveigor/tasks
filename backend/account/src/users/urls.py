@@ -10,12 +10,12 @@ urlpatterns = [
     path("change_username/", views.ChangeUsernameView.as_view()),
     path("change_password/", views.ChangePasswordView.as_view()),
     path("check_username/", views.CheckUsernameView.as_view()),
+    path("check_email/", views.CheckEmailView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 '''
     path("authorization/", views.CheckAuthorization.as_view()),
     path("avatar/", views.AvatarView.as_view()),
     path("authorization_with_email/", views.CheckAuthorizationWithEmail.as_view()),
-    path("check_email/", views.CheckEmailView.as_view()),
     path("check_team_name/", views.CheckTeamNameView.as_view()),
     path("confirm_email/", views.ConfirmEmailView.as_view()),
     path("team/", views.TeamView.as_view()),

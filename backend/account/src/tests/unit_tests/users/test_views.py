@@ -281,34 +281,30 @@ class TestCheckUsernameView(UnitTest):
         self.assertEqual(first_response.data["available"], "username1")
         self.assertFalse(second_response.data["exist"])
 
-'''
+
 class TestCheckEmailView(UnitTest):
     def test_post(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
         User.objects.create_user(**user_data)
 
         first_response = self.client.post(
-            "/check_email/",
+            TEST_PREFIX_HOST+"check_email/",
             data=json.dumps({"email": "email@email.com"}),
             content_type="application/json",
         )
 
         second_response = self.client.post(
-            "/check_email/",
+            TEST_PREFIX_HOST+"check_email/",
             data=json.dumps({"email": "new@email.email"}),
             content_type="application/json",
         )
 
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+
         self.assertTrue(first_response.data["exist"])
         self.assertFalse(second_response.data["exist"])
 
-
+'''
 class TestCheckTeamNameView(UnitTest):
     def test_post(self):
         user_data = {

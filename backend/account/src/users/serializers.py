@@ -129,6 +129,12 @@ class UsernameSerializer(serializers.ModelSerializer):
         fields = ["username"]
 
 
+class EmailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -155,12 +161,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["job_title", "description", "image", "user"]
-
-
-class CheckEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["email"]
 
 
 class CreateTeamSerializer(serializers.ModelSerializer):

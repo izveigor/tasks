@@ -169,6 +169,21 @@ class CheckUsernameView(APIView):
 
         return Response(response, status=status.HTTP_200_OK)
 
+
+class CheckEmailView(APIView):
+    def post(self, request, format=None):
+        serializer = serializers.EmailSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=False)
+        email = serializer.data["email"]
+        response = {}
+        if User.objects.filter(email=email).exists():
+            response["exist"] = True
+        else:
+            response["exist"] = False
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
 '''
 class CheckAuthorization(APIView):
     permission_classes = [IsAuthenticated]
@@ -266,20 +281,6 @@ class SettingsProfileView(APIView):
             )
         )
         return Response(status=status.HTTP_200_OK)
-
-
-class CheckEmailView(APIView):
-    def post(self, request, format=None):
-        serializer = serializers.CheckEmailSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=False)
-        email = serializer.data["email"]
-        response = {}
-        if User.objects.filter(email=email).exists():
-            response["exist"] = True
-        else:
-            response["exist"] = False
-
-        return Response(response, status=status.HTTP_200_OK)
 
 
 class CheckTeamView(APIView):
