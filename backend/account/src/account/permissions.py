@@ -9,11 +9,7 @@ class EmailPermission(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        try:
-            email = ConfirmEmail.objects.get(user=request.user)
-        except ConfirmEmail.DoesNotExist:
-            return False
-
+        email = request.user.confirm_email
         return email.confirmed
 
 
@@ -23,12 +19,12 @@ class AdminTeamPermission(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        try:
-            request.team = Team.objects.get(admin=request.user)
-        except Team.DoesNotExist:
+        request.team = request.user.profile.team
+        if request.team is None:
             return False
-        else:
+        if request.user == request.team.admin:
             return True
+        return False
 
 
 class TeamPermission(permissions.BasePermission):
@@ -49,13 +45,14 @@ class CreatorTeamPermission(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        try:
-            Team.objects.get(admin=request.user)
-        except Team.DoesNotExist:
+        request.team = request.user.profile.team
+        if request.team is None:
+            return False
+
+        if request.user == request.team.admin:
+            return True
+        else:
             subordinates = request.user.profile.get_subordinates()
             if subordinates:
                 return True
-            else:
-                return False
-        else:
-            return True
+            return False

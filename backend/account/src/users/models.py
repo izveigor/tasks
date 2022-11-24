@@ -68,6 +68,7 @@ class ConfirmEmail(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name="confirm_email",
     )
     code = models.CharField("Код:", max_length=6)
     expiry = models.TimeField("Срок истечения:", default=EXPIRY_TIME)

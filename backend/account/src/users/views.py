@@ -21,7 +21,8 @@ from rest_framework.authtoken.models import Token
 from account.tasks_client import tasks_client
 from account.pb.tasks_pb2 import UserRequest
 from django.contrib.auth import get_user_model
-from account.permissions import AdminTeamPermission
+from account.permissions import AdminTeamPermission, CreatorTeamPermission
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -312,6 +313,31 @@ class GroupView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class SuggestEmployeeView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission, CreatorTeamPermission]
+
+    def post(self, request, format=None):
+        serializer = serializers.UsernameSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data["username"]
+        if request.team.admin == self.request.team.admin:
+            user = User.objects.filter(
+                Q(profile__team=request.team)
+                & Q(username__icontains=username)
+            ).first()
+        else:
+            user = User.objects.filter(
+                Q(profile__team=request.team)
+                & Q(username__icontains=username)
+                & Q(profile__supervisor=self.request.user)
+            ).first()
+
+        if user is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user_serializer = serializers.UserWithImageSerializer(user.profile)
+        return Response(user_serializer.data, status=status.HTTP_200_OK)
+
+
 '''
 class UserView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
@@ -380,25 +406,6 @@ class UserTeamView(APIView):
 
         user.delete()
         return Response(status=status.HTTP_200_OK)
-
-
-class SuggestEmployeeView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
-
-    def post(self, request, format=None):
-        serializer = serializers.UsernameSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data["username"]
-        try:
-            user = User.objects.filter(
-                Q(profile__team=request.team)
-                & (Q(username__icontains=username) | Q(username__iexact=username))
-            ).first()
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        user_serializer = serializers.UserWithImageSerializer(user.profile)
-        return Response(user_serializer.data, status=status.HTTP_200_OK)
 
 
 class LeaveTeamView(APIView):

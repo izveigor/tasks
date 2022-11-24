@@ -95,7 +95,7 @@ class TestAuthorizationLikeAdmin(UnitTest):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_admin/")
 
-        Team.objects.create(
+        team = Team.objects.create(
             name="Название",
             description="Описание.",
             admin=admin,
@@ -106,6 +106,9 @@ class TestAuthorizationLikeAdmin(UnitTest):
             ),
         )
 
+        admin.profile.team = team
+        admin.profile.save()
+
         authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_admin/")
 
         self.assertEqual(unauthorized_response.status_code, 403)
@@ -114,13 +117,19 @@ class TestAuthorizationLikeAdmin(UnitTest):
 
 class TestAuthorizationLikeCreator(UnitTest):
     def test_get(self):
-        user = User.objects.create_user(**user_data)
+        admin = User.objects.create_user(**user_data)
 
-        changed_user_data = user_data.copy()
-        changed_user_data["email"] = "email1@email.com"
-        changed_user_data["username"] = "username2"
+        first_changed_user_data = user_data.copy()
+        first_changed_user_data["email"] = "email1@email.com"
+        first_changed_user_data["username"] = "username1"
 
-        supervisor = User.objects.create_user(**changed_user_data)
+        user = User.objects.create_user(**first_changed_user_data)
+
+        second_changed_user_data = user_data.copy()
+        second_changed_user_data["email"] = "email2@email.com"
+        second_changed_user_data["username"] = "username2"
+
+        supervisor = User.objects.create_user(**second_changed_user_data)
         token = Token.objects.create(user=supervisor)
 
         ConfirmEmail.objects.create(
@@ -146,6 +155,20 @@ class TestAuthorizationLikeCreator(UnitTest):
                 content_type="image/png",
             ),
         )
+
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        supervisor.profile.team = team
+        supervisor.profile.save()
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_creator/")
@@ -197,13 +220,14 @@ class TestTeamView(UnitTest):
     def test_get(self):
         user = User.objects.create_user(**user_data)
 
+        Profile.objects.create(user=user)
         ConfirmEmail.objects.create(
             code="123456",
             user=user,
             confirmed=True,
         )
 
-        Team.objects.create(
+        team = Team.objects.create(
             name="Название",
             description="Описание.",
             admin=user,
@@ -213,6 +237,9 @@ class TestTeamView(UnitTest):
                 content_type="image/png",
             ),
         )
+
+        user.profile.team = team
+        user.profile.save()
 
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
@@ -228,13 +255,14 @@ class TestTeamView(UnitTest):
     def test_put(self):
         user = User.objects.create_user(**user_data)
 
+        Profile.objects.create(user=user)
         ConfirmEmail.objects.create(
             code="123456",
             user=user,
             confirmed=True,
         )
 
-        Team.objects.create(
+        team = Team.objects.create(
             name="Название",
             description="Описание.",
             admin=user,
@@ -244,6 +272,9 @@ class TestTeamView(UnitTest):
                 content_type="image/png",
             ),
         )
+
+        user.profile.team = team
+        user.profile.save()
 
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
@@ -294,6 +325,9 @@ class TestTeamView(UnitTest):
                 content_type="image/png",
             ),
         )
+
+        admin.profile.team = team
+        admin.profile.save()
 
         for user in [first_user, second_user]:
             user.profile.team = team

@@ -1,5 +1,4 @@
 from .models import Profile, ConfirmEmail
-from teams.models import Team
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .methods import suggest_username
@@ -149,7 +148,7 @@ class EmailCodeSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["first_name", "last_name"]
+        fields = ["first_name", "last_name", "username"]
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -205,21 +204,9 @@ class GroupDeleteSerializer(serializers.Serializer):
         return kwargs
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["username", "first_name", "last_name", "email"]
-
-
 class UserWithImageSerializer(serializers.ModelSerializer):
     user = UserProfileSerializer()
 
     class Meta:
         model = Profile
         fields = ["image", "user"]
-
-
-class TeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = ["name", "description", "image"]

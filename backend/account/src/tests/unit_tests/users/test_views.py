@@ -582,6 +582,9 @@ class TestGroupView(UnitTest):
             admin=admin,
         )
 
+        admin.profile.team = team
+        admin.profile.save()
+
         Profile.objects.create(
             user=supervisor_user,
             team=team,
@@ -660,6 +663,9 @@ class TestGroupView(UnitTest):
             admin=admin,
         )
 
+        admin.profile.team = team
+        admin.profile.save()
+
         Profile.objects.create(
             user=supervisor_user,
             supervisor=subordinate_user,
@@ -732,6 +738,9 @@ class TestGroupView(UnitTest):
             admin=admin,
         )
 
+        admin.profile.team = team
+        admin.profile.save()
+
         Profile.objects.create(
             user=supervisor_user,
             team=team,
@@ -803,6 +812,9 @@ class TestGroupView(UnitTest):
             admin=admin,
         )
 
+        admin.profile.team = team
+        admin.profile.save()
+
         Profile.objects.create(
             user=user,
             supervisor=supervisor_user,
@@ -826,3 +838,143 @@ class TestGroupView(UnitTest):
 
         profile = Profile.objects.get(user=user)
         self.assertIsNone(profile.supervisor_id)
+
+
+class TestSuggestEmployeeView(UnitTest):
+    def test_post_if_admin(self):
+        admin = User.objects.create_user(**user_data)
+
+        changed_user_data = user_data.copy()
+        changed_user_data["email"] = "email1@email.com"
+        changed_user_data["username"] = "username1"
+
+        teammate = User.objects.create_user(**changed_user_data)
+
+        for user in [admin, teammate]:
+            Profile.objects.create(user=user)
+            ConfirmEmail.objects.create(
+                code="123456",
+                user=user,
+                confirmed=True,
+            )
+
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        admin.profile.team = team
+        admin.profile.save()
+        teammate.profile.team = team
+        teammate.profile.save()
+
+        token = Token.objects.create(user=admin)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        first_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_employee/",
+            data=json.dumps({"username": teammate.username}),
+            content_type="application/json",
+        )
+
+        second_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_employee/",
+            data=json.dumps({"username": teammate.username[:3]}),
+            content_type="application/json",
+        )
+
+        third_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_employee/",
+            data=json.dumps({"username": "Wrong name"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertEqual(third_response.status_code, 400)
+
+        self.assertEqual(first_response.data["user"]["first_name"], teammate.first_name)
+        self.assertEqual(first_response.data["user"]["last_name"], teammate.last_name)
+        self.assertEqual(first_response.data["user"]["username"], teammate.username)
+
+        self.assertEqual(second_response.data["user"]["first_name"], teammate.first_name)
+        self.assertEqual(second_response.data["user"]["last_name"], teammate.last_name)
+        self.assertEqual(second_response.data["user"]["username"], teammate.username)
+
+    def test_post_if_not_admin(self):
+        admin = User.objects.create_user(**user_data)
+
+        first_changed_user_data = user_data.copy()
+        first_changed_user_data["email"] = "email1@email.com"
+        first_changed_user_data["username"] = "username1"
+
+        teammate = User.objects.create_user(**first_changed_user_data)
+
+        second_changed_user_data = user_data.copy()
+        second_changed_user_data["email"] = "email1@email.com"
+        second_changed_user_data["username"] = "username2"
+
+        supervisor = User.objects.create_user(**second_changed_user_data)
+
+        for user in [admin, teammate, supervisor]:
+            Profile.objects.create(user=user)
+            ConfirmEmail.objects.create(
+                code="123456",
+                user=user,
+                confirmed=True,
+            )
+
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        for user in [admin, teammate, supervisor]:
+            user.profile.team = team
+            user.profile.save()
+
+        teammate.profile.supervisor = supervisor
+        teammate.profile.save()
+
+        token = Token.objects.create(user=supervisor)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        first_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_employee/",
+            data=json.dumps({"username": teammate.username}),
+            content_type="application/json",
+        )
+
+        second_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_employee/",
+            data=json.dumps({"username": teammate.username[:3]}),
+            content_type="application/json",
+        )
+
+        third_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_employee/",
+            data=json.dumps({"username": "Wrong name"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertEqual(third_response.status_code, 400)
+
+        self.assertEqual(first_response.data["user"]["first_name"], teammate.first_name)
+        self.assertEqual(first_response.data["user"]["last_name"], teammate.last_name)
+        self.assertEqual(first_response.data["user"]["username"], teammate.username)
+
+        self.assertEqual(second_response.data["user"]["first_name"], teammate.first_name)
+        self.assertEqual(second_response.data["user"]["last_name"], teammate.last_name)
+        self.assertEqual(second_response.data["user"]["username"], teammate.username)
