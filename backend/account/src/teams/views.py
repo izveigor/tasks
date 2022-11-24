@@ -144,3 +144,19 @@ class AcceptIntoTeamView(APIView):
         )
 
         return Response(status=status.HTTP_200_OK)
+
+
+class SuggestTeamView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission]
+
+    def post(self, request, format=None):
+        serializer = serializers.TeamNameSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        name = serializer.validated_data["name"]
+        try:
+            team = Team.objects.get(name__icontains=name)
+        except Team.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        team_serializer = serializers.TeamSerializer(team)
+        return Response(team_serializer.data, status=status.HTTP_200_OK)

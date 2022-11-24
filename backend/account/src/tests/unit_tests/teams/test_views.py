@@ -430,3 +430,55 @@ class TestAcceptIntoTeamView(UnitTest):
                 tokens=[user_token.key],
             )
         )
+
+
+class TestSuggestTeamView(UnitTest):
+    def test_post(self):
+        admin = User.objects.create_user(**user_data)
+        Profile.objects.create(user=admin)
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=admin,
+            confirmed=True,
+        )
+
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        token = Token.objects.create(user=admin)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        first_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_team/",
+            data=json.dumps({"name": team.name}),
+            content_type="application/json",
+        )
+
+        second_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_team/",
+            data=json.dumps({"name": team.name[:3]}),
+            content_type="application/json",
+        )
+
+        third_response = self.client.post(
+            TEST_PREFIX_HOST+"suggest_team/",
+            data=json.dumps({"name": "Wrong name"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertEqual(third_response.status_code, 400)
+
+        self.assertEqual(first_response.data["name"], team.name)
+        self.assertEqual(first_response.data["description"], team.description)
+
+        self.assertEqual(second_response.data["name"], team.name)
+        self.assertEqual(second_response.data["description"], team.description)

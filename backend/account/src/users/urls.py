@@ -25,7 +25,6 @@ urlpatterns = [
     path("profile/<int:user_id>", views.ProfileView.as_view()),
     path("user_team/<str:username>", views.UserTeamView.as_view()),
     path("suggest_employee/", views.SuggestEmployeeView.as_view()),
-    path("suggest_team/", views.SuggestTeamView.as_view()),
     path("leave_team/", views.LeaveTeamView.as_view()),
 ]
 '''
