@@ -541,6 +541,7 @@ class TestAvatarView(UnitTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["image"], "/images/default.png")
 
+
 '''
 class TestViews(UnitTest):
     def test_post(self):
@@ -581,46 +582,6 @@ class TestViews(UnitTest):
         self.assertEqual(team.name, "Название")
         self.assertEqual(team.description, "Описание.")
         self.assertEqual(team.admin, user)
-
-
-class TestProfileView(UnitTest):
-    def test_get(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-
-        user = User.objects.create_user(
-            **user_data,
-        )
-
-        Profile.objects.create(
-            user=user,
-        )
-
-        ConfirmEmail.objects.create(
-            code=123456,
-            user=user,
-            confirmed=True,
-        )
-
-        token = Token.objects.create(user=user)
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-
-        response = self.client.get(
-            "/profile/1",
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(response.data["job_title"], DEFAULT_PROFILE_JOB_TITLE)
-        self.assertEqual(response.data["description"], DEFAULT_PROFILE_DESCRIPTION)
-
-        self.assertEqual(response.data["user"]["first_name"], "first name")
-        self.assertEqual(response.data["user"]["last_name"], "last name")
 
 
 class TestGroupView(UnitTest):

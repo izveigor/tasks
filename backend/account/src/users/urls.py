@@ -22,7 +22,6 @@ urlpatterns = [
 '''
     path("teams/", views.TeamsView.as_view()),
     path("profile/<int:user_id>", views.ProfileView.as_view()),
-    path("join/", views.JoinTeamView.as_view()),
     path("accept/", views.AcceptIntoTeamView.as_view()),
     path("group/", views.GroupView.as_view()),
     path("user_team/<str:username>", views.UserTeamView.as_view()),

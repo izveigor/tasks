@@ -10,7 +10,10 @@ from account.permissions import (
     TeamPermission,
     CreatorTeamPermission,
 )
-from users.models import Profile
+from google.protobuf.timestamp_pb2 import Timestamp
+from rest_framework.authtoken.models import Token
+from account.notifications_client import notifications_client
+from account.pb.notifications_pb2 import NotificationRequest
 
 
 class AuthorizationLikeTeammate(APIView):
@@ -38,7 +41,7 @@ class CheckTeamNameView(APIView):
     def post(self, request, format=None):
         serializer = serializers.TeamNameSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=False)
-        name = serializer.data["name"]
+        name = serializer.validated_data["name"]
         response = {}
         if Team.objects.filter(name=name).exists():
             response["exist"] = True
@@ -69,4 +72,34 @@ class TeamView(APIView):
             profile.save()
 
         request.team.delete()
+        return Response(status=status.HTTP_200_OK)
+
+
+class JoinTeamView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission]
+
+    def put(self, request, format=None):
+        serializer = serializers.TeamNameSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        name = serializer.validated_data["name"]
+
+        try:
+            team = Team.objects.get(name=name)
+        except Team.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        token = Token.objects.get(user=team.admin)
+
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+
+        notifications_client.Notify(
+            NotificationRequest(
+                text=f'Пользователь "{self.request.user.username}" хочет присоединиться к вашей команде!',
+                image=self.request.user.profile.image.url,
+                time=timestamp,
+                tokens=[token.key],
+            )
+        )
+
         return Response(status=status.HTTP_200_OK)

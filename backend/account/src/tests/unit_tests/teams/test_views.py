@@ -7,6 +7,10 @@ from account.constants import TEST_PREFIX_HOST
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 import json
+from unittest.mock import patch, Mock
+from account.pb.notifications_pb2 import NotificationRequest
+from google.protobuf.timestamp_pb2 import Timestamp
+
 
 User = get_user_model()
 user_data = {
@@ -305,3 +309,62 @@ class TestTeamView(UnitTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(Team.objects.all()), 0)
         self.assertIsNone(Profile.objects.get(user__username="username1").supervisor)
+
+
+class TestJoinTeamView(UnitTest):
+    @patch("users.views.Timestamp.GetCurrentTime")
+    @patch("users.views.Timestamp.__init__", return_value=None)
+    @patch("teams.views.notifications_client.Notify")
+    def test_put(
+        self,
+        mock_notifications_client_Notify: Mock,
+        mock_timestamp__init__: Mock,
+        mock_timestamp_GetCurrentTime: Mock,
+    ):
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+        mock_timestamp_GetCurrentTime.return_value = timestamp
+
+        admin = User.objects.create(**user_data)
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        changed_user_data = user_data.copy()
+        changed_user_data["email"] = "email1@email.com"
+        changed_user_data["username"] = "username1"
+
+        user = User.objects.create(**changed_user_data)
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
+            confirmed=True,
+        )
+
+        user_token = Token.objects.create(user=user)
+        Profile.objects.create(user=user)
+        admin_token = Token.objects.create(user=admin)
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + user_token.key)
+        response = self.client.put(
+            TEST_PREFIX_HOST+"join/",
+            data=json.dumps({"name": team.name}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        mock_notifications_client_Notify.assert_called_once_with(
+            NotificationRequest(
+                text=f'Пользователь "{user.username}" хочет присоединиться к вашей команде!',
+                image=user.profile.image.url,
+                time=timestamp,
+                tokens=[admin_token.key],
+            )
+        )

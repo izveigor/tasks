@@ -2,10 +2,8 @@ from rest_framework import serializers
 from .models import Team
 
 
-class TeamNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = ["name"]
+class TeamNameSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=30, write_only=True)
 
 
 class TeamSerializer(serializers.ModelSerializer):

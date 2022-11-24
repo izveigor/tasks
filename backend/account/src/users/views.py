@@ -280,20 +280,6 @@ class UserView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ProfileView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def get(self, request, user_id, format=None):
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        profile = user.profile
-        serializer = serializers.ProfileSerializer(profile)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class TeamsView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
 
@@ -324,36 +310,6 @@ class TeamsView(APIView):
         )
 
         return Response(status=status.HTTP_201_CREATED)
-
-
-class JoinTeamView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def put(self, request, format=None):
-        serializer = serializers.TeamNameSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        name = serializer.validated_data["name"]
-
-        try:
-            team = Team.objects.get(name=name)
-        except Team.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        token = Token.objects.get(user=team.admin)
-
-        timestamp = Timestamp()
-        timestamp.GetCurrentTime()
-
-        notifications_client.Notify(
-            NotificationRequest(
-                text=f'Пользователь "{self.request.user.username}" хочет присоединиться к вашей команде!',
-                image=self.request.user.profile.image.url,
-                time=timestamp,
-                tokens=[token.key],
-            )
-        )
-
-        return Response(status=status.HTTP_200_OK)
 
 
 class AcceptIntoTeamView(APIView):
