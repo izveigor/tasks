@@ -124,10 +124,8 @@ class ChangePasswordSerializer(serializers.Serializer):
         return kwargs
 
 
-class UsernameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["username"]
+class UsernameSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
 
 
 class EmailSerializer(serializers.ModelSerializer):

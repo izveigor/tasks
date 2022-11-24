@@ -362,9 +362,71 @@ class TestJoinTeamView(UnitTest):
         self.assertEqual(response.status_code, 200)
         mock_notifications_client_Notify.assert_called_once_with(
             NotificationRequest(
-                text=f'Пользователь "{user.username}" хочет присоединиться к вашей команде!',
+                text=f'Пользователь "{user.username}" хочет присоединиться к вашей команде.',
                 image=user.profile.image.url,
                 time=timestamp,
                 tokens=[admin_token.key],
+            )
+        )
+
+
+class TestAcceptIntoTeamView(UnitTest):
+    @patch("users.views.Timestamp.GetCurrentTime")
+    @patch("users.views.Timestamp.__init__", return_value=None)
+    @patch("teams.views.notifications_client.Notify")
+    def test_put(
+        self,
+        mock_notifications_client_Notify: Mock,
+        mock_timestamp__init__: Mock,
+        mock_timestamp_GetCurrentTime: Mock,
+    ):
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+        mock_timestamp_GetCurrentTime.return_value = timestamp
+
+        admin = User.objects.create_user(**user_data)
+
+        changed_user_data = user_data.copy()
+        changed_user_data["email"] = "email1@email.com"
+        changed_user_data["username"] = "username1"
+
+        joined_user = User.objects.create_user(**changed_user_data)
+
+        admin_token = Token.objects.create(user=admin)
+        user_token = Token.objects.create(user=joined_user)
+
+        for user in [admin, joined_user]:
+            Profile.objects.create(user=user)
+            ConfirmEmail.objects.create(
+                code="123456",
+                user=user,
+                confirmed=True,
+            )
+
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + admin_token.key)
+        response = self.client.put(
+            TEST_PREFIX_HOST+"accept/",
+            data=json.dumps({"username": joined_user.username}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        mock_notifications_client_Notify.assert_called_once_with(
+            NotificationRequest(
+                text=f'Вы присоединились к команде "{team.name}".',
+                image=team.image.url,
+                time=timestamp,
+                tokens=[user_token.key],
             )
         )

@@ -312,43 +312,6 @@ class TeamsView(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class AcceptIntoTeamView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def put(self, request, format=None):
-        try:
-            team = Team.objects.get(admin=self.request.user)
-        except Team.DoesNotExist:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        serializer = serializers.UsernameSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data["username"]
-
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        user.profile.team = team
-        user.save()
-
-        timestamp = Timestamp()
-        timestamp.GetCurrentTime()
-
-        token = Token.objects.get(user=user)
-        notifications_client.Notify(
-            NotificationRequest(
-                text=f'Пользователь "{self.request.user.username}" хочет присоединиться к вашей команде!',
-                image=self.request.user.profile.image.url,
-                time=timestamp,
-                tokens=[token.key],
-            )
-        )
-
-        return Response(status=status.HTTP_200_OK)
-
-
 class GroupView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
 

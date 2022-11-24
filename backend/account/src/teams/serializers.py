@@ -3,7 +3,7 @@ from .models import Team
 
 
 class TeamNameSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=30, write_only=True)
+    name = serializers.CharField(max_length=30)
 
 
 class TeamSerializer(serializers.ModelSerializer):
