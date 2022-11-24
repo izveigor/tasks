@@ -6,9 +6,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("login/", views.LoginView.as_view()),
-]
-'''
     path("register/", views.RegisterView.as_view()),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+'''
     path("authorization/", views.CheckAuthorization.as_view()),
     path("avatar/", views.AvatarView.as_view()),
     path("authorization_with_email/", views.CheckAuthorizationWithEmail.as_view()),
@@ -33,5 +33,5 @@ urlpatterns = [
     path("suggest_employee/", views.SuggestEmployeeView.as_view()),
     path("suggest_team/", views.SuggestTeamView.as_view()),
     path("leave_team/", views.LeaveTeamView.as_view()),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 '''

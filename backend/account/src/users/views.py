@@ -4,7 +4,6 @@ from .models import Team, ConfirmEmail, Profile
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.contrib.auth.models import User
 from django.http import Http404
 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -34,6 +33,11 @@ from account.constants import DEFAULT_PROFILE_IMAGE
 from django.db.models import Q
 from google.protobuf.timestamp_pb2 import Timestamp
 from rest_framework.authtoken.models import Token
+from account.tasks_client import tasks_client
+from account.pb.tasks_pb2 import UserRequest
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class LoginView(APIView):
@@ -44,7 +48,7 @@ class LoginView(APIView):
         token = Token.objects.get_or_create(user=user)
         return Response({"token": token[0].key}, status=status.HTTP_200_OK)
 
-'''
+
 class RegisterView(APIView):
     def post(self, request, format=None):
         serializer = serializers.RegisterSerializer(data=self.request.data)
@@ -64,9 +68,9 @@ class RegisterView(APIView):
             user=user,
         )
 
-        users_client.AddUser(
+        tasks_client.AddUser(
             UserRequest(
-                id=user.id,
+                id=str(user.id),
                 image=user.profile.image.url,
                 username=user.username,
             )
@@ -92,7 +96,7 @@ class RegisterView(APIView):
 
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
-
+'''
 class CheckAuthorization(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -1,9 +1,10 @@
 from .models import Profile, Team, ConfirmEmail
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .methods import suggest_username
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, write_only=True)
@@ -39,11 +40,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["first_name", "last_name", "username", "email", "password"]
 
     def validate(self, kwargs):
-        first_name = kwargs["first_name"]
-        last_name = kwargs["last_name"]
-        username = kwargs["username"]
-        email = kwargs["email"]
-        password = kwargs["password"]
+        first_name = kwargs.get("first_name")
+        last_name = kwargs.get("last_name")
+        username = kwargs.get("username")
+        email = kwargs.get("email")
+        password = kwargs.get("password")
         msg = ""
 
         if not first_name:

@@ -17,6 +17,9 @@ from account.constants import (
 import datetime
 from unittest.mock import patch, Mock
 from django.contrib.auth import get_user_model
+from account.pb.tasks_pb2 import UserRequest
+from account.pb.notifications_pb2 import NotificationRequest
+from google.protobuf.timestamp_pb2 import Timestamp
 
 User = get_user_model()
 
@@ -46,25 +49,34 @@ class TestLoginView(UnitTest):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data["token"])
 
-'''
+
 class TestRegisterView(UnitTest):
-    @patch("users.views.users_client.AddUser")
+    @patch("users.views.Timestamp.GetCurrentTime")
+    @patch("users.views.Timestamp.__init__", return_value=None)
+    @patch("users.views.notifications_client.Notify")
+    @patch("users.views.tasks_client.AddUser")
     @patch("users.views.send_mail")
     def test_post(
         self,
         mock_send_mail: Mock,
-        mock_users_client_AddUser_mock: Mock,
+        mock_tasks_client_AddUser: Mock,
+        mock_notifications_client_Notify: Mock,
+        mock_timestamp__init__: Mock,
+        mock_timestamp_GetCurrentTime: Mock,
     ):
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+        mock_timestamp_GetCurrentTime.return_value = timestamp
         user_data = {
             "first_name": "first name",
             "last_name": "last name",
             "email": "email@email.com",
-            "username": "username",
+            "username": "username1",
             "password": "password",
         }
 
         response = self.client.post(
-            "/register/",
+            TEST_PREFIX_HOST+"register/",
             data=json.dumps(user_data),
             content_type="application/json",
         )
@@ -79,15 +91,29 @@ class TestRegisterView(UnitTest):
         self.assertRegex(str(confirm_email.code), "^[0-9]{6}$")
         self.assertEqual(confirm_email.expiry, EXPIRY_TIME)
         self.assertEqual(confirm_email.available_tries, MAX_AVAILABLE_TRIES)
-        self.assertEqual(confirm_email.user_id, 1)
+        self.assertEqual(confirm_email.user_id, user_model.id)
 
         self.assertEqual(profile.job_title, DEFAULT_PROFILE_JOB_TITLE)
         self.assertEqual(profile.description, DEFAULT_PROFILE_DESCRIPTION)
-        self.assertEqual(profile.user_id, 1)
+        self.assertEqual(profile.user_id, user_model.id)
 
-        mock_users_client_AddUser_mock.assert_called_once_with(
-            UserRequest(id=user_model.id, username=user_model.username)
+        mock_tasks_client_AddUser.assert_called_once_with(
+            UserRequest(
+                id=str(user_model.id),
+                image=user_model.profile.image.url,
+                username=user_model.username,
+            )
         )
+
+        mock_notifications_client_Notify.assert_called_once_with(
+            NotificationRequest(
+                text="Вы успешно зарегистрировались.",
+                image=user_model.profile.image.url,
+                time=timestamp,
+                tokens=[response.data["token"]],
+            )
+        )
+
         mock_send_mail.assert_called_once_with(
             "Подтверждение email",
             f"Введите этот код: {confirm_email.code}",
@@ -107,7 +133,7 @@ class TestRegisterView(UnitTest):
             "date_joined",
         )
 
-
+'''
 class TestChangeUsernameView(UnitTest):
     @patch("users.views.users_client.ChangeUser")
     def test_put(
