@@ -123,6 +123,12 @@ class ChangePasswordSerializer(serializers.Serializer):
         return kwargs
 
 
+class UsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -149,12 +155,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["job_title", "description", "image", "user"]
-
-
-class CheckUsernameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["username"]
 
 
 class CheckEmailSerializer(serializers.ModelSerializer):
@@ -201,12 +201,6 @@ class ConfirmEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConfirmEmail
         fields = ["code"]
-
-
-class UsernameSerializer(serializers.Serializer):
-    username = serializers.CharField(
-        write_only=True,
-    )
 
 
 class GroupPutSerializer(serializers.Serializer):

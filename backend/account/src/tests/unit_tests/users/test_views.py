@@ -258,6 +258,29 @@ class TestChangePasswordView(UnitTest):
         )
 
 
+class TestCheckUsernameView(UnitTest):
+    def test_post(self):
+        User.objects.create_user(**user_data)
+
+        first_response = self.client.post(
+            TEST_PREFIX_HOST+"check_username/",
+            data=json.dumps({"username": "username"}),
+            content_type="application/json",
+        )
+
+        second_response = self.client.post(
+            TEST_PREFIX_HOST+"check_username/",
+            data=json.dumps({"username": "username1"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+
+        self.assertTrue(first_response.data["exist"])
+        self.assertEqual(first_response.data["available"], "username1")
+        self.assertFalse(second_response.data["exist"])
+
 '''
 class TestCheckEmailView(UnitTest):
     def test_post(self):
@@ -283,42 +306,6 @@ class TestCheckEmailView(UnitTest):
         )
 
         self.assertTrue(first_response.data["exist"])
-        self.assertFalse(second_response.data["exist"])
-
-
-class TestCheckUsernameView(UnitTest):
-    def test_post(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-        User.objects.create_user(**user_data)
-
-        first_response = self.client.post(
-            "/check_username/",
-            data=json.dumps(
-                {
-                    "username": "username",
-                }
-            ),
-            content_type="application/json",
-        )
-
-        second_response = self.client.post(
-            "/check_username/",
-            data=json.dumps(
-                {
-                    "username": "username1",
-                }
-            ),
-            content_type="application/json",
-        )
-
-        self.assertTrue(first_response.data["exist"])
-        self.assertEqual(first_response.data["available"], "username2")
         self.assertFalse(second_response.data["exist"])
 
 
