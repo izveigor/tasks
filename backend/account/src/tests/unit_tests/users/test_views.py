@@ -1,5 +1,4 @@
-'''from .base import UnitTest
-from django.contrib.auth.models import User
+from tests.unit_tests.base import UnitTest
 import json
 from tests.helpers import check_model_fields
 from rest_framework.authtoken.models import Token
@@ -12,10 +11,14 @@ from account.constants import (
     EXPIRY_TIME,
     DEFAULT_PROFILE_DESCRIPTION,
     DEFAULT_PROFILE_JOB_TITLE,
+    PREFIX_HOST,
+    TEST_PREFIX_HOST,
 )
 import datetime
 from unittest.mock import patch, Mock
-from users.pb.users_pb2 import UserRequest
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class TestLoginView(UnitTest):
@@ -30,7 +33,7 @@ class TestLoginView(UnitTest):
         User.objects.create_user(**user_data)
 
         response = self.client.post(
-            "/login/",
+            TEST_PREFIX_HOST+"login/",
             data=json.dumps(
                 {
                     "username": user_data["username"],
@@ -43,7 +46,7 @@ class TestLoginView(UnitTest):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.data["token"])
 
-
+'''
 class TestRegisterView(UnitTest):
     @patch("users.views.users_client.AddUser")
     @patch("users.views.send_mail")

@@ -14,3 +14,5 @@ TASKS_HOST = os.environ.get("TASKS_HOST")
 USERS_HOST = os.environ.get("USERS_HOST")
 
 FRONTEND_HOST = "localhost:3000"
+PREFIX_HOST = "account/"
+TEST_PREFIX_HOST = "/account/"

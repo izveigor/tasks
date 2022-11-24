@@ -1,4 +1,4 @@
-'''from django.urls import path
+from django.urls import path
 from users import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("login/", views.LoginView.as_view()),
+]
+'''
     path("register/", views.RegisterView.as_view()),
     path("authorization/", views.CheckAuthorization.as_view()),
     path("avatar/", views.AvatarView.as_view()),

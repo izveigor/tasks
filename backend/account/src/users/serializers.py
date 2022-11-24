@@ -6,13 +6,8 @@ from .methods import suggest_username
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(
-        write_only=True,
-    )
-
-    password = serializers.CharField(
-        write_only=True,
-    )
+    username = serializers.CharField(max_length=150, write_only=True)
+    password = serializers.CharField(write_only=True)
 
     def validate(self, kwargs):
         username = kwargs.get("username")

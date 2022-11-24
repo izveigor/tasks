@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .constants import PREFIX_HOST
 
 urlpatterns = [
-    # path("account/", include("users.urls")),
+    path(PREFIX_HOST, include("users.urls")),
     path("admin/", admin.site.urls),
 ]

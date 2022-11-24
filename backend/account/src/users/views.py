@@ -1,4 +1,4 @@
-'''from users.methods import suggest_username
+from users.methods import suggest_username
 from users.serializers import UserSerializer
 from .models import Team, ConfirmEmail, Profile
 from rest_framework import status
@@ -29,7 +29,6 @@ from .permissions import (
 from .notifications_client import notifications_client
 from .users_client import users_client
 from account.pb.notifications_pb2 import NotificationRequest
-from account.pb.users_pb2 import UserRequest
 import json
 from account.constants import DEFAULT_PROFILE_IMAGE
 from django.db.models import Q
@@ -45,7 +44,7 @@ class LoginView(APIView):
         token = Token.objects.get_or_create(user=user)
         return Response({"token": token[0].key}, status=status.HTTP_200_OK)
 
-
+'''
 class RegisterView(APIView):
     def post(self, request, format=None):
         serializer = serializers.RegisterSerializer(data=self.request.data)
