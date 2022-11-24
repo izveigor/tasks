@@ -96,6 +96,39 @@ class RegisterView(APIView):
 
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
+
+class ChangeUsernameView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission]
+
+    def put(self, request, format=None):
+        serializer = serializers.ChangeUsernameSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data["username"]
+        self.request.user.username = username
+        self.request.user.save()
+
+        tasks_client.ChangeUser(
+            UserRequest(
+                id=str(self.request.user.id),
+                image=self.request.user.profile.image.url,
+                username=self.request.user.username,
+            )
+        )
+
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+
+        notifications_client.Notify(
+            NotificationRequest(
+                text="Имя пользователя было успешно изменено.",
+                image=self.request.user.profile.image.url,
+                time=timestamp,
+                tokens=[str(self.request.auth)],
+            )
+        )
+
+        return Response(None, status.HTTP_200_OK)
+
 '''
 class CheckAuthorization(APIView):
     permission_classes = [IsAuthenticated]
@@ -240,39 +273,6 @@ class ChangePasswordView(APIView):
         notifications_client.Notify(
             NotificationRequest(
                 text="Пароль был успешно изменен.",
-                image=self.request.user.profile.image.url,
-                time=timestamp,
-                tokens=[self.request.auth],
-            )
-        )
-
-        return Response(None, status.HTTP_204_NO_CONTENT)
-
-
-class ChangeUsernameView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def put(self, request, format=None):
-        serializer = serializers.ChangeUsernameSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data["username"]
-        self.request.user.username = username
-        self.request.user.save()
-
-        users_client.ChangeUser(
-            UserRequest(
-                id=self.request.user.id,
-                image=self.request.user.profile.image.url,
-                username=self.request.user.username,
-            )
-        )
-
-        timestamp = Timestamp()
-        timestamp.GetCurrentTime()
-
-        notifications_client.Notify(
-            NotificationRequest(
-                text="Имя пользователя было успешно изменено.",
                 image=self.request.user.profile.image.url,
                 time=timestamp,
                 tokens=[self.request.auth],

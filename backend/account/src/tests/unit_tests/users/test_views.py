@@ -22,17 +22,17 @@ from account.pb.notifications_pb2 import NotificationRequest
 from google.protobuf.timestamp_pb2 import Timestamp
 
 User = get_user_model()
+user_data = {
+    "first_name": "first name",
+    "last_name": "last name",
+    "email": "email@email.com",
+    "username": "username",
+    "password": "password",
+}
 
 
 class TestLoginView(UnitTest):
     def test_post(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
         User.objects.create_user(**user_data)
 
         response = self.client.post(
@@ -67,13 +67,6 @@ class TestRegisterView(UnitTest):
         timestamp = Timestamp()
         timestamp.GetCurrentTime()
         mock_timestamp_GetCurrentTime.return_value = timestamp
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username1",
-            "password": "password",
-        }
 
         response = self.client.post(
             TEST_PREFIX_HOST+"register/",
@@ -133,20 +126,22 @@ class TestRegisterView(UnitTest):
             "date_joined",
         )
 
-'''
+
 class TestChangeUsernameView(UnitTest):
-    @patch("users.views.users_client.ChangeUser")
+    @patch("users.views.Timestamp.GetCurrentTime")
+    @patch("users.views.Timestamp.__init__", return_value=None)
+    @patch("users.views.notifications_client.Notify")
+    @patch("users.views.tasks_client.ChangeUser")
     def test_put(
         self,
-        users_client_ChangeUser_mock: Mock,
+        mock_tasks_client_ChangeUser: Mock,
+        mock_notifications_client_Notify: Mock,
+        mock_timestamp__init__: Mock,
+        mock_timestamp_GetCurrentTime: Mock,
     ):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+        mock_timestamp_GetCurrentTime.return_value = timestamp
 
         user = User.objects.create_user(**user_data)
 
@@ -156,10 +151,19 @@ class TestChangeUsernameView(UnitTest):
             confirmed=True,
         )
 
+        Profile.objects.create(
+            user=user,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            "/change_username/",
+            TEST_PREFIX_HOST+"change_username/",
             data=json.dumps(
                 {
                     "username": "username1",
@@ -169,14 +173,28 @@ class TestChangeUsernameView(UnitTest):
         )
 
         updated_user = User.objects.all()[0]
-        users_client_ChangeUser_mock.assert_called_once_with(
-            UserRequest(id=updated_user.id, username=updated_user.username)
-        )
 
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(updated_user.username, "username1")
 
+        mock_tasks_client_ChangeUser.assert_called_once_with(
+            UserRequest(
+                id=str(updated_user.id),
+                image=updated_user.profile.image.url,
+                username=updated_user.username,
+            )
+        )
 
+        mock_notifications_client_Notify.assert_called_once_with(
+            NotificationRequest(
+                text="Имя пользователя было успешно изменено.",
+                image=updated_user.profile.image.url,
+                time=timestamp,
+                tokens=[token.key],
+            )
+        )
+
+'''
 class TestChangePasswordView(UnitTest):
     def test_put(self):
         user_data = {

@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, write_only=True)
     password = serializers.CharField(write_only=True)
@@ -77,6 +78,29 @@ class RegisterSerializer(serializers.ModelSerializer):
         return kwargs
 
 
+class ChangeUsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username"]
+
+    def validate(self, kwargs):
+        username = kwargs.get("username")
+        msg = ""
+        if not username:
+            msg = "Имя пользователя не должно быть пустым"
+        elif User.objects.filter(username=username).exists():
+            available_username = suggest_username(username)
+            if available_username:
+                msg = f'Такое имя пользователя уже существует! Доступное имя: "{available_username}".'
+            else:
+                msg = "Такое имя пользователя уже существует!"
+
+        if msg:
+            raise serializers.ValidationError(msg)
+
+        return kwargs
+
+
 class ChangePasswordSerializer(serializers.Serializer):
     password = serializers.CharField(
         label="Password",
@@ -100,29 +124,6 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError(msg)
         elif password != repeated_password:
             msg = "Пароль должен совпадать с повторным паролем"
-            raise serializers.ValidationError(msg)
-
-        return kwargs
-
-
-class ChangeUsernameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["username"]
-
-    def validate(self, kwargs):
-        username = kwargs.get("username")
-        msg = ""
-        if not username:
-            msg = "Имя пользователя не должно быть пустым"
-        elif User.objects.filter(username=username).exists():
-            available_username = suggest_username(username)
-            if available_username:
-                msg = f'Такое имя пользователя уже существует! Доступное имя: "{available_username}".'
-            else:
-                msg = "Такое имя пользователя уже существует!"
-
-        if msg:
             raise serializers.ValidationError(msg)
 
         return kwargs
