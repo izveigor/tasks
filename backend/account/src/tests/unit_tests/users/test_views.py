@@ -417,6 +417,111 @@ class TestConfirmEmailView(UnitTest):
         self.assertEqual(response.status_code, 400)
 
 
+class TestSettingsView(UnitTest):
+    def test_get(self):
+        user = User.objects.create_user(**user_data)
+
+        Profile.objects.create(
+                user=user,
+                job_title="Должность",
+                description="Описание отсутствует.",
+        )
+
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
+            confirmed=True,
+        )
+
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        response = self.client.get(TEST_PREFIX_HOST+"settings/")
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.data["job_title"], "Должность")
+        self.assertEqual(response.data["description"], "Описание отсутствует.")
+        self.assertEqual(response.data["user"]["first_name"], "first name")
+        self.assertEqual(response.data["user"]["last_name"], "last name")
+
+    @patch("users.views.tasks_client.ChangeUser")
+    def test_put(
+        self,
+        mock_tasks_client_ChangeUser: Mock,
+    ):
+        user = User.objects.create_user(**user_data)
+        Profile.objects.create(user=user)
+
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
+            confirmed=True,
+        )
+
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        changed_data = {
+            "job_title": "Должность",
+            "description": "Новое описание.",
+            "first_name": "Иван",
+            "last_name": "Иванов",
+            "image": SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        }
+
+        response = self.client.put(
+            TEST_PREFIX_HOST+"settings/",
+            data=changed_data,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        updated_user = User.objects.all()[0]
+        profile_model = Profile.objects.all()[0]
+
+        self.assertEqual(updated_user.first_name, changed_data["first_name"])
+        self.assertEqual(updated_user.last_name, changed_data["last_name"])
+
+        self.assertEqual(profile_model.job_title, changed_data["job_title"])
+        self.assertEqual(profile_model.description, changed_data["description"])
+
+        mock_tasks_client_ChangeUser.assert_called_once_with(
+            UserRequest(
+                id=str(updated_user.id),
+                image=updated_user.profile.image.url,
+                username=updated_user.username,
+            )
+        )
+
+    @patch("users.views.tasks_client.DeleteUser")
+    def test_delete(
+        self,
+        mock_tasks_client_DeleteUser: Mock,
+    ):
+        user = User.objects.create_user(**user_data)
+        Profile.objects.create(user=user)
+
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
+            confirmed=True,
+        )
+
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        response = self.client.delete(TEST_PREFIX_HOST+"settings/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(User.objects.all()), 0)
+
+        mock_tasks_client_DeleteUser.assert_called_once_with(UserRequest(id=str(user.id)))
+
+
 '''
 class TestTeamView(UnitTest):
     def test_get(self):
@@ -624,113 +729,6 @@ class TestProfileView(UnitTest):
 
         self.assertEqual(response.data["user"]["first_name"], "first name")
         self.assertEqual(response.data["user"]["last_name"], "last name")
-
-
-class TestSettingsView(UnitTest):
-    def test_put(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-
-        user = User.objects.create_user(
-            **user_data,
-        )
-
-        Profile.objects.create(
-            user=user,
-        )
-
-        ConfirmEmail.objects.create(
-            code=123456,
-            user=user,
-            confirmed=True,
-        )
-
-        token = Token.objects.create(user=user)
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-
-        changed_data = {
-            "job_title": "Должность",
-            "description": "Новое описание.",
-            "user": {
-                "first_name": "Иван",
-                "last_name": "Иванов",
-            },
-        }
-
-        response = self.client.put(
-            "/settings/",
-            data=json.dumps(changed_data),
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 200)
-        user_model = User.objects.all()[0]
-        profile_model = Profile.objects.all()[0]
-
-        self.assertEqual(user_model.first_name, changed_data["user"]["first_name"])
-        self.assertEqual(user_model.last_name, changed_data["user"]["last_name"])
-
-        self.assertEqual(profile_model.job_title, changed_data["job_title"])
-        self.assertEqual(profile_model.description, changed_data["description"])
-
-    @patch("users.views.users_client.DeleteUser")
-    def test_delete(
-        self,
-        users_client_DeleteUser_mock: Mock,
-    ):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-
-        user = User.objects.create_user(
-            **user_data,
-        )
-
-        Profile.objects.create(
-            user=user,
-        )
-
-        ConfirmEmail.objects.create(
-            code=123456,
-            user=user,
-            confirmed=True,
-        )
-
-        token = Token.objects.create(user=user)
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-
-        changed_data = {
-            "job_title": "Должность",
-            "description": "Новое описание.",
-            "user": {
-                "first_name": "Иван",
-                "last_name": "Иванов",
-            },
-        }
-
-        response = self.client.delete(
-            "/settings/",
-            data=json.dumps(changed_data),
-            content_type="application/json",
-        )
-
-        users_client_DeleteUser_mock.assert_called_once_with(
-            UserRequest(
-                id=user.id,
-            )
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(User.objects.all()), 0)
 
 
 class TestGroupView(UnitTest):

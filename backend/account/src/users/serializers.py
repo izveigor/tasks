@@ -148,24 +148,10 @@ class EmailCodeSerializer(serializers.ModelSerializer):
         fields = ["code"]
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["username", "first_name", "last_name", "email"]
-
-
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "username"]
-
-
-class UserWithImageSerializer(serializers.ModelSerializer):
-    user = UserProfileSerializer()
-
-    class Meta:
-        model = Profile
-        fields = ["image", "user"]
+        fields = ["first_name", "last_name"]
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -174,6 +160,20 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["job_title", "description", "image", "user"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email"]
+
+
+class UserWithImageSerializer(serializers.ModelSerializer):
+    user = UserProfileSerializer()
+
+    class Meta:
+        model = Profile
+        fields = ["image", "user"]
 
 
 class CreateTeamSerializer(serializers.ModelSerializer):

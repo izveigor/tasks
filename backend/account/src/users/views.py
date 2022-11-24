@@ -229,6 +229,44 @@ class ConfirmEmailView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class SettingsProfileView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission]
+
+    def get(self, request, format=None):
+        profile = self.request.user.profile
+        serializer = serializers.ProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, format=None):
+        profile = self.request.user.profile
+        profile.job_title = self.request.data["job_title"]
+        profile.description = self.request.data["description"]
+        profile.image = self.request.data["image"]
+        profile.save()
+
+        self.request.user.first_name = self.request.data["first_name"]
+        self.request.user.last_name = self.request.data["last_name"]
+        self.request.user.save()
+
+        tasks_client.ChangeUser(
+            UserRequest(
+                id=str(self.request.user.id),
+                image=self.request.user.profile.image.url,
+                username=self.request.user.username,
+            )
+        )
+
+        return Response(status=status.HTTP_200_OK)
+
+    def delete(self, request, format=None):
+        user = self.request.user
+        user_id = str(user.id)
+        user.delete()
+
+        tasks_client.DeleteUser(UserRequest(id=user_id))
+        return Response(status=status.HTTP_200_OK)
+
+
 '''
 class UserView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
@@ -263,48 +301,6 @@ class ProfileView(APIView):
         profile = user.profile
         serializer = serializers.ProfileSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class SettingsProfileView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def get(self, request, format=None):
-        profile = self.request.user.profile
-        serializer = serializers.ProfileSerializer(profile)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, format=None):
-        profile = self.request.user.profile
-        profile.job_title = self.request.data["job_title"]
-        profile.description = self.request.data["description"]
-        profile.image = self.request.data["image"]
-        profile.save()
-
-        self.request.user.first_name = self.request.data["first_name"]
-        self.request.user.last_name = self.request.data["last_name"]
-        self.request.user.save()
-
-        users_client.ChangeUser(
-            UserRequest(
-                id=self.request.user.id,
-                image=self.request.user.profile.image.url,
-                username=self.request.user.username,
-            )
-        )
-
-        return Response(status=status.HTTP_200_OK)
-
-    def delete(self, request, format=None):
-        user = self.request.user
-        user_id = user.id
-        user.delete()
-
-        users_client.DeleteUser(
-            UserRequest(
-                id=user_id,
-            )
-        )
-        return Response(status=status.HTTP_200_OK)
 
 
 class CheckCreatorTeamView(APIView):
