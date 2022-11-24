@@ -330,20 +330,6 @@ class TeamsView(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class CheckTeamNameView(APIView):
-    def post(self, request, format=None):
-        serializer = serializers.TeamNameSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=False)
-        name = serializer.data["name"]
-        response = {}
-        if Team.objects.filter(name=name).exists():
-            response["exist"] = True
-        else:
-            response["exist"] = False
-
-        return Response(response, status=status.HTTP_200_OK)
-
-
 class ConfirmEmailView(APIView):
     permission_classes = [IsAuthenticated]
 

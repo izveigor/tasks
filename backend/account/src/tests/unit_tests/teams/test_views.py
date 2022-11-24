@@ -6,6 +6,7 @@ from teams.models import Team
 from account.constants import TEST_PREFIX_HOST
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
+import json
 
 User = get_user_model()
 user_data = {
@@ -150,3 +151,37 @@ class TestAuthorizationLikeCreator(UnitTest):
 
         self.assertEqual(unauthorized_response.status_code, 403)
         self.assertEqual(authorized_response.status_code, 200)
+
+
+class TestCheckTeamNameView(UnitTest):
+    def test_post(self):
+        user = User.objects.create_user(**user_data)
+
+        Team.objects.create(
+            name="name",
+            description="Описание команды",
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+            admin=user,
+        )
+
+        first_response = self.client.post(
+            TEST_PREFIX_HOST+"check_team_name/",
+            data=json.dumps({"name": "name"}),
+            content_type="application/json",
+        )
+
+        second_response = self.client.post(
+            TEST_PREFIX_HOST+"check_team_name/",
+            data=json.dumps({"name": "name1"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+
+        self.assertTrue(first_response.data["exist"])
+        self.assertFalse(second_response.data["exist"])

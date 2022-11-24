@@ -1,4 +1,5 @@
-from .models import Profile, Team, ConfirmEmail
+from .models import Profile, ConfirmEmail
+from teams.models import Team
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .methods import suggest_username
@@ -183,12 +184,6 @@ class CreateTeamSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(msg)
 
         return kwargs
-
-
-class TeamNameSerializer(serializers.Serializer):
-    name = serializers.CharField(
-        write_only=True,
-    )
 
 
 class TeamSerializer(serializers.ModelSerializer):

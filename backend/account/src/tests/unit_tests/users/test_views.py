@@ -342,52 +342,6 @@ class TestAuthorizationWithEmail(UnitTest):
 
 
 '''
-class TestCheckTeamNameView(UnitTest):
-    def test_post(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-        user = User.objects.create_user(**user_data)
-
-        Team.objects.create(
-            name="name",
-            description="Описание команды",
-            image=SimpleUploadedFile(
-                name="default.png",
-                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
-                content_type="image/png",
-            ),
-            admin=user,
-        )
-
-        first_response = self.client.post(
-            "/check_team/",
-            data=json.dumps(
-                {
-                    "name": "name",
-                }
-            ),
-            content_type="application/json",
-        )
-
-        second_response = self.client.post(
-            "/check_team/",
-            data=json.dumps(
-                {
-                    "name": "name1",
-                }
-            ),
-            content_type="application/json",
-        )
-
-        self.assertTrue(first_response.data["exist"])
-        self.assertFalse(second_response.data["exist"])
-
-
 class TestConfirmEmailView(UnitTest):
     def test_post_if_code_is_right(self):
         user_data = {
