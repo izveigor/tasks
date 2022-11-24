@@ -166,34 +166,9 @@ class AvatarSerializer(serializers.ModelSerializer):
         fields = ["image"]
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["username", "first_name", "last_name", "email"]
-
-
-class UserWithImageSerializer(serializers.ModelSerializer):
-    user = UserProfileSerializer()
-
-    class Meta:
-        model = Profile
-        fields = ["image", "user"]
-
-
-class TeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = ["name", "description", "image"]
-
-
 class GroupPutSerializer(serializers.Serializer):
-    supervisor_username = serializers.CharField(
-        write_only=True,
-    )
-
-    subordinate_username = serializers.CharField(
-        write_only=True,
-    )
+    supervisor_username = serializers.CharField(write_only=True)
+    subordinate_username = serializers.CharField(write_only=True)
 
     def validate(self, kwargs):
         supervisor_username = kwargs.get("supervisor_username")
@@ -217,9 +192,7 @@ class GroupPutSerializer(serializers.Serializer):
 
 
 class GroupDeleteSerializer(serializers.Serializer):
-    username = serializers.CharField(
-        write_only=True,
-    )
+    username = serializers.CharField(write_only=True)
 
     def validate(self, kwargs):
         username = kwargs.get("username")
@@ -230,3 +203,23 @@ class GroupDeleteSerializer(serializers.Serializer):
             return serializers.ValidationError("Имя пользователя не было найдено.")
 
         return kwargs
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email"]
+
+
+class UserWithImageSerializer(serializers.ModelSerializer):
+    user = UserProfileSerializer()
+
+    class Meta:
+        model = Profile
+        fields = ["image", "user"]
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ["name", "description", "image"]

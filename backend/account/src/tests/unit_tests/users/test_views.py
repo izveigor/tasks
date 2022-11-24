@@ -542,48 +542,6 @@ class TestAvatarView(UnitTest):
         self.assertEqual(response.data["image"], "/images/default.png")
 
 
-'''
-class TestViews(UnitTest):
-    def test_post(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
-
-        user = User.objects.create_user(
-            **user_data,
-        )
-
-        ConfirmEmail.objects.create(
-            code=123456,
-            user=user,
-            confirmed=True,
-        )
-
-        token = Token.objects.create(user=user)
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        response = self.client.post(
-            "/teams/",
-            data=json.dumps(
-                {
-                    "name": "Название",
-                    "description": "Описание.",
-                }
-            ),
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, 201)
-        team = Team.objects.all()[0]
-
-        self.assertEqual(team.name, "Название")
-        self.assertEqual(team.description, "Описание.")
-        self.assertEqual(team.admin, user)
-
-
 class TestGroupView(UnitTest):
     def test_put_third_case(self):
         admin = User.objects.create_user(
@@ -610,12 +568,10 @@ class TestGroupView(UnitTest):
             password="password",
         )
 
-        Profile.objects.create(
-            user=admin,
-        )
+        Profile.objects.create(user=admin)
 
         ConfirmEmail.objects.create(
-            code=123456,
+            code="123456",
             user=admin,
             confirmed=True,
         )
@@ -639,7 +595,7 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            "/group/",
+            TEST_PREFIX_HOST+"group/",
             data=json.dumps(
                 {
                     "supervisor_username": "username1",
@@ -655,7 +611,7 @@ class TestGroupView(UnitTest):
         subordinate_profile = Profile.objects.get(user=subordinate_user)
 
         self.assertIsNone(supervisor_profile.supervisor_id)
-        self.assertEqual(subordinate_profile.supervisor_id, 2)
+        self.assertEqual(subordinate_profile.supervisor_id, supervisor_user.id)
 
     def test_put_second_case(self):
         admin = User.objects.create_user(
@@ -690,12 +646,10 @@ class TestGroupView(UnitTest):
             password="password",
         )
 
-        Profile.objects.create(
-            user=admin,
-        )
+        Profile.objects.create(user=admin)
 
         ConfirmEmail.objects.create(
-            code=123456,
+            code="123456",
             user=admin,
             confirmed=True,
         )
@@ -721,7 +675,7 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            "/group/",
+            TEST_PREFIX_HOST+"group/",
             data=json.dumps(
                 {
                     "supervisor_username": "username1",
@@ -736,8 +690,8 @@ class TestGroupView(UnitTest):
         supervisor_profile = Profile.objects.get(user=supervisor_user)
         subordinate_profile = Profile.objects.get(user=subordinate_user)
 
-        self.assertEqual(supervisor_profile.supervisor_id, 4)
-        self.assertEqual(subordinate_profile.supervisor_id, 2)
+        self.assertEqual(supervisor_profile.supervisor_id, supervisor_supervisor_user.id)
+        self.assertEqual(subordinate_profile.supervisor_id, supervisor_user.id)
 
     def test_put_first_case(self):
         admin = User.objects.create_user(
@@ -764,12 +718,10 @@ class TestGroupView(UnitTest):
             password="password",
         )
 
-        Profile.objects.create(
-            user=admin,
-        )
+        Profile.objects.create(user=admin)
 
         ConfirmEmail.objects.create(
-            code=123456,
+            code="123456",
             user=admin,
             confirmed=True,
         )
@@ -794,7 +746,7 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            "/group/",
+            TEST_PREFIX_HOST+"group/",
             data=json.dumps(
                 {
                     "supervisor_username": "username1",
@@ -810,7 +762,7 @@ class TestGroupView(UnitTest):
         subordinate_profile = Profile.objects.get(user=subordinate_user)
 
         self.assertIsNone(supervisor_profile.supervisor_id)
-        self.assertEqual(subordinate_profile.supervisor_id, 2)
+        self.assertEqual(subordinate_profile.supervisor_id, supervisor_user.id)
 
     def test_delete(self):
         admin = User.objects.create_user(
@@ -837,12 +789,10 @@ class TestGroupView(UnitTest):
             password="password",
         )
 
-        Profile.objects.create(
-            user=admin,
-        )
+        Profile.objects.create(user=admin)
 
         ConfirmEmail.objects.create(
-            code=123456,
+            code="123456",
             user=admin,
             confirmed=True,
         )
@@ -867,12 +817,8 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.delete(
-            "/group/",
-            data=json.dumps(
-                {
-                    "username": "username",
-                }
-            ),
+            TEST_PREFIX_HOST+"group/",
+            data=json.dumps({"username": "username"}),
             content_type="application/json",
         )
 
@@ -880,4 +826,3 @@ class TestGroupView(UnitTest):
 
         profile = Profile.objects.get(user=user)
         self.assertIsNone(profile.supervisor_id)
-'''

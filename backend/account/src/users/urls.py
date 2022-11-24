@@ -18,11 +18,11 @@ urlpatterns = [
     path("confirm_email/", views.ConfirmEmailView.as_view()),
     path("settings/", views.SettingsProfileView.as_view()),
     path("avatar/", views.AvatarView.as_view()),
+    path("group/", views.GroupView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 '''
     path("teams/", views.TeamsView.as_view()),
     path("profile/<int:user_id>", views.ProfileView.as_view()),
-    path("group/", views.GroupView.as_view()),
     path("user_team/<str:username>", views.UserTeamView.as_view()),
     path("suggest_employee/", views.SuggestEmployeeView.as_view()),
     path("suggest_team/", views.SuggestTeamView.as_view()),

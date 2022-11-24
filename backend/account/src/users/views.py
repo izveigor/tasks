@@ -21,6 +21,7 @@ from rest_framework.authtoken.models import Token
 from account.tasks_client import tasks_client
 from account.pb.tasks_pb2 import UserRequest
 from django.contrib.auth import get_user_model
+from account.permissions import AdminTeamPermission
 
 User = get_user_model()
 
@@ -266,6 +267,51 @@ class AvatarView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class GroupView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
+
+    def put(self, request, format=None):
+        serializer = serializers.GroupPutSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        supervisor_user = serializer.validated_data["supervisor_user"]
+        subordinate_user = serializer.validated_data["subordinate_user"]
+
+        if not (
+            supervisor_user.profile.team == self.request.team
+            and subordinate_user.profile.team == self.request.team
+        ):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        if (self.request.user == supervisor_user) and (
+            self.request.user == subordinate_user
+        ):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            supervisor_user_subordinates = supervisor_user.profile.get_subordinates()
+            subordinate_user_subordinates = subordinate_user.profile.get_subordinates()
+            if subordinate_user in supervisor_user_subordinates:
+                return Response(status=status.HTTP_200_OK)
+            elif supervisor_user in subordinate_user_subordinates:
+                supervisor_supervisor = subordinate_user.profile.supervisor
+                subordinate_user.profile.supervisor = supervisor_user
+                supervisor_user.profile.supervisor = supervisor_supervisor
+            else:
+                subordinate_user.profile.supervisor = supervisor_user
+                subordinate_user.profile.save()
+            subordinate_user.profile.save()
+            supervisor_user.profile.save()
+            return Response(status=status.HTTP_200_OK)
+
+    def delete(self, request, format=None):
+        serializer = serializers.GroupDeleteSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
+        user.profile.supervisor = None
+        user.profile.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+
 '''
 class UserView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
@@ -310,51 +356,6 @@ class TeamsView(APIView):
         )
 
         return Response(status=status.HTTP_201_CREATED)
-
-
-class GroupView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
-
-    def put(self, request, format=None):
-        serializer = serializers.GroupPutSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        supervisor_user = serializer.validated_data["supervisor_user"]
-        subordinate_user = serializer.validated_data["subordinate_user"]
-
-        if not (
-            supervisor_user.profile.team == self.request.team
-            and subordinate_user.profile.team == self.request.team
-        ):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        if (self.request.user == supervisor_user) and (
-            self.request.user == subordinate_user
-        ):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            supervisor_user_subordinates = supervisor_user.profile.get_subordinates()
-            subordinate_user_subordinates = subordinate_user.profile.get_subordinates()
-            if subordinate_user in supervisor_user_subordinates:
-                return Response(status=status.HTTP_200_OK)
-            elif supervisor_user in subordinate_user_subordinates:
-                supervisor_supervisor = subordinate_user.profile.supervisor
-                subordinate_user.profile.supervisor = supervisor_user
-                supervisor_user.profile.supervisor = supervisor_supervisor
-            else:
-                subordinate_user.profile.supervisor = supervisor_user
-                subordinate_user.profile.save()
-            subordinate_user.profile.save()
-            supervisor_user.profile.save()
-            return Response(status=status.HTTP_200_OK)
-
-    def delete(self, request, format=None):
-        serializer = serializers.GroupDeleteSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
-        user.profile.supervisor = None
-        user.profile.save()
-
-        return Response(status=status.HTTP_200_OK)
 
 
 class UserTeamView(APIView):
