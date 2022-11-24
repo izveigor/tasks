@@ -36,30 +36,31 @@ class Profile(models.Model):
     )
     team = models.ForeignKey(
         Team,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        related_name="users",
         null=True,
     )
     supervisor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="supervisors",
+        related_name="subordinates",
         null=True,
     )
 
     def get_subordinates(self):
         result: list[User] = []
 
-        def _search(supervisors):
-            for profile in supervisors:
+        def _search(subordinates):
+            for profile in subordinates:
                 user = profile.user
                 result.append(user)
-                user_supervisors = user.supervisors.all()
-                if user_supervisors is not None:
-                    _search(user_supervisors)
+                user_subordinates = user.subordinates.all()
+                if user_subordinates is not None:
+                    _search(user_subordinates)
                 else:
                     continue
 
-        _search(self.user.supervisors.all())
+        _search(self.user.subordinates.all())
         return result
 
 

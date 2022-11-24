@@ -294,27 +294,6 @@ class ProfileView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class TeamView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
-
-    def get(self, request, format=None):
-        team = request.team
-        serializer = serializers.CreateTeamSerializer(team)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, format=None):
-        request.team.name = self.request.data["name"]
-        request.team.description = self.request.data["description"]
-        request.team.image = self.request.data["image"]
-        request.team.save()
-
-        return Response(status=status.HTTP_200_OK)
-
-    def delete(self, request, format=None):
-        request.team.delete()
-        return Response(status=status.HTTP_200_OK)
-
-
 class TeamsView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
 

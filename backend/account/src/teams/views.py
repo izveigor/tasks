@@ -10,6 +10,7 @@ from account.permissions import (
     TeamPermission,
     CreatorTeamPermission,
 )
+from users.models import Profile
 
 
 class AuthorizationLikeTeammate(APIView):
@@ -45,3 +46,27 @@ class CheckTeamNameView(APIView):
             response["exist"] = False
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class TeamView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
+
+    def get(self, request, format=None):
+        serializer = serializers.TeamSerializer(request.team)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, format=None):
+        request.team.name = self.request.data["name"]
+        request.team.description = self.request.data["description"]
+        request.team.image = self.request.data["image"]
+        request.team.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+    def delete(self, request, format=None):
+        for profile in request.team.users.all():
+            profile.supervisor = None
+            profile.save()
+
+        request.team.delete()
+        return Response(status=status.HTTP_200_OK)

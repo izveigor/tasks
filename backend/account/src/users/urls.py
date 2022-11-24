@@ -20,7 +20,6 @@ urlpatterns = [
     path("avatar/", views.AvatarView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 '''
-    path("team/", views.TeamView.as_view()),
     path("teams/", views.TeamsView.as_view()),
     path("profile/<int:user_id>", views.ProfileView.as_view()),
     path("join/", views.JoinTeamView.as_view()),

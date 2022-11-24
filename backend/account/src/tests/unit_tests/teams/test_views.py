@@ -187,3 +187,121 @@ class TestCheckTeamNameView(UnitTest):
 
         self.assertTrue(first_response.data["exist"])
         self.assertFalse(second_response.data["exist"])
+
+
+class TestTeamView(UnitTest):
+    def test_get(self):
+        user = User.objects.create_user(**user_data)
+
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
+            confirmed=True,
+        )
+
+        Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=user,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        response = self.client.get(
+            TEST_PREFIX_HOST+"team/",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.data["name"], "Название")
+        self.assertEqual(response.data["description"], "Описание.")
+
+    def test_put(self):
+        user = User.objects.create_user(**user_data)
+
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=user,
+            confirmed=True,
+        )
+
+        Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=user,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        response = self.client.put(
+            TEST_PREFIX_HOST+"team/",
+            data={
+                "name": "Новое название",
+                "description": "Описание.",
+                "image": SimpleUploadedFile(
+                    name="default.png",
+                    content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                    content_type="image/png",
+                ),
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete(self):
+        admin = User.objects.create_user(**user_data)
+
+        first_changed_user_data = user_data.copy()
+        first_changed_user_data["email"] = "email1@email.com"
+        first_changed_user_data["username"] = "username1"
+
+        second_changed_user_data = user_data.copy()
+        second_changed_user_data["email"] = "email2@email.com"
+        second_changed_user_data["username"] = "username2"
+
+        first_user = User.objects.create_user(**first_changed_user_data)
+        second_user = User.objects.create_user(**second_changed_user_data)
+
+        for user in [admin, first_user, second_user]:
+            Profile.objects.create(user=user)
+            ConfirmEmail.objects.create(
+                code="123456",
+                user=user,
+                confirmed=True,
+            )
+
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
+        for user in [first_user, second_user]:
+            user.profile.team = team
+            user.profile.save()
+
+        first_user.profile.supervisor = second_user
+        first_user.profile.save()
+
+        token = Token.objects.create(user=admin)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        response = self.client.delete(TEST_PREFIX_HOST+"team/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(Team.objects.all()), 0)
+        self.assertIsNone(Profile.objects.get(user__username="username1").supervisor)
