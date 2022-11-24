@@ -194,16 +194,20 @@ class TestChangeUsernameView(UnitTest):
             )
         )
 
-'''
+
 class TestChangePasswordView(UnitTest):
-    def test_put(self):
-        user_data = {
-            "first_name": "first name",
-            "last_name": "last name",
-            "email": "email@email.com",
-            "username": "username",
-            "password": "password",
-        }
+    @patch("users.views.Timestamp.GetCurrentTime")
+    @patch("users.views.Timestamp.__init__", return_value=None)
+    @patch("users.views.notifications_client.Notify")
+    def test_put(
+        self,
+        mock_notifications_client_Notify: Mock,
+        mock_timestamp__init__: Mock,
+        mock_timestamp_GetCurrentTime: Mock,
+    ):
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+        mock_timestamp_GetCurrentTime.return_value = timestamp
 
         user = User.objects.create_user(**user_data)
 
@@ -213,10 +217,19 @@ class TestChangePasswordView(UnitTest):
             confirmed=True,
         )
 
+        Profile.objects.create(
+            user=user,
+            image=SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        )
+
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            "/change_password/",
+            TEST_PREFIX_HOST+"change_password/",
             data=json.dumps(
                 {
                     "password": "Password111",
@@ -226,15 +239,26 @@ class TestChangePasswordView(UnitTest):
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, 204)
+        updated_user = User.objects.all()[0]
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(
             check_password(
                 "Password111",
-                User.objects.all()[0].password,
+                updated_user.password,
+            )
+        )
+
+        mock_notifications_client_Notify.assert_called_once_with(
+            NotificationRequest(
+                text="Пароль был успешно изменен.",
+                image=updated_user.profile.image.url,
+                time=timestamp,
+                tokens=[token.key],
             )
         )
 
 
+'''
 class TestCheckEmailView(UnitTest):
     def test_post(self):
         user_data = {

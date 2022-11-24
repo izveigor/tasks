@@ -102,28 +102,22 @@ class ChangeUsernameSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    password = serializers.CharField(
-        label="Password",
-        write_only=True,
-    )
-
-    repeated_password = serializers.CharField(
-        label="Repeated password",
-        write_only=True,
-    )
+    password = serializers.CharField(write_only=True)
+    repeated_password = serializers.CharField(write_only=True)
 
     def validate(self, kwargs):
         password = kwargs.get("password")
         repeated_password = kwargs.get("repeated_password")
+        msg = ""
 
         if not password:
             msg = "Пароль не должен быть пустым"
-            raise serializers.ValidationError(msg)
         elif not repeated_password:
             msg = "Повторный пароль не должен быть пустым"
-            raise serializers.ValidationError(msg)
         elif password != repeated_password:
             msg = "Пароль должен совпадать с повторным паролем"
+
+        if msg:
             raise serializers.ValidationError(msg)
 
         return kwargs

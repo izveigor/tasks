@@ -97,6 +97,31 @@ class RegisterView(APIView):
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
 
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission]
+
+    def put(self, request, format=None):
+        serializer = serializers.ChangePasswordSerializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        password = serializer.validated_data["password"]
+        self.request.user.set_password(password)
+        self.request.user.save()
+
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+
+        notifications_client.Notify(
+            NotificationRequest(
+                text="Пароль был успешно изменен.",
+                image=self.request.user.profile.image.url,
+                time=timestamp,
+                tokens=[str(self.request.auth)],
+            )
+        )
+
+        return Response(None, status.HTTP_200_OK)
+
+
 class ChangeUsernameView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
 
@@ -255,31 +280,6 @@ class CheckEmailView(APIView):
             response["exist"] = False
 
         return Response(response, status=status.HTTP_200_OK)
-
-
-class ChangePasswordView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def put(self, request, format=None):
-        serializer = serializers.ChangePasswordSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        password = serializer.validated_data["password"]
-        self.request.user.set_password(password)
-        self.request.user.save()
-
-        timestamp = Timestamp()
-        timestamp.GetCurrentTime()
-
-        notifications_client.Notify(
-            NotificationRequest(
-                text="Пароль был успешно изменен.",
-                image=self.request.user.profile.image.url,
-                time=timestamp,
-                tokens=[self.request.auth],
-            )
-        )
-
-        return Response(None, status.HTTP_204_NO_CONTENT)
 
 
 class CheckTeamView(APIView):
