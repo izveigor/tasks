@@ -20,7 +20,6 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 '''
     path("avatar/", views.AvatarView.as_view()),
-    path("authorization_with_email/", views.CheckAuthorizationWithEmail.as_view()),
     path("team/", views.TeamView.as_view()),
     path("teams/", views.TeamsView.as_view()),
     path("profile/<int:user_id>", views.ProfileView.as_view()),
@@ -28,10 +27,6 @@ urlpatterns = [
     path("accept/", views.AcceptIntoTeamView.as_view()),
     path("group/", views.GroupView.as_view()),
     path("user_team/<str:username>", views.UserTeamView.as_view()),
-    path("check_team/", views.CheckTeamView.as_view()),
-    path("check_admin/", views.CheckAdminTeamView.as_view()),
-    path("check_creator/", views.CheckCreatorView.as_view()),
-    path("check_creator_team/", views.CheckCreatorTeamView.as_view()),
     path("suggest_employee/", views.SuggestEmployeeView.as_view()),
     path("suggest_team/", views.SuggestTeamView.as_view()),
     path("leave_team/", views.LeaveTeamView.as_view()),

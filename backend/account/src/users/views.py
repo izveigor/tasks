@@ -1,16 +1,11 @@
 from users.methods import suggest_username
-from users.serializers import UserSerializer
-from .models import Team, ConfirmEmail, Profile
+from .models import ConfirmEmail, Profile
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import Http404
 
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import login
 from . import serializers
-from rest_framework import permissions
-from rest_framework import generics
 from rest_framework.authtoken.models import Token
 from .methods import suggest_username
 import datetime
@@ -19,12 +14,8 @@ import random
 from django.core.mail import send_mail
 from django.conf import settings
 from account.permissions import EmailPermission
-from .notifications_client import notifications_client
-from .users_client import users_client
+from account.notifications_client import notifications_client
 from account.pb.notifications_pb2 import NotificationRequest
-import json
-from account.constants import DEFAULT_PROFILE_IMAGE
-from django.db.models import Q
 from google.protobuf.timestamp_pb2 import Timestamp
 from rest_framework.authtoken.models import Token
 from account.tasks_client import tasks_client
@@ -301,13 +292,6 @@ class ProfileView(APIView):
         profile = user.profile
         serializer = serializers.ProfileSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class CheckCreatorTeamView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission, CreatorTeamPermission]
-
-    def get(self, request, format=None):
-        return Response(status=status.HTTP_200_OK)
 
 
 class TeamView(APIView):
