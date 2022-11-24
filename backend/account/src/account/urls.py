@@ -19,5 +19,6 @@ from .constants import PREFIX_HOST
 
 urlpatterns = [
     path(PREFIX_HOST, include("users.urls")),
+    path(PREFIX_HOST, include("teams.urls")),
     path("admin/", admin.site.urls),
 ]

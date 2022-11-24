@@ -304,6 +304,43 @@ class TestCheckEmailView(UnitTest):
         self.assertTrue(first_response.data["exist"])
         self.assertFalse(second_response.data["exist"])
 
+
+class TestAuthorization(UnitTest):
+    def test_get(self):
+        user = User.objects.create_user(**user_data)
+        token = Token.objects.create(user=user)
+
+        unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization/")
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization/")
+
+        self.assertEqual(unauthorized_response.status_code, 401)
+        self.assertEqual(authorized_response.status_code, 200)
+
+
+class TestAuthorizationWithEmail(UnitTest):
+    def test_get(self):
+        user = User.objects.create_user(**user_data)
+        token = Token.objects.create(user=user)
+
+        confirm_email = ConfirmEmail.objects.create(
+            code="111111",
+            user=user,
+            confirmed=False,
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_with_email/")
+
+        confirm_email.confirmed = True
+        confirm_email.save()
+
+        authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_with_email/")
+
+        self.assertEqual(unauthorized_response.status_code, 403)
+        self.assertEqual(authorized_response.status_code, 200)
+
+
 '''
 class TestCheckTeamNameView(UnitTest):
     def test_post(self):

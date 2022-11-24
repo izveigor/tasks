@@ -1,6 +1,6 @@
 from rest_framework import permissions
-from .models import ConfirmEmail, Team
-from django.db.models import Q
+from users.models import ConfirmEmail
+from teams.models import Team
 
 
 class EmailPermission(permissions.BasePermission):

@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import Http404
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import login
 from . import serializers
@@ -19,12 +18,7 @@ from django.utils import timezone
 import random
 from django.core.mail import send_mail
 from django.conf import settings
-from .permissions import (
-    EmailPermission,
-    AdminTeamPermission,
-    TeamPermission,
-    CreatorTeamPermission,
-)
+from account.permissions import EmailPermission
 from .notifications_client import notifications_client
 from .users_client import users_client
 from account.pb.notifications_pb2 import NotificationRequest
@@ -184,28 +178,21 @@ class CheckEmailView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-'''
-class CheckAuthorization(APIView):
+class Authorization(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         return Response(status=status.HTTP_200_OK)
 
 
-class CheckAuthorizationWithEmail(APIView):
+class AuthorizationWithEmail(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
 
     def get(self, request, format=None):
         return Response(status=status.HTTP_200_OK)
 
 
-class CheckCreatorView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission, CreatorTeamPermission]
-
-    def get(self, request, format=None):
-        return Response(status=status.HTTP_200_OK)
-
-
+'''
 class UserView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission]
 
@@ -280,20 +267,6 @@ class SettingsProfileView(APIView):
                 id=user_id,
             )
         )
-        return Response(status=status.HTTP_200_OK)
-
-
-class CheckTeamView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission, TeamPermission]
-
-    def get(self, request, format=None):
-        return Response(status=status.HTTP_200_OK)
-
-
-class CheckAdminTeamView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
-
-    def get(self, request, format=None):
         return Response(status=status.HTTP_200_OK)
 
 
