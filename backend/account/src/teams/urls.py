@@ -16,4 +16,5 @@ urlpatterns = [
     path("accept/", views.AcceptIntoTeamView.as_view()),
     path("suggest_team/", views.SuggestTeamView.as_view()),
     path("teams/", views.TeamsView.as_view()),
+    path("leave_team/", views.LeaveTeamView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

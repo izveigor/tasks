@@ -572,3 +572,40 @@ class TestTeamsView(UnitTest):
                 tokens=[token.key],
             )
         )
+
+
+class TestLeaveTeamView(UnitTest):
+    def test_put(self):
+        admin = User.objects.create_user(**user_data)
+
+        updated_user_data = user_data.copy()
+        updated_user_data["email"] = "email1@email.com"
+        updated_user_data["username"] = "username1"
+
+        teammate = User.objects.create_user(**updated_user_data)
+
+        for user in [admin, teammate]:
+            Profile.objects.create(user=user)
+            ConfirmEmail.objects.create(
+                code="123456",
+                user=user,
+                confirmed=True,
+            )
+
+        team = Team.objects.create(
+            name="Название",
+            description="Описание.",
+            admin=admin,
+        )
+
+        teammate.profile.team = team
+        teammate.profile.save()
+
+        token = Token.objects.create(user=teammate)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        response = self.client.put(TEST_PREFIX_HOST+"leave_team/")
+
+        self.assertEqual(response.status_code, 200)
+
+        leaved_user = User.objects.get(username="username1")
+        self.assertIsNone(leaved_user.profile.team)

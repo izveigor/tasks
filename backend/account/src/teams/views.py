@@ -192,3 +192,12 @@ class TeamsView(APIView):
         )
 
         return Response(status=status.HTTP_201_CREATED)
+
+
+class LeaveTeamView(APIView):
+    permission_classes = [IsAuthenticated, EmailPermission, TeamPermission]
+
+    def put(self, request, format=None):
+        self.request.user.profile.team = None
+        self.request.user.profile.save()
+        return Response(status=status.HTTP_200_OK)
