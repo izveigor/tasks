@@ -23,7 +23,7 @@ export default function RecentTasks() {
             if(response.ok) {
                 return response.json();
             } else {
-                return null
+                return null;
             }
         })
         .then((data) => {

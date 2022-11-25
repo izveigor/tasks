@@ -22,10 +22,18 @@ export default function Bell(props) {
                 'Authorization': "Token " + token,
             }
         })
-        .then((response) => response.json())
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return null;
+            }
+        })
         .then((data) => {
-            changeAreNotificationsExist(true)
-            changeNotifications(data)
+            if (data !== null) {
+                changeAreNotificationsExist(true)
+                changeNotifications(data)
+            }
         })
     }
 
@@ -92,7 +100,7 @@ export default function Bell(props) {
                     </svg>
                 {numberUnreadNotifications > 0 && (
                     <div data-testid="notification-badge-test" className="absolute z-10 bg-red-500 px-1.5 py-1.5 rounded-full ml-[0.7em] mt-[-1.5em]">
-                        <span data-testid="notications-length-test" className="absolute text-white text-[10px] bottom-[-1px] left-[3px]">{numberUnreadNotifications}</span>
+                        <span data-testid="number-unread-notifications" className="absolute text-white text-[10px] bottom-[-1px] left-[3px]">{numberUnreadNotifications}</span>
                     </div>
                     )
                 }

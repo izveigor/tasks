@@ -39,7 +39,7 @@ export default function ProfileMenu(props) {
     }
 
     return (
-        <div data-testid="profile-menu-test">
+        <div data-testid="profile-menu">
             <div className="absolute z-10 w-0 h-0 border-[5px] ml-[0.6em]" style={{borderColor: "transparent transparent white transparent"}}></div>
             <div className="absolute drop-shadow-md ml-[-10em] z-10 mt-2 w-48 rounded-md bg-white py-1 shadow-lg">
                 <ul>

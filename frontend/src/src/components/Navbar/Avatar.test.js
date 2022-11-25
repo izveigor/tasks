@@ -7,6 +7,7 @@ import {
     BrowserRouter as Router,
 } from 'react-router-dom';
 
+
 it("Меняем видимость меню профиля при нажатии", () => {
     const onChange = jest.fn();
     const avatar = {
@@ -20,7 +21,7 @@ it("Меняем видимость меню профиля при нажати�
     const avatarButton = screen.getByRole('button');
 
     expect(
-        document.querySelector('[data-testid="profile-menu-test"]') === null
+        document.querySelector('[data-testid="profile-menu"]') === null
     ).toBe(true);
 
     act(() => {
@@ -29,6 +30,6 @@ it("Меняем видимость меню профиля при нажати�
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(
-        document.querySelector('[data-testid="profile-menu-test"]') !== null
+        document.querySelector('[data-testid="profile-menu"]') !== null
     ).toBe(true);
 });
