@@ -352,38 +352,6 @@ class UserView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class TeamsView(APIView):
-    permission_classes = [IsAuthenticated, EmailPermission]
-
-    def post(self, request, format=None):
-        if self.request.user.profile.team:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        serializer = serializers.TeamSerializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        team = Team.objects.create(
-            **serializer.data,
-            admin=self.request.user,
-        )
-
-        self.request.user.profile.team = team
-        self.request.user.profile.save()
-
-        timestamp = Timestamp()
-        timestamp.GetCurrentTime()
-
-        notifications_client.Notify(
-            NotificationRequest(
-                text=f'Команда "{team.name}" была успешна создана.',
-                image=self.request.user.profile.image.url,
-                time=timestamp,
-                tokens=[self.request.auth],
-            )
-        )
-
-        return Response(status=status.HTTP_201_CREATED)
-
-
 class UserTeamView(APIView):
     permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
 

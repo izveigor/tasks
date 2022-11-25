@@ -22,7 +22,6 @@ urlpatterns = [
     path("suggest_employee/", views.SuggestEmployeeView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 '''
-    path("teams/", views.TeamsView.as_view()),
     path("profile/<int:user_id>", views.ProfileView.as_view()),
     path("user_team/<str:username>", views.UserTeamView.as_view()),
     path("leave_team/", views.LeaveTeamView.as_view()),

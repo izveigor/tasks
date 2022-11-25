@@ -346,8 +346,8 @@ class TestTeamView(UnitTest):
 
 
 class TestJoinTeamView(UnitTest):
-    @patch("users.views.Timestamp.GetCurrentTime")
-    @patch("users.views.Timestamp.__init__", return_value=None)
+    @patch("teams.views.Timestamp.GetCurrentTime")
+    @patch("teams.views.Timestamp.__init__", return_value=None)
     @patch("teams.views.notifications_client.Notify")
     def test_put(
         self,
@@ -516,3 +516,59 @@ class TestSuggestTeamView(UnitTest):
 
         self.assertEqual(second_response.data["name"], team.name)
         self.assertEqual(second_response.data["description"], team.description)
+
+
+class TestTeamsView(UnitTest):
+    @patch("teams.views.Timestamp.GetCurrentTime")
+    @patch("teams.views.Timestamp.__init__", return_value=None)
+    @patch("teams.views.notifications_client.Notify")
+    def test_post(
+        self,
+        mock_notifications_client_Notify: Mock,
+        mock_timestamp__init__: Mock,
+        mock_timestamp_GetCurrentTime: Mock,
+    ):
+        timestamp = Timestamp()
+        timestamp.GetCurrentTime()
+        mock_timestamp_GetCurrentTime.return_value = timestamp
+
+        admin = User.objects.create_user(**user_data)
+        Profile.objects.create(user=admin)
+        ConfirmEmail.objects.create(
+            code="123456",
+            user=admin,
+            confirmed=True,
+        )
+
+        token = Token.objects.create(user=admin)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        team_data = {
+            "name": "Название",
+            "description": "Описание отсутствует.",
+            "image": SimpleUploadedFile(
+                name="default.png",
+                content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                content_type="image/png",
+            ),
+        }
+
+        response = self.client.post(
+            TEST_PREFIX_HOST+"teams/",
+            data=team_data,
+        )
+
+        self.assertEqual(response.status_code, 201)
+
+        created_team = Team.objects.all()[0]
+        self.assertEqual(created_team.name, team_data["name"])
+        self.assertEqual(created_team.description, team_data["description"])
+
+        mock_notifications_client_Notify.assert_called_once_with(
+            NotificationRequest(
+                text=f'Команда "{team_data["name"]}" была успешна создана.',
+                image=admin.profile.image.url,
+                time=timestamp,
+                tokens=[token.key],
+            )
+        )
