@@ -45,17 +45,17 @@ export default function ProfileMenu(props) {
                 <ul>
                     <li><Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Мой профиль</Link></li>
                     <li><Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Настройки</Link></li>
-                    <li><Link onClick={signOut} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 text-red-600">Выйти</Link></li>
+                    <li><Link onClick={signOut} data-testid="sign-out" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 text-red-600">Выйти</Link></li>
                     {(props.isAdmin || props.isTeammate) && <hr />}
                     {(props.isAdmin && props.isTeammate) && (
                         <div>
                             <li><Link to="/permission" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Дать разрешение</Link></li>
                             <li><Link to="/team_settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Настройки команды</Link></li>
-                            <li><Link onClick={leaveTeam} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 text-red-600">Удалить команду</Link></li>
+                            <li><Link data-testid="delete-team" onClick={deleteTeam} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 text-red-600">Удалить команду</Link></li>
                         </div>
                     )}
                     {(props.isTeammate && !props.isAdmin) && (
-                        <li><Link onClick={deleteTeam} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 text-red-600">Выйти из команды</Link></li>
+                        <li><Link onClick={leaveTeam} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 text-red-600">Выйти из команды</Link></li>
                     )}
                 </ul>
             </div>
