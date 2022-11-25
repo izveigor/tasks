@@ -32,7 +32,6 @@ it("Проверяем props", () => {
     ];
 
     propsData.forEach((data) => {
-        console.log(data);
         act(() => {
             render(<Task title={data.title}
                 id={data.id}
@@ -42,7 +41,6 @@ it("Проверяем props", () => {
             />);
         });
 
-        console.log(data);
         expect(
             document.querySelector("[data-testid='task-name']").textContent
         ).toEqual(data.title + " #" + data.id.toString());
