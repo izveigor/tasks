@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
     Link,
     useNavigate,
 } from 'react-router-dom';
 import { USERS_URL } from '../../features/constants';
-
+import { useSelector, useDispatch } from 'react-redux';
+import { userUpdated } from '../../features/userSlice';
 
 export default function ProfileMenu(props) {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
 
     const signOut = () => {
-        localStorage.removeItem("token");
+        dispatch(userUpdated({"token": null}));
         navigate("../confirm");
     };
 
@@ -32,7 +34,6 @@ export default function ProfileMenu(props) {
             }
         }).then((response) => {
             if(response.ok) {
-                localStorage.removeItem("token");
                 navigate("../confirm");
             }
         })

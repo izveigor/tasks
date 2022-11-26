@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TASKS_URL } from '../../features/constants';
+import { useSelector } from 'react-redux';
 
 
 export default function JoinOrCreateTeam(props) {
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
 
     const createTeam = () => navigate("../create_team");
     const joinTeam = () => navigate("../join");

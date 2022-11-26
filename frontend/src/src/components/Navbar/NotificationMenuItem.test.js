@@ -3,6 +3,8 @@ import { render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import NotificationMenuItem from './NotificationMenuItem';
 import { USERS_URL_WITHOUT_SLASH } from '../../features/constants';
+import store from '../../features/store';
+import { Provider } from 'react-redux';
 
 
 it("Проверяем props", () => {
@@ -11,7 +13,7 @@ it("Проверяем props", () => {
     const time = "18:00";
 
     act(() => {
-        render(<NotificationMenuItem text={text} image={image} time={time} />)
+        render(<Provider store={store}><NotificationMenuItem text={text} image={image} time={time} /></Provider>)
     });
 
     expect(

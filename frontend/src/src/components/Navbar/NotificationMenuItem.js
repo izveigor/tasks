@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { USERS_URL, USERS_URL_WITHOUT_SLASH } from '../../features/constants';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 
 export default function NotificationMenuItem(props) {
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
     const [acceptLink, changeAcceptLink] = useState(false);
 
     useEffect(() => {

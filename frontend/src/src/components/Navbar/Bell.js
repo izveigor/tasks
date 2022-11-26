@@ -3,10 +3,12 @@ import NotificationMenu from './NotificationMenu';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import EmptyNotifications from './EmptyNotifications';
 import { NOTIFICATION_URL, WS_NOTIFICATION_URL } from '../../features/constants';
+import { useSelector } from 'react-redux';
 
 
 export default function Bell(props) {
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
+
     const [notificationState, changeNotificationState] = useState(false);
     const [notifications, changeNotifications] = useState({});
     const [areNotificationsExist, changeAreNotificationsExist] = useState(false);

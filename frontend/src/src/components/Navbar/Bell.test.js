@@ -7,6 +7,8 @@ import {
     BrowserRouter as Router,
 } from 'react-router-dom';
 import { USERS_URL_WITHOUT_SLASH } from '../../features/constants';
+import store from '../../features/store';
+import { Provider } from 'react-redux';
 
 
 it("Переключаем меню уведомлений", async() => {
@@ -19,7 +21,7 @@ it("Переключаем меню уведомлений", async() => {
     );
 
     await act(async() => {
-        render(<Router><Bell onChange={onChange} /></Router>)
+        render(<Provider store={store}><Router><Bell onChange={onChange} /></Router></Provider>)
     });
 
     const bellButton = screen.getByRole('button');
@@ -65,7 +67,7 @@ it("Получаем последние уведомления", async() => {
     );
 
     await act(async() => {
-        render(<Router><Bell onChange={onChange} /></Router>)
+        render(<Provider store={store}><Router><Bell onChange={onChange} /></Router></Provider>)
     });
 
     const bellButton = screen.getByRole('button');
@@ -75,7 +77,6 @@ it("Получаем последние уведомления", async() => {
     })
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    console.log(document.documentElement.innerHTML);
     [...document.querySelectorAll('[data-testid="notification-text"]')].map((item, index) => {
         expect(
             item.textContent
@@ -117,7 +118,7 @@ it("Получаем количество непрочитанных уведо�
     );
 
     await act(async() => {
-        render(<Router><Bell onChange={onChange} /></Router>)
+        render(<Provider store={store}><Router><Bell onChange={onChange} /></Router></Provider>)
     });
 
     expect(

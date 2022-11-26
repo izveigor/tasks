@@ -1,9 +1,13 @@
 import React from 'react';
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { USERS_URL } from '../../features/constants';
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { userUpdated } from '../../features/userSlice';
+
 
 export default function RegisterForm() {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const [usernameData, changeUsernameData] = useState({});
@@ -122,7 +126,7 @@ export default function RegisterForm() {
             })
             .then((res) => res.json())
             .then((res) => {
-                localStorage.setItem("token", res.token);
+                dispatch(userUpdated({"token": res.token}));
                 navigate('/confirm');
             })
         };

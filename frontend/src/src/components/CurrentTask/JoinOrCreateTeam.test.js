@@ -6,6 +6,8 @@ import JoinOrCreateTeam from './JoinOrCreateTeam';
 import {
     BrowserRouter as Router,
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from '../../features/store';
 
 const mockUseNavigate = jest.fn();
 
@@ -17,7 +19,7 @@ jest.mock('react-router-dom', () => ({
 
 it("Проверяем меню обычного пользователя", () => {
     act(() => {
-        render(<Router><JoinOrCreateTeam isTeammate={false} /></Router>)
+        render(<Provider store={store}><Router><JoinOrCreateTeam isTeammate={false} /></Router></Provider>)
     });
 
     const buttonNames = [
@@ -36,7 +38,7 @@ it("Проверяем меню обычного пользователя", () =
 
 it("Проверяем меню участника команды", () => {
     act(() => {
-        render(<Router><JoinOrCreateTeam isTeammate={true} /></Router>)
+        render(<Provider store={store}><Router><JoinOrCreateTeam isTeammate={true} /></Router></Provider>)
     });
 
     const createTeamButton = screen.queryByText("Создать команду");
@@ -52,7 +54,7 @@ it("Проверяем меню участника команды", () => {
 
 it('Нажимаем на кнопку "Создать команду"', () => {
     act(() => {
-        render(<Router><JoinOrCreateTeam isTeammate={false} /></Router>)
+        render(<Provider store={store}><Router><JoinOrCreateTeam isTeammate={false} /></Router></Provider>)
     });
 
     const createTeamButton = document.querySelector('[data-testid="create-team"]');
@@ -68,7 +70,7 @@ it('Нажимаем на кнопку "Создать команду"', () => {
 
 it('Нажимаем на кнопку "Присоединиться"', () => {
     act(() => {
-        render(<Router><JoinOrCreateTeam isTeammate={false} /></Router>)
+        render(<Provider store={store}><Router><JoinOrCreateTeam isTeammate={false} /></Router></Provider>)
     });
 
     const joinTeamButton = document.querySelector('[data-testid="join-team"]');
@@ -90,7 +92,7 @@ it("Проверяем меню участника команды, если у �
     );
 
     await act(async() => {
-        render(<Router><JoinOrCreateTeam isTeammate={true} /></Router>)
+        render(<Provider store={store}><Router><JoinOrCreateTeam isTeammate={true} /></Router></Provider>)
     });
 
     const nextTaskButton = screen.getByRole('button');

@@ -4,11 +4,10 @@ import { USERS_URL } from '../../features/constants';
 
 
 export default function Menu(props) {
-    let token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
     const [showCreatorTeamMenu, changeShowCreatorTeamMenu] = useState(false);
 
     useEffect(() => {
-        token = localStorage.getItem("token");
         fetch(USERS_URL + "check_creator_team/", {
             method: "GET",
             headers: {

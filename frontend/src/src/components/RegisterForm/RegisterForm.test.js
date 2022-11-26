@@ -5,6 +5,9 @@ import RegisterForm from './RegisterForm';
 import {
     BrowserRouter as Router
 } from 'react-router-dom';
+import store from '../../features/store';
+import { Provider } from 'react-redux';
+import { userUpdated } from '../../features/userSlice';
 
 
 it('Проверяем валидацию поля "username", если он существует!', async() => {
@@ -21,7 +24,7 @@ it('Проверяем валидацию поля "username", если он с�
     );
 
     await act(async() => {
-        render(<Router><RegisterForm /></Router>);
+        render(<Provider store={store}><Router><RegisterForm /></Router></Provider>);
     });
 
     const usernameInput = screen.getByPlaceholderText('Username');
@@ -51,7 +54,7 @@ it('Проверяем валидацию поля "email", если он сущ
     );
 
     await act(async() => {
-        render(<Router><RegisterForm /></Router>);
+        render(<Provider store={store}><Router><RegisterForm /></Router></Provider>);
     });
 
     const emailInput = screen.getByPlaceholderText('Email');
@@ -75,7 +78,7 @@ it("Проверяем валидацию пароля", () => {
           passwordwithInsufficientLength = "passwor";
 
     act(() => {
-        render(<Router><RegisterForm /></Router>);
+        render(<Provider store={store}><Router><RegisterForm /></Router></Provider>);
     });
 
     const passwordInput = screen.getByPlaceholderText('Password');
@@ -130,7 +133,7 @@ it("Регистрируем пользователя", async() => {
     );
 
     await act(async() => {
-        render(<Router><RegisterForm /></Router>)
+        render(<Provider store={store}><Router><RegisterForm /></Router></Provider>)
     });
 
     const inputData = {
@@ -161,9 +164,10 @@ it("Регистрируем пользователя", async() => {
         fireEvent.click(registerButton);
     });
 
-    expect(localStorage.getItem("token")).toEqual(response["token"]);
+    expect(store.getState()["user"]["token"]).toEqual(response["token"]);
     expect(mockUseNavigate).toHaveBeenCalledTimes(1);
     expect(mockUseNavigate).toHaveBeenCalledWith('/confirm');
 
+    store.dispatch(userUpdated({"token": null}));
     global.fetch.mockRestore();
 });

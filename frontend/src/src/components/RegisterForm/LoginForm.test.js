@@ -5,6 +5,9 @@ import LoginFrom from './LoginForm';
 import {
     BrowserRouter as Router
 } from 'react-router-dom';
+import store from '../../features/store';
+import { Provider } from 'react-redux';
+import { userUpdated } from '../../features/userSlice';
 
 const mockUseNavigate = jest.fn();
 
@@ -24,7 +27,7 @@ it("Удачный вход пользователя", async() => {
     );
 
     await act(async() => {
-        render(<Router><LoginFrom /></Router>);
+        render(<Provider store={store}><Router><LoginFrom /></Router></Provider>);
     });
 
     const inputData = {
@@ -44,11 +47,13 @@ it("Удачный вход пользователя", async() => {
         fireEvent.click(loginButton);
     });
 
-    expect(localStorage.getItem("token")).toEqual(response["token"]);
+    const token = store.getState()["user"]["token"];
+
+    expect(token).toEqual(response["token"])
     expect(mockUseNavigate).toHaveBeenCalledTimes(1);
     expect(mockUseNavigate).toHaveBeenCalledWith('/main');
 
-    localStorage.clear();
+    store.dispatch(userUpdated({"token": null}));
     global.fetch.mockRestore();
 });
 
@@ -62,7 +67,7 @@ it("Неудачный вход пользователя", async() => {
     );
 
     await act(async() => {
-        render(<Router><LoginFrom /></Router>);
+        render(<Provider store={store}><Router><LoginFrom /></Router></Provider>);
     });
 
     const inputData = {
@@ -83,7 +88,7 @@ it("Неудачный вход пользователя", async() => {
     });
 
     const loginError = document.querySelector('[data-testid="login-error"]');
-    expect(localStorage.getItem("token") === null).toBe(true);
+    expect(store.getState()["user"]["token"] === null).toBe(true);
     expect(loginError.textContent).toEqual("Неверное имя пользователя или пароль!");
 
     global.fetch.mockRestore();

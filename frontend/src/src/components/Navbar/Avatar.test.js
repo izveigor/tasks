@@ -6,6 +6,8 @@ import Avatar from './Avatar';
 import {
     BrowserRouter as Router,
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from '../../features/store';
 
 
 it("Меняем видимость меню профиля при нажатии", () => {
@@ -15,7 +17,7 @@ it("Меняем видимость меню профиля при нажати�
     }
 
     act(() => {
-        render(<Router><Avatar onChange={onChange} avatar={avatar} /></Router>);
+        render(<Provider store={store}><Router><Avatar onChange={onChange} avatar={avatar} /></Router></Provider>);
     });
 
     const avatarButton = screen.getByRole('button');

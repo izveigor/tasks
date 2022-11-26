@@ -1,8 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { USERS_URL } from '../../features/constants';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { userUpdated } from '../../features/userSlice';
+
 
 export default function LoginForm() {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [showErrorMessage, changeShowErrorMessage] = useState(false);
 
@@ -33,7 +37,7 @@ export default function LoginForm() {
         })
         .then((data) => {
             if (data !== null) {
-                localStorage.setItem("token", data.token);
+                dispatch(userUpdated({"token": data.token}));
                 navigate("/main");
             } else {
                 changeShowErrorMessage(true);

@@ -4,8 +4,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
-  Navigate,
 } from 'react-router-dom';
 
 import Navbar from './containers/Navbar';
@@ -23,28 +21,32 @@ import TeamSettings from './pages/TeamSettings';
 import Permission from './pages/Permission';
 import ChangeUsername from './pages/ChangeUsername';
 import ChangePassword from './pages/ChangePassword';
+import store from './features/store';
+import { Provider } from 'react-redux';
 
 
 export default function App() {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Index />}></Route>
-        <Route path="/main" element={<Main />}></Route>
-        <Route path="/create_task" element={<CreateTask />}></Route>
-        <Route path="/create_team" element={<CreateTeam />}></Route>
-        <Route path="/settings" element={<Settings />}></Route>
-        <Route path="/team" element={<Team />}></Route>
-        <Route path="/about" element={<About />}></Route>
-        <Route path="/profile" element={<Profile />}></Route>
-        <Route path="/confirm" element={<Confirm />}></Route>
-        <Route path="/join" element={<JoinTeam />}></Route>
-        <Route path="/team_settings" element={<TeamSettings />}></Route>
-        <Route path="/permission" element={<Permission />}></Route>
-        <Route path="/change_username" element={<ChangeUsername />}></Route>
-        <Route path="/change_password" element={<ChangePassword />}></Route>
-      </Routes>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Index />}></Route>
+          <Route path="/main" element={<Main />}></Route>
+          <Route path="/create_task" element={<CreateTask />}></Route>
+          <Route path="/create_team" element={<CreateTeam />}></Route>
+          <Route path="/settings" element={<Settings />}></Route>
+          <Route path="/team" element={<Team />}></Route>
+          <Route path="/about" element={<About />}></Route>
+          <Route path="/profile" element={<Profile />}></Route>
+          <Route path="/confirm" element={<Confirm />}></Route>
+          <Route path="/join" element={<JoinTeam />}></Route>
+          <Route path="/team_settings" element={<TeamSettings />}></Route>
+          <Route path="/permission" element={<Permission />}></Route>
+          <Route path="/change_username" element={<ChangeUsername />}></Route>
+          <Route path="/change_password" element={<ChangePassword />}></Route>
+        </Routes>
+      </Router>
+    </Provider>
   );
 };

@@ -5,6 +5,9 @@ import ProfileMenu from './ProfileMenu';
 import {
     BrowserRouter as Router
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from '../../features/store';
+import { userUpdated } from '../../features/userSlice';
 
 const mockUseNavigate = jest.fn();
 
@@ -16,7 +19,7 @@ jest.mock('react-router-dom', () => ({
 
 it("Проверяем меню обычного пользователя", () => {
     act(() => {
-        render(<Router><ProfileMenu isTeammate={false} isAdmin={false} /></Router>)
+        render(<Provider store={store}><Router><ProfileMenu isTeammate={false} isAdmin={false} /></Router></Provider>)
     });
 
     const names = [
@@ -33,7 +36,7 @@ it("Проверяем меню обычного пользователя", () =
 
 it("Проверяем меню участника команды", () => {
     act(() => {
-        render(<Router><ProfileMenu isTeammate={true} isAdmin={false} /></Router>)
+        render(<Provider store={store}><Router><ProfileMenu isTeammate={true} isAdmin={false} /></Router></Provider>)
     });
 
     const names = [
@@ -51,7 +54,7 @@ it("Проверяем меню участника команды", () => {
 
 it("Проверяем меню админа", () => {
     act(() => {
-        render(<Router><ProfileMenu isTeammate={true} isAdmin={true} /></Router>)
+        render(<Provider store={store}><Router><ProfileMenu isTeammate={true} isAdmin={true} /></Router></Provider>)
     });
 
     const names = [
@@ -71,10 +74,9 @@ it("Проверяем меню админа", () => {
 
 
 it("Выходим из аккаунта", () => {
-    localStorage.setItem("token", "1");
-
+    store.dispatch(userUpdated({"token": "1"}))
     act(() => {
-        render(<Router><ProfileMenu /></Router>)
+        render(<Provider store={store}><Router><ProfileMenu /></Router></Provider>)
     });
 
     const signOutButton = document.querySelector('[data-testid="sign-out"]')
@@ -83,15 +85,13 @@ it("Выходим из аккаунта", () => {
         fireEvent.click(signOutButton);
     });
 
-    expect(localStorage.getItem("token") === null).toBe(true)
+    expect(store.getState()["user"]["token"] === null).toBe(true)
     expect(mockUseNavigate).toHaveBeenCalledTimes(1)
     expect(mockUseNavigate).toHaveBeenCalledWith('../confirm');
 });
 
 
 it("Удаляем команду", async() => {
-    localStorage.setItem("token", "1");
-
     jest.spyOn(global, "fetch").mockImplementation(() =>
         Promise.resolve({
             ok: true,
@@ -99,7 +99,7 @@ it("Удаляем команду", async() => {
     );
 
     await act(async() => {
-        render(<Router><ProfileMenu isTeammate={true} isAdmin={true} /></Router>)
+        render(<Provider store={store}><Router><ProfileMenu isTeammate={true} isAdmin={true} /></Router></Provider>)
     });
 
     const deleteTeam = document.querySelector('[data-testid="delete-team"]')
@@ -108,7 +108,6 @@ it("Удаляем команду", async() => {
         fireEvent.click(deleteTeam);
     });
 
-    expect(localStorage.getItem("token") === null).toBe(true)
     expect(mockUseNavigate).toHaveBeenCalledTimes(1)
     expect(mockUseNavigate).toHaveBeenCalledWith('../confirm');
 
