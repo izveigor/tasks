@@ -2,7 +2,6 @@ import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import ProfileMenu from './ProfileMenu';
-import { USERS_URL_WITHOUT_SLASH } from '../../features/constants';
 import {
     BrowserRouter as Router
 } from 'react-router-dom';
