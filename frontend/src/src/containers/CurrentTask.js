@@ -2,28 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { TASKS_URL, USERS_URL } from '../features/constants';
 import Task from '../components/CurrentTask/Task';
 import JoinOrCreateTeam from '../components/CurrentTask/JoinOrCreateTeam';
+import { useSelector } from 'react-redux';
 
 
 export default function CurrentTask() {
     const [currentTaskData, changeCurrentTaskData] = useState({});
     const [showTeamButtons, changeShowTeamButtons] = useState(true);
-    const [isTeammate, changeIsTeammate] = useState(false);
 
-    let token = localStorage.getItem("token");
+    const isTeammate = useSelector((state) => state.user.isTeammate);
+    const token = useSelector((state) => state.user.token);
 
-    async function TeamAuthorization() {
-        await fetch(USERS_URL + "check_team/", {
-            method: "GET",
+    function close(event, status) {
+        fetch(TASKS_URL + "close/", {
+            method: "PUT",
             headers: {
-                "Authorization": "Token " + token,
+                'Authorization': "Token " + token,
+                'Content-Type': "application/json",
+            },
+            body: JSON.stringify({
+                status: status,
+            }),
+        }).then((response) => {
+            if (response.ok) {
+                changeShowTeamButtons(true);
+                changeCurrentTaskData({});
             }
         })
-        .then((response) => {
-            if(response.ok) {
-                changeIsTeammate(true);
-            }
-        })
-    }
+    };
 
     async function getCurrentTask() {
         await fetch(TASKS_URL + "current_task/", {
@@ -43,21 +48,21 @@ export default function CurrentTask() {
             if (data !== null) {
                 changeShowTeamButtons(false);
                 changeCurrentTaskData(data);
-                TeamAuthorization();
             }
         })
     };
 
     useEffect(() => {
-        TeamAuthorization();
-        getCurrentTask();
+        if(isTeammate) {
+            getCurrentTask();
+        }
     }, []);
 
     return (
         <div>
             {showTeamButtons ?
                 <JoinOrCreateTeam isTeammate={isTeammate} />
-                : <Task task={showTeamButtons ? null : currentTaskData}/>
+                : <Task close={close} task={showTeamButtons ? null : currentTaskData}/>
             }
         </div>
     );
