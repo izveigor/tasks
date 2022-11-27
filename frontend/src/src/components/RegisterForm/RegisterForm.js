@@ -134,7 +134,7 @@ export default function RegisterForm() {
     };
 
     return (
-        <form onSubmit={register}>
+        <form data-testid="register-form" onSubmit={register}>
             <div className="grid grid-cols-2">
                 <input id="first_name" data-testid="first-name-input" ref={firstNameRef} type="text" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 outline-1 focus:outline-gray-300" placeholder="First name" required />
                 <input id="last_name" data-testid="last-name-input" ref={lastNameRef} type="text" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 ml-2 focus:outline-gray-300" placeholder="Last name" required />

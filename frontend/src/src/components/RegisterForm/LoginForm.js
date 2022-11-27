@@ -47,7 +47,7 @@ export default function LoginForm() {
     };
 
     return (
-        <form onSubmit={login}>
+        <form data-testid="login-form" onSubmit={login}>
             <div className="grid grid-rows-4">
                 <input ref={usernameRef} data-testid="username-input" type="text" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Username" required />
                 <input ref={passwordRef} data-testid="password-input" type="password" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Password" required />
