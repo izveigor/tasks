@@ -31,6 +31,7 @@ const fetchImage = createAsyncThunk(
 
 const initialState = {
     token: null,
+    isEmailConfirmed: false,
     isTeammate: false,
     isAdmin: false,
     isCreator: false,

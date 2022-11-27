@@ -160,7 +160,9 @@ it("Регистрируем пользователя", async() => {
         fireEvent.change(usernameInput, { target: { value: inputData["username"]}});
         fireEvent.change(emailInput, { target: { value: inputData["email"]}});
         fireEvent.change(passwordInput, { target: { value: inputData["password"]}});
+    });
 
+    await act(async() => {
         fireEvent.click(registerButton);
     });
 

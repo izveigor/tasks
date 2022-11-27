@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { USERS_URL } from '../../features/constants';
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
+import isRightPassword from '../../features/isRightPassword';
 import { userUpdated } from '../../features/userSlice';
 
 
@@ -12,7 +13,7 @@ export default function RegisterForm() {
 
     const [usernameData, changeUsernameData] = useState({});
     const [isEmailExist, changeEmailExist] = useState(false);
-    const [passwordState, changePasswordState] = useState(false);
+    const [passwordRightState, changePasswordRightState] = useState(false);
 
     let submitState = false
 
@@ -61,49 +62,14 @@ export default function RegisterForm() {
         .then((res) => res.json())
         .then((data) => changeEmailExist(data.exist))
     };
-
-    const checkPassword = async() => {
-        let password = passwordRef.current.value;
-        let isUpper = false,
-            isLower = false,
-            isDigit = false;
-
-        if(password.length < 10) {
-            changePasswordState(true);
-            return 
-        }
-
-        for(let i = 0; i < password.length; i ++) {
-            if(password[i].match(numberRegex) !== null) {
-                isDigit = true;
-                continue;
-            }
-
-            if(password[i].match(lowerRegex) !== null) {
-                isUpper = true;
-                continue;
-            }
-
-            if(password[i].match(upperRegex) !== null) {
-                isLower = true;
-                continue;
-            }
-        }
-
-        if(isUpper && isLower && isDigit) {
-            changePasswordState(false);
-        } else {
-            changePasswordState(true);
-        }
-        return 
-    };
     
     function isSubmitted() {
+        console.log(passwordRightState);
         if(
             firstNameRef.current.value != "" &&
             lastNameRef.current.value != "" &&
             !usernameData.exist && !isEmailExist
-            && !passwordState
+            && passwordRightState
         ) submitState = true;
         else submitState = false;
     };
@@ -133,6 +99,11 @@ export default function RegisterForm() {
         event.preventDefault();
     };
 
+    const changePassword = async () => {
+        const isRight = await isRightPassword(passwordRef.current.value);
+        changePasswordRightState(isRight);
+    };
+
     return (
         <form data-testid="register-form" onSubmit={register}>
             <div className="grid grid-cols-2">
@@ -144,8 +115,8 @@ export default function RegisterForm() {
                 {usernameData.exist && <span data-testid="username-span" className="h-[20px] py-1 text-center text-sm text-red-500">Такой пользователь уже существует! Доступное имя: "{usernameData.available}".</span>}
                 <input id="email" data-testid="email-input" ref={emailRef} onChange={async () => {await checkEmailExist()}} type="email" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Email" required />
                 {isEmailExist && <span data-testid="email-span" className="h-[20px] py-1 text-center text-sm text-red-500">Пользователь с таким электронным адресом уже существует!</span>}
-                <input id="password" data-testid="password-input" ref={passwordRef} onChange={async () => {await checkPassword()}} type="password" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Password" required />
-                {passwordState && <span data-testid="password-span" className="h-[50px] py-1 text-center text-sm text-red-500">Пароль должен содержать цифры, строчные и прописные буквы! Длина пароля должна составлять не менее 10 символов!</span>}
+                <input id="password" data-testid="password-input" ref={passwordRef} onChange={async() => await changePassword()} type="password" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Password" required />
+                {!passwordRightState && <span data-testid="password-span" className="h-[50px] py-1 text-center text-sm text-red-500">Пароль должен содержать цифры, строчные и прописные буквы! Длина пароля должна составлять не менее 10 символов!</span>}
                 <button type="submit" className="bg-indigo-700 py-1 px-2 rounded-md text-white mt-2 hover:bg-indigo-600">Зарегистрироваться</button>
             </div>
         </form>
