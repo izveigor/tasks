@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import isRightPassword from '../../features/isRightPassword';
 import { userUpdated } from '../../features/userSlice';
+import checkUsernameExist from '../../features/checkUsernameExist';
 
 
 export default function RegisterForm() {
@@ -22,28 +23,6 @@ export default function RegisterForm() {
     const usernameRef = useRef(null);
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
-
-    const numberRegex = new RegExp("[0-9]");
-    const lowerRegex = new RegExp("[a-z]");
-    const upperRegex = new RegExp("[A-Z]");
-
-    async function checkUsernameExist() {
-        if(usernameRef.current.value == "") {
-            return () => changeUsernameData({'exist': false, 'available': null});
-        }
-
-        await fetch(USERS_URL + "check_username/", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: usernameRef.current.value,
-            })
-        })
-        .then((res) => res.json())
-        .then((data) => {changeUsernameData({'exist': data.exist, 'available': data.available})})
-    };
 
     async function checkEmailExist() {
         if(emailRef.current.value == "") {
@@ -64,7 +43,6 @@ export default function RegisterForm() {
     };
     
     function isSubmitted() {
-        console.log(passwordRightState);
         if(
             firstNameRef.current.value != "" &&
             lastNameRef.current.value != "" &&
@@ -111,7 +89,7 @@ export default function RegisterForm() {
                 <input id="last_name" data-testid="last-name-input" ref={lastNameRef} type="text" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 ml-2 focus:outline-gray-300" placeholder="Last name" required />
             </div>
             <div className="grid grid-rows-4">
-                <input id="username" data-testid="username-input" ref={usernameRef} onChange={async() => {await checkUsernameExist()}} type="text" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Username" required />
+                <input id="username" data-testid="username-input" ref={usernameRef} onChange={async() => {changeUsernameData(await checkUsernameExist(usernameRef.current.value))}} type="text" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Username" required />
                 {usernameData.exist && <span data-testid="username-span" className="h-[20px] py-1 text-center text-sm text-red-500">Такой пользователь уже существует! Доступное имя: "{usernameData.available}".</span>}
                 <input id="email" data-testid="email-input" ref={emailRef} onChange={async () => {await checkEmailExist()}} type="email" className="border pl-[14px] border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Email" required />
                 {isEmailExist && <span data-testid="email-span" className="h-[20px] py-1 text-center text-sm text-red-500">Пользователь с таким электронным адресом уже существует!</span>}
