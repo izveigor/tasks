@@ -12,12 +12,10 @@ import store from '../../features/store';
 
 it("Меняем видимость меню профиля при нажатии", () => {
     const onChange = jest.fn();
-    const avatar = {
-        "image": "http://image",
-    }
-
+    const image = "http://image"
+    
     act(() => {
-        render(<Provider store={store}><Router><Avatar onChange={onChange} avatar={avatar} /></Router></Provider>);
+        render(<Provider store={store}><Router><Avatar onChange={onChange} image={image} /></Router></Provider>);
     });
 
     const avatarButton = screen.getByRole('button');

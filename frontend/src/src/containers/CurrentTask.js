@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TASKS_URL, USERS_URL } from '../features/constants';
+import { TASKS_URL } from '../features/constants';
 import Task from '../components/CurrentTask/Task';
 import JoinOrCreateTeam from '../components/CurrentTask/JoinOrCreateTeam';
 import { useSelector } from 'react-redux';

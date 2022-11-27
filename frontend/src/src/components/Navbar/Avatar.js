@@ -14,7 +14,7 @@ export default function Avatar(props) {
                     changeProfileMenuState(previousMenuState => !previousMenuState);
                     if(props.onChange) { props.onChange(!profileMenuState); }
                     }} className="align-middle" type="button">
-                    <img className="h-8 w-8 rounded-full" src={USERS_URL_WITHOUT_SLASH + props.avatar.image} />
+                    <img className="h-8 w-8 rounded-full" src={USERS_URL_WITHOUT_SLASH + props.image} />
                 </button>
             </div>
 

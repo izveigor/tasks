@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import CurrentTask from './CurrentTask';
 import {
@@ -9,13 +9,6 @@ import store from '../features/store';
 import { Provider } from 'react-redux';
 import { userUpdated } from '../features/userSlice';
 
-
-const response = {
-    "title": "Название",
-    "id": 1,
-    "description": "Описание",
-    "time": "2018-9-18T10:46:43.553472514Z"
-};
 
 it('Получаем текущее задание и пробуем его закрыть успешно', async() => {
     const response = {

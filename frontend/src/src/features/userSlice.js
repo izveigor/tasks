@@ -33,6 +33,7 @@ const initialState = {
     token: null,
     isTeammate: false,
     isAdmin: false,
+    isCreator: false,
     image: "",
 };
 
