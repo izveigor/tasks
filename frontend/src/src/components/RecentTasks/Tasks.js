@@ -4,7 +4,7 @@ import Task from "./Task";
 
 export default function Tasks(props) {
     return (
-        <div>
+        <div data-testid="tasks">
         {props.tasks.map((task, number) => 
             <div data-testid={"task-" + number.toString()} key={number.toString()}>
                 <Task

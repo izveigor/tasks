@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-
 import { TASKS_URL } from '../features/constants';
 import NoTasks from '../components/RecentTasks/NoTasks';
 import Tasks from '../components/RecentTasks/Tasks';
+import { useSelector } from 'react-redux';
 
 
 export default function RecentTasks() {
+    const token = useSelector((state) => state.user.token);
+
     const [recentTasksData, changeRecentTasksData] = useState([]);
     const [showNoTasks, changeShowNoTasks] = useState(true);
-
-    let token = localStorage.getItem("token");
 
     async function getRecentTasks() {
         await fetch(TASKS_URL + "tasks/?page=1", {
@@ -46,7 +45,7 @@ export default function RecentTasks() {
             <div>
                 {showNoTasks ?
                 <NoTasks />
-                : <Tasks tasks={showNoTasks ? null : recentTasksData} />
+                : <Tasks tasks={recentTasksData} />
                 }
             </div>
         </div>
