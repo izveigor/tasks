@@ -47,7 +47,9 @@ it("Показываем меню для зарегистрированного 
     });
 
     expect(links[0]).toHaveAttribute('href', '/main');
-    store.dispatch(userUpdated({"token": null}));
+    act(() => {
+        store.dispatch(userUpdated({"token": null}));
+    });
 });
 
 
@@ -69,7 +71,9 @@ it("Показываем меню для участника команды", () 
     });
 
     expect(links[0]).toHaveAttribute('href', '/main');
-    store.dispatch(userUpdated({"token": null}));
+    act(() => {
+        store.dispatch(userUpdated({"token": null}));
+    });
 });
 
 
@@ -92,5 +96,7 @@ it("Показываем меню для создателя заданий", () 
     });
 
     expect(links[0]).toHaveAttribute('href', '/main');
-    store.dispatch(userUpdated({"token": null, "isCreator": false}));
+    act(() => {
+        store.dispatch(userUpdated({"token": null, "isCreator": false}));
+    });
 });

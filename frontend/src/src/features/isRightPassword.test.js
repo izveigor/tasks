@@ -12,8 +12,7 @@ it('Проверяем валидатор пароля', () => {
         ["NEWpassword111", true],
     ];
 
-    validatedData.map(async(item) => {
-        password = isRightPassword(item[0])
-        expect(password).toBe(item[1]);
+    validatedData.map((item) => {
+        expect(isRightPassword(item[0])).toBe(item[1]);
     });
 });

@@ -88,6 +88,9 @@ it("Выходим из аккаунта", () => {
     expect(store.getState()["user"]["token"] === null).toBe(true)
     expect(mockUseNavigate).toHaveBeenCalledTimes(1)
     expect(mockUseNavigate).toHaveBeenCalledWith('../confirm');
+    act(() => {
+        store.dispatch(userUpdated({"token": null}))
+    });
 });
 
 

@@ -170,6 +170,8 @@ it("Регистрируем пользователя", async() => {
     expect(mockUseNavigate).toHaveBeenCalledTimes(1);
     expect(mockUseNavigate).toHaveBeenCalledWith('/confirm');
 
-    store.dispatch(userUpdated({"token": null}));
+    await act(async() => {
+        store.dispatch(userUpdated({"token": null}));
+    });
     global.fetch.mockRestore();
 });
