@@ -2,11 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { USERS_URL } from '../features/constants';
 import './Confirm.css';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 
 export default function ConfirmEmail() {
     const [attemptsNumber, changeAttemptsNumber] = useState(0);
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
+    const isEmailConfirmed = useSelector((state) => state.user.isEmailConfirmed);
+
     const navigate = useNavigate();
 
     const firstNumber = useRef(null);
@@ -49,7 +52,6 @@ export default function ConfirmEmail() {
             body: JSON.stringify({
                 "code": code,
             })
-
         })
         .then((res) => res.json())
         .then((data) => {
@@ -63,34 +65,15 @@ export default function ConfirmEmail() {
     };
 
     useEffect(() => {
-        getAttemptsNumber()
-        let token = localStorage.getItem("token");
-        if(token == null) {
-            navigate("..");
+        if (token === null) {
+            navigate('..');
         }
-        fetch(USERS_URL + "authorization/", {
-            method: "GET",
-            headers: {
-                "Authorization": "Token " + token,
-            }
-        })
-        .then((response) => {
-            if (response.status === 401) {
-                navigate("..");
-            }
-        })
-        .catch((error) => navigate(".."))
 
-        fetch(USERS_URL + "authorization_with_email/", {
-            method: "GET",
-            headers: {
-                "Authorization": "Token " + token,
-            }
-        }).then((response) => {
-            if(response.ok) {
-                navigate("../main");
-            }
-        })
+        if (isEmailConfirmed !== false) {
+            navigate("../main");
+        }
+
+        getAttemptsNumber();
     }, [])
 
     return (
@@ -110,9 +93,9 @@ export default function ConfirmEmail() {
                         <p className="mt-5">—</p>
                         <input type="text" pattern="\d*" maxLength="1" ref={sixthNumber} className="border pl-[18px] w-[3em] h-[3em] border-gray-400 py-2 px-2 rounded-md placeholder-gray-400 mt-2 focus:outline-gray-300" placeholder="0" required />
                     </div>
-                    <div className="text-center mt-2">
-                        <span className="text-sm">У вас осталось {attemptsNumber} попытки!</span>
-                    </div>
+                    {attemptsNumber > 0 && <div className="text-center mt-2">
+                        <span data-testid="available-tries" className="text-sm">У вас осталось {attemptsNumber} попытки!</span>
+                    </div>}
                     <div className="flex justify-center mt-2">
                         <button type="submit" className="bg-indigo-700 py-1 px-2 w-[10em] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Отправить</button>
                     </div>
