@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import {
     BrowserRouter as Router,
@@ -24,7 +24,7 @@ it('Получаем данные из профиля', async() => {
     };
 
     await act(async() => {
-        store.dispatch(userUpdated({"token": "1"}));
+        store.dispatch(userUpdated({"token": "1", "isEmailConfirmed": true}));
     });
 
     jest.spyOn(global, "fetch").mockImplementation(() =>
@@ -42,4 +42,9 @@ it('Получаем данные из профиля', async() => {
     expect(document.querySelector('[data-testid="profile-image"]')).toHaveAttribute('src', USERS_URL_WITHOUT_SLASH + response.image);
     expect(document.querySelector('[data-testid="profile-job-title"]').textContent).toEqual("Должность: " + response.job_title);
     expect(document.querySelector('[data-testid="profile-description"]').textContent).toEqual("Описание: " + response.description);
+
+    await act(async() => {
+        store.dispatch(userUpdated({"token": null, "isEmailConfirmed": false}));
+    });
+    global.fetch.mockRestore();
 });
