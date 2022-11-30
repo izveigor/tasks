@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { USERS_URL } from '../features/constants';
+import { USERS_URL, USERS_URL_WITHOUT_SLASH } from '../features/constants';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 
 export default function JoinTeam() {
     const navigate = useNavigate();
-    const token = localStorage.getItem("token")
-    const [suggestedEmployee, changeSuggestedEmployee] = useState({});
-    const [showSuggestedEmployee, changeShowSuggestedEmployee] = useState(false);
+    
+    const token = useSelector((state) => state.user.token);
+    const isTeammate = useSelector((state) => state.user.isTeammate);
+
+    const [suggestedTeam, changeSuggestedTeam] = useState({});
+    const [showSuggestedTeam, changeShowSuggestedTeam] = useState(false);
     const [nameDoesNotExist, changeNameDoesNotExist] = useState(false);
     const [showSuccessMessage, changeShowSuccessMessage] = useState(false);
     const [showNoFound, changeShowNoFound] = useState(false);
@@ -15,17 +19,9 @@ export default function JoinTeam() {
     const teamNameRef = useRef(null);
 
     function Authorization() {
-        fetch(USERS_URL + "check_team/", {
-            method: "GET",
-            headers: {
-                'Authorization': "Token " + token,
-            }
-        })
-        .then((response) => {
-            if(response.ok) {
-                navigate("../main");
-            }
-        })
+        if(isTeammate) {
+            navigate("../main");
+        }
     }
 
     useEffect(() => {
@@ -62,7 +58,7 @@ export default function JoinTeam() {
         event.preventDefault();
     }
 
-    async function suggestEmployee() {
+    async function suggestTeam() {
         await fetch(USERS_URL + "suggest_team/", {
             method: 'POST',
             headers: {
@@ -82,12 +78,12 @@ export default function JoinTeam() {
         })
         .then((data) => {
             if (data !== null) {
-                changeShowSuggestedEmployee(true);
-                changeSuggestedEmployee(data);
+                changeShowSuggestedTeam(true);
+                changeSuggestedTeam(data);
                 changeShowNoFound(false);
             } else {
                 changeShowNoFound(true);
-                changeShowSuggestedEmployee(false);
+                changeShowSuggestedTeam(false);
             }
         })
     };
@@ -98,14 +94,14 @@ export default function JoinTeam() {
                 <h1 className="text-2xl">Присоединиться к команде:</h1>
             </div>
             <div className="px-6 mb-6 w-100 grid grid-rows-12">
-                <input onChange={async() => await suggestEmployee()} ref={teamNameRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Название команды:" required />
+                <input data-testid="name-input" onChange={async() => await suggestTeam()} ref={teamNameRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Название команды:" required />
             </div>
-            {showSuggestedEmployee && (<div class="flex">
-                <div class="ml-3 w-[3em] h-[3em]">
-                    <img class="rounded-full align-middle" src={suggestedEmployee.image} />
+            {showSuggestedTeam && (<div data-testid="team-information" className="flex">
+                <div className="ml-3 w-[3em] h-[3em]">
+                    <img data-testid="team-image" className="rounded-full align-middle" src={USERS_URL_WITHOUT_SLASH + suggestedTeam.image} />
                 </div>
-                <div class="ml-[1em] grid">
-                    <span>{suggestedEmployee.name}</span>
+                <div className="ml-[1em] grid">
+                    <span data-testid="team-name">{suggestedTeam.name}</span>
                 </div>
             </div>)}
             {showNoFound && <span className="h-[20px] py-1 text-md text-gray-600">Не найдено ни одной команды!</span>}

@@ -2,25 +2,16 @@ import React, { useEffect } from 'react';
 import InformationAboutSite from '../containers/InformationAboutSite';
 import RegisterLoginForm from '../containers/RegisterLoginForm';
 import { useNavigate } from 'react-router-dom';
-import { USERS_URL } from '../features/constants';
+import { useSelector } from 'react-redux';
 
 
 export default function Index() {
     const navigate = useNavigate();
+    const token = useSelector((state) => state.user.token);
+
     useEffect(() => {
-        let token = localStorage.getItem("token");
-        if(token != null) {
-            fetch(USERS_URL + "authorization/", {
-                method: "GET",
-                headers: {
-                    "Authorization": "Token " + token,
-                }
-            })
-            .then((response) => {
-                if (response.status !== 401) {
-                    navigate("/main");
-                }
-            })
+        if(token !== null) {
+            navigate("/main");
         }
     }, [])
 
