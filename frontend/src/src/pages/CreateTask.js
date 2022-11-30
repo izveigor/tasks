@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TASKS_URL, USERS_URL, USERS_URL_WITHOUT_SLASH } from '../features/constants';
+import { useSelector } from 'react-redux';
 
 
 export default function CreateTask() {
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
+    const isCreator = useSelector((state) => state.user.isCreator);
 
     const usernameRef = useRef(null);
     const previousRef = useRef(null);
@@ -72,8 +74,7 @@ export default function CreateTask() {
     };
 
     const removeSubsequentId = (event, item) => {
-        let array = subsequentIds;
-        const index = array.indexOf(item);
+        const index = subsequentIds.indexOf(item);
         if (index > -1) {
             changeSubsequentIds([
                 ...subsequentIds.slice(0, index),
@@ -113,21 +114,9 @@ export default function CreateTask() {
     }
 
     useEffect(() => {
-        if(token == null) {
+        if(token == null || !isCreator) {
             navigate("/confirm");
         }
-        fetch(USERS_URL + "check_creator/", {
-            method: "GET",
-            headers: {
-                'Authorization': "Token " + token,
-            }
-        })
-        .then((response) => {
-            if(response.status === 403) {
-                navigate("/confirm");
-            }
-        })
-        .catch((error) => navigate("/confirm"))
     }, []);
 
     function createTask(event) {
@@ -147,7 +136,7 @@ export default function CreateTask() {
             })
         })
         .then((response) => {
-            if(response.ok) {
+            if(response.status === 201) {
                 changeSuccessCreated(true);
             }
         })
@@ -160,50 +149,50 @@ export default function CreateTask() {
                 <h1 className="text-2xl">Создать задание:</h1>
             </div>
             <form onSubmit={createTask} className="px-6 mb-6 w-100 grid grid-rows-12">
-                <input ref={usernameRef} onChange={getEmployee} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Выберите сотрудника:" required />
-                {showUserData && (<div className="flex">
+                <input data-testid="employee-input" ref={usernameRef} onChange={getEmployee} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Выберите сотрудника:" required />
+                {showUserData && (<div data-testid="employee-data" className="flex">
                     <div className="ml-3 w-[3em] h-[3em]">
-                        <img className="rounded-full align-middle" src={USERS_URL_WITHOUT_SLASH + userData.image} />
+                        <img data-testid="employee-image" className="rounded-full align-middle" src={USERS_URL_WITHOUT_SLASH + userData.image} />
                     </div>
                     <div className="ml-[1em] grid">
-                        <span>{userData.user.first_name + " " + userData.user.last_name}</span>
-                        <span className="text-sm text-gray-600">{userData.user.username}</span>
+                        <span data-testid="employee-fullname">{userData.user.first_name + " " + userData.user.last_name}</span>
+                        <span data-testid="employee-username" className="text-sm text-gray-600">{userData.user.username}</span>
                     </div>
                 </div>)}
                 {showNoFound && <span className="h-[20px] py-1 text-md text-gray-600">Не найдено ни одной команды!</span>}
-                <input ref={titleRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Название задания:" required />
-                <input ref={timeRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" type="time" required />
+                <input data-testid="title-input" ref={titleRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Название задания:" required />
+                <input data-testid="time-input" ref={timeRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" type="time" required />
                 <div>
-                    <input ref={previousRef} className="border pl-[14px] w-[74%] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Предыдущее задание:" />
-                    <button onClick={() => addPreviousId()} type="button" className="bg-indigo-700 py-1 px-2 w-[25%] ml-[3px] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Добавить</button>
+                    <input data-testid="previous-input" ref={previousRef} className="border pl-[14px] w-[74%] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Предыдущее задание:" />
+                    <button data-testid="previous-button" onClick={() => addPreviousId()} type="button" className="bg-indigo-700 py-1 px-2 w-[25%] ml-[3px] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Добавить</button>
                 </div>
                 {showErrorPreviousIds && <span className="h-[20px] py-1 text-sm text-red-500">Вводить можно только десятичные числа (id заданий)!</span>}
                 <div className="grid mt-2 gap-3 grid-cols-8">
-                    {showPreviousIds && previousIds.map((item, index) => (<div key={index} className="text-center w-[5em] text-white bg-sky-600 rounded-full py-1 px-1">
+                    {showPreviousIds && previousIds.map((item, index) => (<div data-testid="previous-badge" key={index} className="text-center w-[5em] text-white bg-sky-600 rounded-full py-1 px-1">
                         {item} <button onClick={(event) => removePreviousId(event, item)} type="button" className="align-middle mb-[0.1em] hover:text-gray-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg></button>
                     </div>))}
                 </div>
                 <div>
-                    <input ref={subsequentRef} className="border pl-[14px] w-[74%] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Последующее задание:" />
-                    <button onClick={() => addSubsequentId()} type="button" className="bg-indigo-700 py-1 px-2 w-[25%] ml-[3px] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Добавить</button>
+                    <input data-testid="subsequent-input" ref={subsequentRef} className="border pl-[14px] w-[74%] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Последующее задание:" />
+                    <button data-testid="subsequent-button" onClick={() => addSubsequentId()} type="button" className="bg-indigo-700 py-1 px-2 w-[25%] ml-[3px] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Добавить</button>
                 </div>
                 {showErrorSubsequentIds && <span className="h-[20px] py-1 text-sm text-red-500">Вводить можно только десятичные числа (id заданий)!</span>}
                 <div className="grid mt-2 gap-3 grid-cols-8">
-                    {showSubsequentIds && subsequentIds.map((item, index) => (<div key={index} className="text-center w-[5em] text-white bg-sky-600 rounded-full py-1 px-1">
+                    {showSubsequentIds && subsequentIds.map((item, index) => (<div data-testid="subsequent-badge" key={index} className="text-center w-[5em] text-white bg-sky-600 rounded-full py-1 px-1">
                         {item} <button onClick={(event) => removeSubsequentId(event, item)} type="button" className="align-middle mb-[0.1em] hover:text-gray-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>))}
                 </div>
-                <textarea ref={descriptionRef} style={{resize: "none"}} className="h-[10em] w-100 border pl-[14px] grid border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Введите описание задания:"></textarea>
+                <textarea data-testid="description-textarea" ref={descriptionRef} style={{resize: "none"}} className="h-[10em] w-100 border pl-[14px] grid border-gray-400 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Введите описание задания:"></textarea>
                 <div className="flex justify-center">
-                    <button type="submit" className="bg-indigo-700 py-1 px-2 w-[15em] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Опубликовать</button>
+                    <button data-testid="create-button" type="submit" className="bg-indigo-700 py-1 px-2 w-[15em] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Опубликовать</button>
                 </div>
             </form>
-            {successCreated && <span data-testid="team-created-span-test" className="h-[20px] py-1 text-sm text-green-500">Задание успешно создано!</span>}
+            {successCreated && <span data-testid="created-successfully" className="h-[20px] py-1 text-sm text-green-500">Задание успешно создано!</span>}
         </div>
     );
 };
