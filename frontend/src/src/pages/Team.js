@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { USERS_URL, USERS_URL_WITHOUT_SLASH } from '../features/constants';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 
 export default function Team() {
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
+    const token = useSelector((state) => state.user.token);
+    const isEmailConfirmed = useSelector((state) => state.user.isEmailConfirmed);
 
     const [myTeamData, changeMyTeamData] = useState({});
     const [isLoaded, changeIsLoaded] = useState(false);
@@ -26,22 +28,10 @@ export default function Team() {
     }
 
     useEffect(() => {
-        getTeam()
-        if(token == null) {
+        if(token == null || !isEmailConfirmed) {
             navigate("/confirm");
         }
-        fetch(USERS_URL + "authorization_with_email/", {
-            method: "GET",
-            headers: {
-                'Authorization': "Token " + token,
-            }
-        })
-        .then((response) => {
-            if(response.status === 403) {
-                navigate("/confirm");
-            }
-        })
-        .catch((error) => navigate("/confirm"))
+        getTeam()
     }, []);
 
     return (
@@ -51,14 +41,14 @@ export default function Team() {
                 <h1 className="text-2xl">Моя команда:</h1>
             </div>
             <div className="text-center my-2">
-                <h1 className="text-xl">{myTeamData.name}</h1>
+                <h1 data-testid="team-name" className="text-xl">{myTeamData.name}</h1>
             </div>
             <div className="grid grid-cols-4">
                 <div className="border-2 w-40 h-40 rounded-sm px-1 py-1 border-gray-400">
-                    <img className="w-[100%] h-[100%]" src={USERS_URL_WITHOUT_SLASH + myTeamData.image} />
+                    <img data-testid="team-image" className="w-[100%] h-[100%]" src={USERS_URL_WITHOUT_SLASH + myTeamData.image} />
                 </div>
                 <div className="w-70 col-span-3 border-2 border-gray-400 rounded-sm py-2 px-4">
-                    <p><b>Описание:</b> {myTeamData.description}</p>
+                    <p data-testid="team-description"><b>Описание:</b> {myTeamData.description}</p>
                 </div>
             </div></div>)}
         </div>
