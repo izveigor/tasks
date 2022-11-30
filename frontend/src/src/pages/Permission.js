@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { USERS_URL, USERS_URL_WITHOUT_SLASH } from "../features/constants";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
 
 export default function Permission() {
-    const token = localStorage.getItem("token");
     const navigate = useNavigate();
+    const token = useSelector((state) => state.user.token);
+    const isEmailConfirmed = useSelector((state) => state.user.isEmailConfirmed);
+    const isAdmin = useSelector((state) => state.user.isAdmin);
 
     const supervisorRef = useRef(null);
     const subordinateRef = useRef(null);
 
+    const [showSuccessMessage, changeShowSuccessMessage] = useState(false);
     const [supervisorUserData, changeSupervisorUserData] = useState({});
     const [subordinateUserData, changeSubordinateUserData] = useState({});
     const [showSupervisorUser, changeShowSupervisorUser] = useState(false);
@@ -77,56 +81,62 @@ export default function Permission() {
         })
     }
 
+    function getPermission(event) {
+        fetch(USERS_URL + "/permission", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                supervisor: supervisorRef.current.value,
+                subordinate: subordinateRef.current.value,
+            })
+        }).then((response) => {
+            if(response.ok) {
+                changeShowSuccessMessage(true);
+            }
+        })
+        event.preventDefault();
+    }
     useEffect(() => {
-        if(token == null) {
+        if(token == null || !isEmailConfirmed || !isAdmin) {
             navigate("/confirm");
         }
-        fetch(USERS_URL + "authorization_with_email/", {
-            method: "GET",
-            headers: {
-                'Authorization': "Token " + token,
-            }
-        })
-        .then((response) => {
-            if(response.status === 403) {
-                navigate("/confirm");
-            }
-        })
-        .catch((error) => navigate("/confirm"))
     }, [])
 
     return (
-        <form class="bg-white rounded-md py-2 px-2">
-            <div class="text-center py-2">
-                <h1 class="text-2xl">Дать разрешение:</h1>
+        <form onSubmit={getPermission} className="bg-white rounded-md py-2 px-2">
+            <div className="text-center py-2">
+                <h1 className="text-2xl">Дать разрешение:</h1>
             </div>
-            <div class="px-6 mb-6 w-100 grid grid-rows-12">
-                <input onChange={getSupervisor} ref={supervisorRef} class="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Руководитель:" required />
-                {showSupervisorUser && (<div class="flex">
-                    <div class="ml-3 w-[3em] h-[3em]">
-                        <img class="rounded-full align-middle" src={USERS_URL_WITHOUT_SLASH + supervisorUserData.image} />
+            <div className="px-6 mb-6 w-100 grid grid-rows-12">
+                <input data-testid="supervisor-input" onChange={getSupervisor} ref={supervisorRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Руководитель:" required />
+                {showSupervisorUser && (<div data-testid="supervisor" className="flex">
+                    <div className="ml-3 w-[3em] h-[3em]">
+                        <img data-testid="supervisor-image" className="rounded-full align-middle" src={USERS_URL_WITHOUT_SLASH + supervisorUserData.image} />
                     </div>
-                    <div class="ml-[1em] grid">
-                        <span>{supervisorUserData.user.first_name + " " + supervisorUserData.user.last_name}</span>
-                        <span class="text-sm text-gray-600">{supervisorUserData.user.username}</span>
+                    <div className="ml-[1em] grid">
+                        <span data-testid="supervisor-fullname">{supervisorUserData.user.first_name + " " + supervisorUserData.user.last_name}</span>
+                        <span data-testid="supervisor-username" className="text-sm text-gray-600">{supervisorUserData.user.username}</span>
                     </div>
                 </div>)}
                 {showNoFoundSupervisor && <span className="h-[20px] py-1 text-md text-gray-600">Не найдено ни одной команды!</span>}
-                <input onChange={getSubordinate} ref={subordinateRef} class="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Подчиненный:" required />
-                {showSubordinateUser && (<div class="flex">
-                    <div class="ml-3 w-[3em] h-[3em]">
-                        <img class="rounded-full align-middle" src={USERS_URL_WITHOUT_SLASH + subordinateUserData.image} />
+                <input data-testid="subordinate-input" onChange={getSubordinate} ref={subordinateRef} className="border pl-[14px] border-gray-400 w-100 py-2 px-1 rounded-md placeholder-gray-700 mt-2 focus:outline-gray-300" placeholder="Подчиненный:" required />
+                {showSubordinateUser && (<div data-testid="subordinate" className="flex">
+                    <div className="ml-3 w-[3em] h-[3em]">
+                        <img data-testid="subordinate-image" className="rounded-full align-middle" src={USERS_URL_WITHOUT_SLASH + subordinateUserData.image} />
                     </div>
-                    <div class="ml-[1em] grid">
-                        <span>{subordinateUserData.user.first_name + " " + subordinateUserData.user.last_name}</span>
-                        <span class="text-sm text-gray-600">{subordinateUserData.user.username}</span>
+                    <div className="ml-[1em] grid">
+                        <span data-testid="subordinate-fullname">{subordinateUserData.user.first_name + " " + subordinateUserData.user.last_name}</span>
+                        <span data-testid="subordinate-username" className="text-sm text-gray-600">{subordinateUserData.user.username}</span>
                     </div>
                 </div>)}
                 {showNoFoundSubordinate && <span className="h-[20px] py-1 text-md text-gray-600">Не найдено ни одной команды!</span>}
             </div>
-            <div class="flex justify-center">
-                <button type="submit" class="bg-indigo-700 py-1 px-2 w-[15em] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Отправить</button>
+            <div className="flex justify-center">
+                <button type="submit" className="bg-indigo-700 py-1 px-2 w-[15em] h-[2.5em] rounded-md text-white mt-2 hover:bg-indigo-600">Отправить</button>
             </div>
+            {showSuccessMessage && <span data-testid="set-permission-successfully" className="h-[20px] py-1 text-sm text-green-500">Пользователь {supervisorRef.current.value} стал руководителем для пользователя {subordinateRef.current.value}!</span>}
         </form>
     );
 };

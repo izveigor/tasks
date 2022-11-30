@@ -4,27 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import RecentTasks from '../containers/RecentTasks';
 import CurrentTask from '../containers/CurrentTask';
 import { USERS_URL } from '../features/constants';
+import { useSelector } from 'react-redux';
+
 
 export default function Main() {
     const navigate = useNavigate();
+    const token = useSelector((state) => state.user.token);
+    const isEmailConfirmed = useSelector((state) => state.user.isEmailConfirmed);
 
     useEffect(() => {
-        let token = localStorage.getItem("token");
-        if(token == null) {
+        if(token == null || !isEmailConfirmed) {
             navigate("../confirm");
         }
-        fetch(USERS_URL + "authorization_with_email/", {
-            method: "GET",
-            headers: {
-                'Authorization': "Token " + token,
-            }
-        })
-        .then((response) => {
-            if(response.status === 401) {
-                navigate("../confirm");
-            }
-        })
-        .catch((error) => navigate("../confirm"))
     }, []);
 
     return (
