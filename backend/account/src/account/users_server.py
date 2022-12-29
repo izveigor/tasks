@@ -1,21 +1,27 @@
-import grpc
 from concurrent import futures
 
-from account.constants import USERS_HOST
-from account.pb.users_pb2_grpc import UsersServicer, add_UsersServicer_to_server
-from account.pb.users_pb2 import (
-    GetTokenFromUsernameResponse,
-    PermissionResponse,
-    GetUserFromTokenResponse,
-    ConfirmEmailResponse,
-)
-from rest_framework.authtoken.models import Token
+import grpc
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+
+from account.constants import USERS_HOST
+from account.pb.users_pb2 import (
+    ConfirmEmailRequest,
+    GetTokenFromUsernameRequest,
+    GetUserFromTokenRequest,
+    PermissionRequest,
+    ConfirmEmailResponse,
+    GetTokenFromUsernameResponse,
+    GetUserFromTokenResponse,
+    PermissionResponse,
+)
+from account.pb.users_pb2_grpc import UsersServicer, add_UsersServicer_to_server
 from users.models import ConfirmEmail
+from typing import Any
 
 
-class UsersService(UsersServicer):
-    def CheckPermission(self, request, context):
+class UsersService(UsersServicer):  # type: ignore
+    def CheckPermission(self, request: PermissionRequest, context: Any) -> PermissionResponse:
         receiver_username = request.receiverUsername
         sender_username = request.senderUsername
 
@@ -39,7 +45,7 @@ class UsersService(UsersServicer):
             is_permission_exist=result,
         )
 
-    def GetTokenFromUsername(self, request, context):
+    def GetTokenFromUsername(self, request: GetTokenFromUsernameRequest, context: Any) -> GetTokenFromUsernameResponse:
         username = request.username
         user = User.objects.get(username=username)
         token = Token.objects.get(user=user)
@@ -48,7 +54,7 @@ class UsersService(UsersServicer):
             token=token,
         )
 
-    def GetUserFromToken(self, request, context):
+    def GetUserFromToken(self, request: GetUserFromTokenRequest, context: Any) -> GetUserFromTokenResponse:
         token = request.token
         user = Token.objects.get(key=token).user
 
@@ -56,7 +62,7 @@ class UsersService(UsersServicer):
             username=user.username,
         )
 
-    def ConfirmEmail(self, request, context):
+    def ConfirmEmail(self, request: ConfirmEmailRequest, context: Any) -> ConfirmEmailResponse:
         username = request.username
         user = User.objects.get(username=username)
         confirm = ConfirmEmail.objects.get(user=user)
@@ -70,7 +76,7 @@ class UsersService(UsersServicer):
         )
 
 
-def tasks_serve():
+def tasks_serve() -> None:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     add_UsersServicer_to_server(UsersService(), server)
     server.add_insecure_port(USERS_HOST)

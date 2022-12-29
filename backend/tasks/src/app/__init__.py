@@ -1,20 +1,21 @@
 import os
+from threading import Thread
+from typing import Any
 
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
 
+from connection.tasks_server import tasks_serve
+from constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND, POSTGRESQL_SETTINGS
 from models import db
 
-from .views import bp_views
-from .serializers import bp_marhmallow
-from connection.tasks_server import tasks_serve
-from threading import Thread
 from .celery import make_celery
-from constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND, POSTGRESQL_SETTINGS
+from .serializers import bp_marhmallow
+from .views import bp_views
 
 
-def create_app(config: str = "PRODUCTION", **kwargs) -> Flask:
+def create_app(config: str = "PRODUCTION", **kwargs: dict[str, Any]) -> Flask:
     app = Flask(__name__)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["TESTING"] = True if config == "TESTING" else False

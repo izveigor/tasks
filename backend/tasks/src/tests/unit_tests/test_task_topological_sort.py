@@ -1,14 +1,16 @@
-from app.task_topological_sort import TaskTopologicalSort
-from constants import TASK_STATUS, PROCESSING_TASK_STATUS
-from datetime import datetime
-from tests.helpers import create_user
-from models import Task, db
-from flask.testing import FlaskClient
 import uuid
+from datetime import datetime
+
+from flask.testing import FlaskClient
+
+from app.task_topological_sort import TaskTopologicalSort
+from constants import PROCESSING_TASK_STATUS, TASK_STATUS
+from models import Task, db
+from tests.helpers import create_user
 
 
 class TestTaskTopologicalSort:
-    def test_task_topological_sort(self, client: FlaskClient):
+    def test_task_topological_sort(self, client: FlaskClient) -> None:
         uuids = [uuid.uuid4() for _ in range(3)]
         for i in range(3):
             create_user(

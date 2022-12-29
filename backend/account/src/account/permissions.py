@@ -1,24 +1,25 @@
 from rest_framework import permissions
-from users.models import ConfirmEmail
+
 from teams.models import Team
+from users.models import ConfirmEmail
+from typing import Any
 
-
-class EmailPermission(permissions.BasePermission):
+class EmailPermission(permissions.BasePermission):  # type: ignore
     """
     Проверяем, проверен ли у пользователя email.
     """
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: Any, view: Any) -> bool:
         email = request.user.confirm_email
-        return email.confirmed
+        return email.confirmed  # type: ignore
 
 
-class AdminTeamPermission(permissions.BasePermission):
+class AdminTeamPermission(permissions.BasePermission):  # type: ignore
     """
     Проверяем, что пользователем является администратором команды.
     """
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: Any, view: Any) -> bool:
         request.team = request.user.profile.team
         if request.team is None:
             return False
@@ -27,24 +28,24 @@ class AdminTeamPermission(permissions.BasePermission):
         return False
 
 
-class TeamPermission(permissions.BasePermission):
+class TeamPermission(permissions.BasePermission):  # type: ignore
     """
     Проверяем, что пользователь состоит в команде
     """
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: Any, view: Any) -> bool:
         if request.user.profile.team:
             request.team = request.user.profile.team
             return True
         return False
 
 
-class CreatorTeamPermission(permissions.BasePermission):
+class CreatorTeamPermission(permissions.BasePermission):  # type: ignore
     """
     Проверяем, что пользователь может создать задание
     """
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: Any, view: Any) -> bool:
         request.team = request.user.profile.team
         if request.team is None:
             return False

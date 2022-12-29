@@ -1,22 +1,29 @@
-from flask import Blueprint, request, jsonify
-from flask_restful import Resource, Api, reqparse
-from constants import PREFIX_HOST, TASKS_NUMBER_FOR_PAGE, PROCESSING_TASK_STATUS
-from .features import authorization_like_user, authorization_like_teammate, get_permission
-from models import db, Task, TaskUser
-from .serializers import task_schema, tasks_schema
-from .celery_tasks import validate_task_data
-from connection.notifications_client import notifications_client
-from connection.pb.notifications_pb2 import NotificationRequest
-from .task_topological_sort import TaskTopologicalSort
 import datetime
+from typing import Any
 
+from flask import Blueprint, jsonify, request
+from flask_restful import Api, Resource, reqparse
+
+from connection.notifications_client import notifications_client
+from connection.pb.notifications_pb2 import NotificationRequest  # type: ignore
+from constants import PREFIX_HOST, PROCESSING_TASK_STATUS, TASKS_NUMBER_FOR_PAGE
+from models import Task, TaskUser, db
+
+from .celery_tasks import validate_task_data
+from .features import (
+    authorization_like_teammate,
+    authorization_like_user,
+    get_permission,
+)
+from .serializers import task_schema, tasks_schema
+from .task_topological_sort import TaskTopologicalSort
 
 bp_views = Blueprint("views", __name__)
 api = Api(bp_views)
 
 
-class TaskView(Resource):
-    def get(self, task_id: int):
+class TaskView(Resource):  # type: ignore
+    def get(self, task_id: int) -> Any:
         task = Task.query.filter_by(id=task_id).first()
         if task is None:
             return "not found", 404
@@ -30,7 +37,7 @@ class TaskView(Resource):
             return task_schema.dump(task)
         return "forbidden", 403
 
-    def put(self, task_id: int):
+    def put(self, task_id: int) -> Any:
         task = Task.query.filter_by(id=task_id).first()
         if task is None:
             return "not found", 404
@@ -83,7 +90,7 @@ class TaskView(Resource):
         else:
             return "forbidden", 403
 
-    def delete(self, task_id):
+    def delete(self, task_id: int) -> Any:
         task = Task.query.filter_by(id=task_id).first()
         if task is None:
             return "not found", 404
@@ -100,8 +107,8 @@ class TaskView(Resource):
             return "unauthorized", 401
 
 
-class CurrentTaskView(Resource):
-    def get(self):
+class CurrentTaskView(Resource):  # type: ignore
+    def get(self) -> Any:
         try:
             _, user = authorization_like_teammate(request)
         except ValueError:
@@ -113,7 +120,7 @@ class CurrentTaskView(Resource):
         else:
             return "bad request", 400
 
-    def put(self):
+    def put(self) -> Any:
         try:
             _, user = authorization_like_teammate(request)
         except ValueError:
@@ -124,15 +131,15 @@ class CurrentTaskView(Resource):
             status=PROCESSING_TASK_STATUS,
         ).all()
 
-        next_task = TaskTopologicalSort().next_task(tasks, user.id)
+        next_task = TaskTopologicalSort().next_task(user.id)
 
         user.current_task_id = next_task.id
         db.session.commit()
         return "ok", 200
 
 
-class ProcessingView(Resource):
-    def get(self):
+class ProcessingView(Resource):  # type: ignore
+    def get(self) -> Any:
         try:
             _, user = authorization_like_teammate(request)
         except ValueError:
@@ -147,8 +154,8 @@ class ProcessingView(Resource):
             return "bad request", 400
 
 
-class TasksView(Resource):
-    def get(self):
+class TasksView(Resource):  # type: ignore
+    def get(self) -> Any:
         try:
             _, user = authorization_like_user(request)
         except ValueError:
@@ -170,7 +177,7 @@ class TasksView(Resource):
         else:
             return "bad request", 400
 
-    def post(self):
+    def post(self) -> Any:
         try:
             token, sender_user = authorization_like_teammate(request)
         except ValueError:
@@ -235,8 +242,8 @@ class TasksView(Resource):
             return "unauthorized", 401
 
 
-class TaskClose(Resource):
-    def put(self):
+class TaskClose(Resource):  # type: ignore
+    def put(self) -> Any:
         try:
             _, user = authorization_like_teammate(request)
         except ValueError:
@@ -252,8 +259,8 @@ class TaskClose(Resource):
         return "ok", 200
 
 
-api.add_resource(TaskView, PREFIX_HOST+"/task/<int:task_id>/")
-api.add_resource(CurrentTaskView, PREFIX_HOST+"/current_task/")
-api.add_resource(ProcessingView, PREFIX_HOST+"/processing/")
-api.add_resource(TasksView, PREFIX_HOST+"/tasks/")
-api.add_resource(TaskClose, PREFIX_HOST+"/close/")
+api.add_resource(TaskView, PREFIX_HOST + "/task/<int:task_id>/")
+api.add_resource(CurrentTaskView, PREFIX_HOST + "/current_task/")
+api.add_resource(ProcessingView, PREFIX_HOST + "/processing/")
+api.add_resource(TasksView, PREFIX_HOST + "/tasks/")
+api.add_resource(TaskClose, PREFIX_HOST + "/close/")

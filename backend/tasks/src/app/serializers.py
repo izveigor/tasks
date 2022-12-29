@@ -1,19 +1,20 @@
+from flask import Blueprint
 from flask_marshmallow import Marshmallow
 from marshmallow import Schema, fields
-from flask import Blueprint
-from models import TaskUser, Task
+
+from models import Task, TaskUser
 
 bp_marhmallow = Blueprint("marhmallow", __name__)
 ma = Marshmallow(bp_marhmallow)
 
 
-class TaskUserSchema(ma.Schema):
+class TaskUserSchema(ma.Schema):  # type: ignore
     class Meta:
         model = TaskUser
         fields = ("image",)
 
 
-class TaskSchema(ma.Schema):
+class TaskSchema(ma.Schema):  # type: ignore
     class Meta:
         model = Task
         fields = (

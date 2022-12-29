@@ -1,19 +1,21 @@
+from django.contrib.auth import get_user_model
+
 from tests.unit_tests.base import UnitTest
 from users.methods import suggest_username
-from django.contrib.auth import get_user_model
+from typing import Any
 
 User = get_user_model()
 
 
 class TestMethods(UnitTest):
-    user_data = {
+    user_data: dict[str, Any] = {
         "first_name": "first name",
         "last_name": "last name",
         "password": "password",
         "email": "email@email.com",
     }
 
-    def test_suggest_username_if_username_without_digits(self):
+    def test_suggest_username_if_username_without_digits(self) -> None:
         User.objects.create_user(
             username="username",
             **self.user_data,
@@ -21,11 +23,11 @@ class TestMethods(UnitTest):
         suggested_username = suggest_username(username="username")
         self.assertEqual(suggested_username, "username1")
 
-    def test_suggest_username_if_username_are_digits(self):
+    def test_suggest_username_if_username_are_digits(self) -> None:
         suggested_username = suggest_username(username="123123")
         self.assertIsNone(suggested_username)
 
-    def test_suggest_username_without_blanks(self):
+    def test_suggest_username_without_blanks(self) -> None:
         for index in range(1, 5):
             User.objects.create_user(
                 username="username" + str(index),
@@ -36,7 +38,7 @@ class TestMethods(UnitTest):
             suggested_username = suggest_username("username" + str(index))
             self.assertEqual(suggested_username, "username5")
 
-    def test_suggest_username_with_blanks(self):
+    def test_suggest_username_with_blanks(self) -> None:
         for index in range(1, 4):
             User.objects.create_user(
                 username="username" + str(index),

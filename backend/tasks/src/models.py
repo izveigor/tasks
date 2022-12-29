@@ -1,8 +1,10 @@
+import uuid
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
-from constants import TASK_STATUS, DEFAULT_TASK_STATUS
 from sqlalchemy.orm import backref
-import uuid
+
+from constants import DEFAULT_TASK_STATUS, TASK_STATUS
 
 db = SQLAlchemy()
 

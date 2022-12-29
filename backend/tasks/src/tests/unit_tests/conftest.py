@@ -1,10 +1,10 @@
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient, FlaskCliRunner
+from sqlalchemy import text
 
 from app import create_app
 from models import db
-from sqlalchemy import text
 
 
 @pytest.fixture()  # type: ignore

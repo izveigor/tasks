@@ -1,17 +1,18 @@
-from .models import Profile, ConfirmEmail
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
-from django.contrib.auth import authenticate
+
 from .methods import suggest_username
-from django.contrib.auth import get_user_model
+from .models import ConfirmEmail, Profile
+from typing import Any
 
 User = get_user_model()
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):  # type: ignore
     username = serializers.CharField(max_length=150, write_only=True)
     password = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs):
+    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
         username = kwargs.get("username")
         password = kwargs.get("password")
 
@@ -35,12 +36,12 @@ class LoginSerializer(serializers.Serializer):
         return kwargs
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):  # type: ignore
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username", "email", "password"]
 
-    def validate(self, kwargs):
+    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
         first_name = kwargs.get("first_name")
         last_name = kwargs.get("last_name")
         username = kwargs.get("username")
@@ -78,12 +79,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         return kwargs
 
 
-class ChangeUsernameSerializer(serializers.ModelSerializer):
+class ChangeUsernameSerializer(serializers.ModelSerializer):  # type: ignore
     class Meta:
         model = User
         fields = ["username"]
 
-    def validate(self, kwargs):
+    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
         username = kwargs.get("username")
         msg = ""
         if not username:
@@ -101,11 +102,11 @@ class ChangeUsernameSerializer(serializers.ModelSerializer):
         return kwargs
 
 
-class ChangePasswordSerializer(serializers.Serializer):
+class ChangePasswordSerializer(serializers.Serializer):  # type: ignore
     password = serializers.CharField(write_only=True)
     repeated_password = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs):
+    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
         password = kwargs.get("password")
         repeated_password = kwargs.get("repeated_password")
         msg = ""
@@ -123,35 +124,35 @@ class ChangePasswordSerializer(serializers.Serializer):
         return kwargs
 
 
-class UsernameSerializer(serializers.Serializer):
+class UsernameSerializer(serializers.Serializer):  # type: ignore
     username = serializers.CharField(max_length=150)
 
 
-class EmailSerializer(serializers.ModelSerializer):
+class EmailSerializer(serializers.ModelSerializer):  # type: ignore
     class Meta:
         model = User
         fields = ["email"]
 
 
-class EmailAvailableTriesSerializer(serializers.ModelSerializer):
+class EmailAvailableTriesSerializer(serializers.ModelSerializer):  # type: ignore
     class Meta:
         model = ConfirmEmail
         fields = ["available_tries"]
 
 
-class EmailCodeSerializer(serializers.ModelSerializer):
+class EmailCodeSerializer(serializers.ModelSerializer):  # type: ignore
     class Meta:
         model = ConfirmEmail
         fields = ["code"]
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):  # type: ignore
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username"]
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):  # type: ignore
     user = UserProfileSerializer()
 
     class Meta:
@@ -159,17 +160,17 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["job_title", "description", "image", "user"]
 
 
-class AvatarSerializer(serializers.ModelSerializer):
+class AvatarSerializer(serializers.ModelSerializer):  # type: ignore
     class Meta:
         model = Profile
         fields = ["image"]
 
 
-class GroupPutSerializer(serializers.Serializer):
+class GroupPutSerializer(serializers.Serializer):  # type: ignore
     supervisor_username = serializers.CharField(write_only=True)
     subordinate_username = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs):
+    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
         supervisor_username = kwargs.get("supervisor_username")
         subordinate_username = kwargs.get("subordinate_username")
 
@@ -190,10 +191,10 @@ class GroupPutSerializer(serializers.Serializer):
         return kwargs
 
 
-class GroupDeleteSerializer(serializers.Serializer):
+class GroupDeleteSerializer(serializers.Serializer):  # type: ignore
     username = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs):
+    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
         username = kwargs.get("username")
 
         try:
@@ -204,7 +205,7 @@ class GroupDeleteSerializer(serializers.Serializer):
         return kwargs
 
 
-class UserWithImageSerializer(serializers.ModelSerializer):
+class UserWithImageSerializer(serializers.ModelSerializer):  # type: ignore
     user = UserProfileSerializer()
 
     class Meta:

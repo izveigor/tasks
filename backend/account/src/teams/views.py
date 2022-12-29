@@ -1,48 +1,50 @@
+from django.contrib.auth import get_user_model
+from google.protobuf.timestamp_pb2 import Timestamp  # type: ignore
 from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from account.notifications_client import notifications_client  # type: ignore
+from account.pb.notifications_pb2 import NotificationRequest
+from account.permissions import (
+    AdminTeamPermission,
+    CreatorTeamPermission,
+    EmailPermission,
+    TeamPermission,
+)
+from users.serializers import UsernameSerializer
+
 from . import serializers
 from .models import Team
-from account.permissions import (
-    EmailPermission,
-    AdminTeamPermission,
-    TeamPermission,
-    CreatorTeamPermission,
-)
-from google.protobuf.timestamp_pb2 import Timestamp
-from rest_framework.authtoken.models import Token
-from account.notifications_client import notifications_client
-from account.pb.notifications_pb2 import NotificationRequest
-from django.contrib.auth import get_user_model
-from users.serializers import UsernameSerializer
 
 User = get_user_model()
 
 
-class AuthorizationLikeTeammate(APIView):
+class AuthorizationLikeTeammate(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission, TeamPermission]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         return Response(status=status.HTTP_200_OK)
 
 
-class AuthorizationLikeAdmin(APIView):
+class AuthorizationLikeAdmin(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         return Response(status=status.HTTP_200_OK)
 
 
-class AuthorizationLikeCreator(APIView):
+class AuthorizationLikeCreator(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission, CreatorTeamPermission]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         return Response(status=status.HTTP_200_OK)
 
 
-class CheckTeamNameView(APIView):
-    def post(self, request, format=None):
+class CheckTeamNameView(APIView):  # type: ignore
+    def post(self, request, format=None) -> Response:
         serializer = serializers.TeamNameSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=False)
         name = serializer.validated_data["name"]
@@ -55,14 +57,14 @@ class CheckTeamNameView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class TeamView(APIView):
+class TeamView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         serializer = serializers.TeamSerializer(request.team)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         request.team.name = self.request.data["name"]
         request.team.description = self.request.data["description"]
         request.team.image = self.request.data["image"]
@@ -70,7 +72,7 @@ class TeamView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    def delete(self, request, format=None):
+    def delete(self, request, format=None) -> Response:
         for profile in request.team.users.all():
             profile.supervisor = None
             profile.save()
@@ -79,10 +81,10 @@ class TeamView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class JoinTeamView(APIView):
+class JoinTeamView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         serializer = serializers.TeamNameSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         name = serializer.validated_data["name"]
@@ -109,10 +111,10 @@ class JoinTeamView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class AcceptIntoTeamView(APIView):
+class AcceptIntoTeamView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         try:
             team = Team.objects.get(admin=self.request.user)
         except Team.DoesNotExist:
@@ -146,10 +148,10 @@ class AcceptIntoTeamView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class SuggestTeamView(APIView):
+class SuggestTeamView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None) -> Response:
         serializer = serializers.TeamNameSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         name = serializer.validated_data["name"]
@@ -162,10 +164,10 @@ class SuggestTeamView(APIView):
         return Response(team_serializer.data, status=status.HTTP_200_OK)
 
 
-class TeamsView(APIView):
+class TeamsView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None) -> Response:
         if self.request.user.profile.team:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -194,10 +196,10 @@ class TeamsView(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class LeaveTeamView(APIView):
+class LeaveTeamView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission, TeamPermission]
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         self.request.user.profile.team = None
         self.request.user.profile.save()
         return Response(status=status.HTTP_200_OK)

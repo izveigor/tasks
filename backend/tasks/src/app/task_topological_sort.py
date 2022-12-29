@@ -1,11 +1,12 @@
-from dataclasses import dataclass
-from models import TaskUser, Task, db
-from constants import PROCESSING_TASK_STATUS
-from sqlalchemy import or_
+import uuid
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
-import uuid
+from typing import Any, Optional
+
+from sqlalchemy import or_
+
+from constants import PROCESSING_TASK_STATUS
+from models import Task, TaskUser, db
 
 
 class Color(Enum):
@@ -24,17 +25,22 @@ class Node:
 
 
 class TaskTopologicalSort:
-    def __init__(self):
+    time: int
+    result: list[Task]
+
+    def __init__(self) -> None:
         self.time = 0
         self.result = []
 
     @staticmethod
-    def _search_node(nodes, task):
+    def _search_node(nodes: list[Node], task: Task) -> Node:
         for node in nodes:
             if node.task == task:
                 return node
 
-    def _DFS_visit(self, nodes: list[Node], u: Node):
+        return nodes[0]
+
+    def _DFS_visit(self, nodes: list[Node], u: Node) -> None:
         self.time += 1
         u.was_opened = self.time
         u.color = Color.GRAY
@@ -50,12 +56,12 @@ class TaskTopologicalSort:
         u.was_closed = self.time
         self.result.append(u.task)
 
-    def _DFS(self, nodes: list[Node]):
+    def _DFS(self, nodes: list[Node]) -> None:
         for u in nodes:
             if u.color == Color.WHITE:
                 self._DFS_visit(nodes, u)
 
-    def topological_sort(self, tasks: list[Task]):
+    def topological_sort(self, tasks: list[Task]) -> list[Task]:
         nodes = [
             Node(
                 task=task,
@@ -69,7 +75,7 @@ class TaskTopologicalSort:
         self._DFS(nodes)
         return self.result[::-1]
 
-    def next_task(self, id_: uuid):
+    def next_task(self, id_: Any) -> Task:
         tasks = Task.query.filter_by(
             receiver_user_id=id_,
             status=PROCESSING_TASK_STATUS,

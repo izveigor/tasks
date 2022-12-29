@@ -1,19 +1,22 @@
-from connection.tasks_server import TasksService
-from flask import Flask
-from connection.pb.tasks_pb2 import UserRequest, IDRequest
-from models import TaskUser
-from tests.helpers import create_user, check_model_fields
 import uuid
+from typing import Any
+
+from flask import Flask
+
+from connection.pb.tasks_pb2 import IDRequest, UserRequest  # type: ignore
+from connection.tasks_server import TasksService
+from models import TaskUser
+from tests.helpers import check_model_fields, create_user
 
 
 class TestTasksServicer:
     def test_AddUser(
         self,
         testing_app: Flask,
-    ):
+    ) -> None:
         service = TasksService(testing_app)
         user_uuid = uuid.uuid4()
-        user_data = {
+        user_data: dict[str, Any] = {
             "id": str(user_uuid),
             "username": "username",
             "image": "http://image",
@@ -30,7 +33,7 @@ class TestTasksServicer:
     def test_ChangeUser(
         self,
         testing_app: Flask,
-    ):
+    ) -> None:
         service = TasksService(testing_app)
         user_uuid = uuid.uuid4()
         user_data = {
@@ -54,7 +57,7 @@ class TestTasksServicer:
     def test_DeleteUser(
         self,
         testing_app: Flask,
-    ):
+    ) -> None:
         service = TasksService(testing_app)
         user_uuid = uuid.uuid4()
         create_user(

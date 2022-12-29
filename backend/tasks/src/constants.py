@@ -1,6 +1,5 @@
-from typing import Optional, Any
 import os
-
+from typing import Any, Optional
 
 POSTGRESQL_SETTINGS = {
     "POSTGRES_HOST": os.environ.get("POSTGRES_HOST"),
@@ -15,8 +14,12 @@ REDIS_SETTINGS = {
     "REDIS_PORT": os.environ.get("REDIS_PORT", ""),
 }
 
-CELERY_BROKER_URL = f'redis://{REDIS_SETTINGS["REDIS_HOST"]}:{REDIS_SETTINGS["REDIS_PORT"]}'
-CELERY_RESULT_BACKEND = f'redis://{REDIS_SETTINGS["REDIS_HOST"]}:{REDIS_SETTINGS["REDIS_PORT"]}'
+CELERY_BROKER_URL = (
+    f'redis://{REDIS_SETTINGS["REDIS_HOST"]}:{REDIS_SETTINGS["REDIS_PORT"]}'
+)
+CELERY_RESULT_BACKEND = (
+    f'redis://{REDIS_SETTINGS["REDIS_HOST"]}:{REDIS_SETTINGS["REDIS_PORT"]}'
+)
 
 TASK_STATUS = (
     "Успешно",

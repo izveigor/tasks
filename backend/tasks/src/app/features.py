@@ -1,10 +1,14 @@
-from connection.pb.users_pb2 import AuthorizationRequest, PermissionRequest
-from connection.users_client import users_client
 from flask import Request
+
+from connection.pb.users_pb2 import (  # type: ignore
+    AuthorizationRequest,
+    PermissionRequest,
+)
+from connection.users_client import users_client
 from models import TaskUser
 
 
-def get_token(auth_header) -> str:
+def get_token(auth_header: str) -> str:
     if auth_header:
         auth_arguments = auth_header.split(" ")
         auth_name = auth_arguments[0]

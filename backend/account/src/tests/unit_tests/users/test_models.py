@@ -1,12 +1,14 @@
 from datetime import datetime
-from users.models import Profile, ConfirmEmail, Team
-from tests.unit_tests.base import UnitTest
-from tests.helpers import check_model_fields, create_user
+
 from django.conf import settings
-import datetime
-from account.constants import EXPIRY_TIME, MAX_AVAILABLE_TRIES
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from account.constants import EXPIRY_TIME, MAX_AVAILABLE_TRIES
+from tests.helpers import check_model_fields, create_user
+from tests.unit_tests.base import UnitTest
+from users.models import ConfirmEmail, Profile, Team
+from typing import Any
 
 User = get_user_model()
 
@@ -21,7 +23,7 @@ class ModelsTest(UnitTest):
     }
 
     def test_user(self) -> None:
-        user_data_for_check = {
+        user_data_for_check: dict[str, Any] = {
             "last_login": None,
             "is_superuser": False,
             "is_staff": False,

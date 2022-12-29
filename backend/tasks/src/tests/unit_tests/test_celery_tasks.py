@@ -1,17 +1,19 @@
-from unittest.mock import patch, Mock
-from app.celery_tasks import validate_task_data
-from tests.helpers import create_user
-from constants import TASK_STATUS
-from models import TaskUser, Task
-from datetime import datetime
-from flask.testing import FlaskClient
 import uuid
+from datetime import datetime
+from unittest.mock import Mock, patch
+
+from flask.testing import FlaskClient
+
+from app.celery_tasks import validate_task_data
+from constants import TASK_STATUS
+from models import Task, TaskUser
+from tests.helpers import create_user
 
 
 class TestValidateTaskData:
     uuids = [uuid.uuid4() for _ in range(2)]
 
-    def create_users(self):
+    def create_users(self) -> None:
         receiver_user = {
             "id": self.uuids[0],
             "username": "username1",
@@ -28,7 +30,7 @@ class TestValidateTaskData:
         create_user(receiver_user)
         create_user(sender_user)
 
-    def create_tasks(self):
+    def create_tasks(self) -> tuple[Task, Task]:
         time = datetime.now()
         first_task = Task(
             id=1,
@@ -55,7 +57,7 @@ class TestValidateTaskData:
     def test_validate_data_is_right(
         self,
         client: FlaskClient,
-    ):
+    ) -> None:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
@@ -78,7 +80,7 @@ class TestValidateTaskData:
     def test_circular_problem_with_previous_tasks(
         self,
         client: FlaskClient,
-    ):
+    ) -> None:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
@@ -101,7 +103,7 @@ class TestValidateTaskData:
     def test_circular_problem_with_subsequent_tasks(
         self,
         client: FlaskClient,
-    ):
+    ) -> None:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
@@ -124,7 +126,7 @@ class TestValidateTaskData:
     def test_equality_with_previous_tasks(
         self,
         client: FlaskClient,
-    ):
+    ) -> None:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],
@@ -166,7 +168,7 @@ class TestValidateTaskData:
     def test_equality_with_subsequent_tasks(
         self,
         client: FlaskClient,
-    ):
+    ) -> None:
         self.create_users()
         task_json = {
             "status": TASK_STATUS[0],

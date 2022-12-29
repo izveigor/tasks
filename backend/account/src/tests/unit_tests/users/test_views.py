@@ -1,28 +1,31 @@
-from tests.unit_tests.base import UnitTest
+import datetime
 import json
-from tests.helpers import check_model_fields
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.hashers import check_password
-from users.models import Team, ConfirmEmail, Profile
-from django.core.files.uploadedfile import SimpleUploadedFile
+from unittest.mock import Mock, patch
+
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password  # type: ignore
+from django.core.files.uploadedfile import SimpleUploadedFile
+from google.protobuf.timestamp_pb2 import Timestamp  # type: ignore
+from rest_framework.authtoken.models import Token
+
 from account.constants import (
-    MAX_AVAILABLE_TRIES,
-    EXPIRY_TIME,
     DEFAULT_PROFILE_DESCRIPTION,
     DEFAULT_PROFILE_JOB_TITLE,
+    EXPIRY_TIME,
+    MAX_AVAILABLE_TRIES,
     PREFIX_HOST,
     TEST_PREFIX_HOST,
 )
-import datetime
-from unittest.mock import patch, Mock
-from django.contrib.auth import get_user_model
-from account.pb.tasks_pb2 import UserRequest
 from account.pb.notifications_pb2 import NotificationRequest
-from google.protobuf.timestamp_pb2 import Timestamp
+from account.pb.tasks_pb2 import UserRequest
+from tests.helpers import check_model_fields
+from tests.unit_tests.base import UnitTest
+from users.models import ConfirmEmail, Profile, Team
+from typing import Any
 
 User = get_user_model()
-user_data = {
+user_data: dict[str, Any] = {
     "first_name": "first name",
     "last_name": "last name",
     "email": "email@email.com",
@@ -32,11 +35,11 @@ user_data = {
 
 
 class TestLoginView(UnitTest):
-    def test_post(self):
+    def test_post(self) -> None:
         User.objects.create_user(**user_data)
 
         response = self.client.post(
-            TEST_PREFIX_HOST+"login/",
+            TEST_PREFIX_HOST + "login/",
             data=json.dumps(
                 {
                     "username": user_data["username"],
@@ -63,13 +66,13 @@ class TestRegisterView(UnitTest):
         mock_notifications_client_Notify: Mock,
         mock_timestamp__init__: Mock,
         mock_timestamp_GetCurrentTime: Mock,
-    ):
+    ) -> None:
         timestamp = Timestamp()
         timestamp.GetCurrentTime()
         mock_timestamp_GetCurrentTime.return_value = timestamp
 
         response = self.client.post(
-            TEST_PREFIX_HOST+"register/",
+            TEST_PREFIX_HOST + "register/",
             data=json.dumps(user_data),
             content_type="application/json",
         )
@@ -138,7 +141,7 @@ class TestChangeUsernameView(UnitTest):
         mock_notifications_client_Notify: Mock,
         mock_timestamp__init__: Mock,
         mock_timestamp_GetCurrentTime: Mock,
-    ):
+    ) -> None:
         timestamp = Timestamp()
         timestamp.GetCurrentTime()
         mock_timestamp_GetCurrentTime.return_value = timestamp
@@ -163,7 +166,7 @@ class TestChangeUsernameView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"change_username/",
+            TEST_PREFIX_HOST + "change_username/",
             data=json.dumps(
                 {
                     "username": "username1",
@@ -204,7 +207,7 @@ class TestChangePasswordView(UnitTest):
         mock_notifications_client_Notify: Mock,
         mock_timestamp__init__: Mock,
         mock_timestamp_GetCurrentTime: Mock,
-    ):
+    ) -> None:
         timestamp = Timestamp()
         timestamp.GetCurrentTime()
         mock_timestamp_GetCurrentTime.return_value = timestamp
@@ -229,7 +232,7 @@ class TestChangePasswordView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"change_password/",
+            TEST_PREFIX_HOST + "change_password/",
             data=json.dumps(
                 {
                     "password": "Password111",
@@ -259,17 +262,17 @@ class TestChangePasswordView(UnitTest):
 
 
 class TestCheckUsernameView(UnitTest):
-    def test_post(self):
+    def test_post(self) -> None:
         User.objects.create_user(**user_data)
 
         first_response = self.client.post(
-            TEST_PREFIX_HOST+"check_username/",
+            TEST_PREFIX_HOST + "check_username/",
             data=json.dumps({"username": "username"}),
             content_type="application/json",
         )
 
         second_response = self.client.post(
-            TEST_PREFIX_HOST+"check_username/",
+            TEST_PREFIX_HOST + "check_username/",
             data=json.dumps({"username": "username1"}),
             content_type="application/json",
         )
@@ -283,17 +286,17 @@ class TestCheckUsernameView(UnitTest):
 
 
 class TestCheckEmailView(UnitTest):
-    def test_post(self):
+    def test_post(self) -> None:
         User.objects.create_user(**user_data)
 
         first_response = self.client.post(
-            TEST_PREFIX_HOST+"check_email/",
+            TEST_PREFIX_HOST + "check_email/",
             data=json.dumps({"email": "email@email.com"}),
             content_type="application/json",
         )
 
         second_response = self.client.post(
-            TEST_PREFIX_HOST+"check_email/",
+            TEST_PREFIX_HOST + "check_email/",
             data=json.dumps({"email": "new@email.email"}),
             content_type="application/json",
         )
@@ -306,20 +309,20 @@ class TestCheckEmailView(UnitTest):
 
 
 class TestAuthorization(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         user = User.objects.create_user(**user_data)
         token = Token.objects.create(user=user)
 
-        unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization/")
+        unauthorized_response = self.client.get(TEST_PREFIX_HOST + "authorization/")
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization/")
+        authorized_response = self.client.get(TEST_PREFIX_HOST + "authorization/")
 
         self.assertEqual(unauthorized_response.status_code, 401)
         self.assertEqual(authorized_response.status_code, 200)
 
 
 class TestAuthorizationWithEmail(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         user = User.objects.create_user(**user_data)
         token = Token.objects.create(user=user)
 
@@ -330,19 +333,23 @@ class TestAuthorizationWithEmail(UnitTest):
         )
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_with_email/")
+        unauthorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_with_email/"
+        )
 
         confirm_email.confirmed = True
         confirm_email.save()
 
-        authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_with_email/")
+        authorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_with_email/"
+        )
 
         self.assertEqual(unauthorized_response.status_code, 403)
         self.assertEqual(authorized_response.status_code, 200)
 
 
 class TestConfirmEmailView(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         user = User.objects.create_user(**user_data)
         ConfirmEmail.objects.create(
             code="123456",
@@ -351,7 +358,7 @@ class TestConfirmEmailView(UnitTest):
 
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        response = self.client.get(TEST_PREFIX_HOST+"confirm_email/")
+        response = self.client.get(TEST_PREFIX_HOST + "confirm_email/")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["available_tries"], 3)
@@ -367,7 +374,7 @@ class TestConfirmEmailView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.post(
-            TEST_PREFIX_HOST+"confirm_email/",
+            TEST_PREFIX_HOST + "confirm_email/",
             data=json.dumps({"code": "123456"}),
             content_type="application/json",
         )
@@ -375,7 +382,7 @@ class TestConfirmEmailView(UnitTest):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data["confirmed"])
 
-    def test_post_if_code_is_wrong(self):
+    def test_post_if_code_is_wrong(self) -> None:
         user = User.objects.create_user(**user_data)
 
         ConfirmEmail.objects.create(
@@ -386,7 +393,7 @@ class TestConfirmEmailView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.post(
-            TEST_PREFIX_HOST+"confirm_email/",
+            TEST_PREFIX_HOST + "confirm_email/",
             data=json.dumps({"code": "123457"}),
             content_type="application/json",
         )
@@ -396,7 +403,7 @@ class TestConfirmEmailView(UnitTest):
         self.assertFalse(response.data["confirmed"])
         self.assertEqual(response.data["available_tries"], 2)
 
-    def test_post_if_expiry(self):
+    def test_post_if_expiry(self) -> None:
         changed_user_data = user_data.copy()
         changed_user_data["date_joined"] = datetime.datetime(1970, 1, 1)
         user = User.objects.create_user(**changed_user_data)
@@ -409,7 +416,7 @@ class TestConfirmEmailView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.post(
-            TEST_PREFIX_HOST+"confirm_email/",
+            TEST_PREFIX_HOST + "confirm_email/",
             data=json.dumps({"code": "123456"}),
             content_type="application/json",
         )
@@ -418,13 +425,13 @@ class TestConfirmEmailView(UnitTest):
 
 
 class TestSettingsView(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         user = User.objects.create_user(**user_data)
 
         Profile.objects.create(
-                user=user,
-                job_title="Должность",
-                description="Описание отсутствует.",
+            user=user,
+            job_title="Должность",
+            description="Описание отсутствует.",
         )
 
         ConfirmEmail.objects.create(
@@ -436,7 +443,7 @@ class TestSettingsView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
-        response = self.client.get(TEST_PREFIX_HOST+"settings/")
+        response = self.client.get(TEST_PREFIX_HOST + "settings/")
 
         self.assertEqual(response.status_code, 200)
 
@@ -449,7 +456,7 @@ class TestSettingsView(UnitTest):
     def test_put(
         self,
         mock_tasks_client_ChangeUser: Mock,
-    ):
+    ) -> None:
         user = User.objects.create_user(**user_data)
         Profile.objects.create(user=user)
 
@@ -475,7 +482,7 @@ class TestSettingsView(UnitTest):
         }
 
         response = self.client.put(
-            TEST_PREFIX_HOST+"settings/",
+            TEST_PREFIX_HOST + "settings/",
             data=changed_data,
         )
 
@@ -501,7 +508,7 @@ class TestSettingsView(UnitTest):
     def test_delete(
         self,
         mock_tasks_client_DeleteUser: Mock,
-    ):
+    ) -> None:
         user = User.objects.create_user(**user_data)
         Profile.objects.create(user=user)
 
@@ -514,16 +521,18 @@ class TestSettingsView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
-        response = self.client.delete(TEST_PREFIX_HOST+"settings/")
+        response = self.client.delete(TEST_PREFIX_HOST + "settings/")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(User.objects.all()), 0)
 
-        mock_tasks_client_DeleteUser.assert_called_once_with(UserRequest(id=str(user.id)))
+        mock_tasks_client_DeleteUser.assert_called_once_with(
+            UserRequest(id=str(user.id))
+        )
 
 
 class TestAvatarView(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         user = User.objects.create_user(**user_data)
         Profile.objects.create(user=user)
 
@@ -536,14 +545,14 @@ class TestAvatarView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
-        response = self.client.get(TEST_PREFIX_HOST+"avatar/")
+        response = self.client.get(TEST_PREFIX_HOST + "avatar/")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["image"], "/images/default.png")
 
 
 class TestGroupView(UnitTest):
-    def test_put_third_case(self):
+    def test_put_third_case(self) -> None:
         admin = User.objects.create_user(
             first_name="first name",
             last_name="last name",
@@ -598,7 +607,7 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"group/",
+            TEST_PREFIX_HOST + "group/",
             data=json.dumps(
                 {
                     "supervisor_username": "username1",
@@ -616,7 +625,7 @@ class TestGroupView(UnitTest):
         self.assertIsNone(supervisor_profile.supervisor_id)
         self.assertEqual(subordinate_profile.supervisor_id, supervisor_user.id)
 
-    def test_put_second_case(self):
+    def test_put_second_case(self) -> None:
         admin = User.objects.create_user(
             first_name="first name",
             last_name="last name",
@@ -681,7 +690,7 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"group/",
+            TEST_PREFIX_HOST + "group/",
             data=json.dumps(
                 {
                     "supervisor_username": "username1",
@@ -696,10 +705,12 @@ class TestGroupView(UnitTest):
         supervisor_profile = Profile.objects.get(user=supervisor_user)
         subordinate_profile = Profile.objects.get(user=subordinate_user)
 
-        self.assertEqual(supervisor_profile.supervisor_id, supervisor_supervisor_user.id)
+        self.assertEqual(
+            supervisor_profile.supervisor_id, supervisor_supervisor_user.id
+        )
         self.assertEqual(subordinate_profile.supervisor_id, supervisor_user.id)
 
-    def test_put_first_case(self):
+    def test_put_first_case(self) -> None:
         admin = User.objects.create_user(
             first_name="first name",
             last_name="last name",
@@ -755,7 +766,7 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"group/",
+            TEST_PREFIX_HOST + "group/",
             data=json.dumps(
                 {
                     "supervisor_username": "username1",
@@ -773,7 +784,7 @@ class TestGroupView(UnitTest):
         self.assertIsNone(supervisor_profile.supervisor_id)
         self.assertEqual(subordinate_profile.supervisor_id, supervisor_user.id)
 
-    def test_delete(self):
+    def test_delete(self) -> None:
         admin = User.objects.create_user(
             first_name="first name",
             last_name="last name",
@@ -829,7 +840,7 @@ class TestGroupView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.delete(
-            TEST_PREFIX_HOST+"group/",
+            TEST_PREFIX_HOST + "group/",
             data=json.dumps({"username": "username"}),
             content_type="application/json",
         )
@@ -841,7 +852,7 @@ class TestGroupView(UnitTest):
 
 
 class TestSuggestEmployeeView(UnitTest):
-    def test_post_if_admin(self):
+    def test_post_if_admin(self) -> None:
         admin = User.objects.create_user(**user_data)
 
         changed_user_data = user_data.copy()
@@ -877,19 +888,19 @@ class TestSuggestEmployeeView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         first_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_employee/",
+            TEST_PREFIX_HOST + "suggest_employee/",
             data=json.dumps({"username": teammate.username}),
             content_type="application/json",
         )
 
         second_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_employee/",
+            TEST_PREFIX_HOST + "suggest_employee/",
             data=json.dumps({"username": teammate.username[:3]}),
             content_type="application/json",
         )
 
         third_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_employee/",
+            TEST_PREFIX_HOST + "suggest_employee/",
             data=json.dumps({"username": "Wrong name"}),
             content_type="application/json",
         )
@@ -902,11 +913,13 @@ class TestSuggestEmployeeView(UnitTest):
         self.assertEqual(first_response.data["user"]["last_name"], teammate.last_name)
         self.assertEqual(first_response.data["user"]["username"], teammate.username)
 
-        self.assertEqual(second_response.data["user"]["first_name"], teammate.first_name)
+        self.assertEqual(
+            second_response.data["user"]["first_name"], teammate.first_name
+        )
         self.assertEqual(second_response.data["user"]["last_name"], teammate.last_name)
         self.assertEqual(second_response.data["user"]["username"], teammate.username)
 
-    def test_post_if_not_admin(self):
+    def test_post_if_not_admin(self) -> None:
         admin = User.objects.create_user(**user_data)
 
         first_changed_user_data = user_data.copy()
@@ -950,19 +963,19 @@ class TestSuggestEmployeeView(UnitTest):
         token = Token.objects.create(user=supervisor)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         first_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_employee/",
+            TEST_PREFIX_HOST + "suggest_employee/",
             data=json.dumps({"username": teammate.username}),
             content_type="application/json",
         )
 
         second_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_employee/",
+            TEST_PREFIX_HOST + "suggest_employee/",
             data=json.dumps({"username": teammate.username[:3]}),
             content_type="application/json",
         )
 
         third_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_employee/",
+            TEST_PREFIX_HOST + "suggest_employee/",
             data=json.dumps({"username": "Wrong name"}),
             content_type="application/json",
         )
@@ -975,6 +988,8 @@ class TestSuggestEmployeeView(UnitTest):
         self.assertEqual(first_response.data["user"]["last_name"], teammate.last_name)
         self.assertEqual(first_response.data["user"]["username"], teammate.username)
 
-        self.assertEqual(second_response.data["user"]["first_name"], teammate.first_name)
+        self.assertEqual(
+            second_response.data["user"]["first_name"], teammate.first_name
+        )
         self.assertEqual(second_response.data["user"]["last_name"], teammate.last_name)
         self.assertEqual(second_response.data["user"]["username"], teammate.username)

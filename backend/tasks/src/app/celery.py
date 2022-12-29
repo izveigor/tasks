@@ -1,6 +1,9 @@
-from celery import Celery
-from constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
+from typing import Any
 
+from celery import Celery
+from flask import Flask
+
+from constants import CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 
 celery = Celery(
     __name__,
@@ -9,7 +12,7 @@ celery = Celery(
 )
 
 
-def make_celery(app):
+def make_celery(app: Flask) -> Celery:
     celery = Celery(
         app.import_name,
         backend=CELERY_RESULT_BACKEND,
@@ -17,8 +20,8 @@ def make_celery(app):
     )
     celery.conf.update(app.config)
 
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
+    class ContextTask(celery.Task):  # type: ignore
+        def __call__(self, *args: Any, **kwargs: dict[str, Any]) -> Any:
             with app.app_context():
                 return self.run(*args, **kwargs)
 

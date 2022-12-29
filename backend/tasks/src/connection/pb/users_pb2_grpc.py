@@ -14,86 +14,156 @@ class UsersStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.AuthorizationLikeUser = channel.unary_unary(
+            "/pb.Users/AuthorizationLikeUser",
+            request_serializer=connection_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
+            response_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
+        )
         self.AuthorizationLikeTeammate = channel.unary_unary(
-                '/pb.Users/AuthorizationLikeTeammate',
-                request_serializer=connection_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
-                response_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
-                )
+            "/pb.Users/AuthorizationLikeTeammate",
+            request_serializer=connection_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
+            response_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
+        )
         self.CheckPermission = channel.unary_unary(
-                '/pb.Users/CheckPermission',
-                request_serializer=connection_dot_pb_dot_users__pb2.PermissionRequest.SerializeToString,
-                response_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
-                )
+            "/pb.Users/CheckPermission",
+            request_serializer=connection_dot_pb_dot_users__pb2.PermissionRequest.SerializeToString,
+            response_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
+        )
 
 
 class UsersServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def AuthorizationLikeUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
     def AuthorizationLikeTeammate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def CheckPermission(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
 
 def add_UsersServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'AuthorizationLikeTeammate': grpc.unary_unary_rpc_method_handler(
-                    servicer.AuthorizationLikeTeammate,
-                    request_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationRequest.FromString,
-                    response_serializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
-            ),
-            'CheckPermission': grpc.unary_unary_rpc_method_handler(
-                    servicer.CheckPermission,
-                    request_deserializer=connection_dot_pb_dot_users__pb2.PermissionRequest.FromString,
-                    response_serializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
-            ),
+        "AuthorizationLikeUser": grpc.unary_unary_rpc_method_handler(
+            servicer.AuthorizationLikeUser,
+            request_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationRequest.FromString,
+            response_serializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
+        ),
+        "AuthorizationLikeTeammate": grpc.unary_unary_rpc_method_handler(
+            servicer.AuthorizationLikeTeammate,
+            request_deserializer=connection_dot_pb_dot_users__pb2.AuthorizationRequest.FromString,
+            response_serializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
+        ),
+        "CheckPermission": grpc.unary_unary_rpc_method_handler(
+            servicer.CheckPermission,
+            request_deserializer=connection_dot_pb_dot_users__pb2.PermissionRequest.FromString,
+            response_serializer=connection_dot_pb_dot_users__pb2.AuthorizationResponse.SerializeToString,
+        ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'pb.Users', rpc_method_handlers)
+        "pb.Users", rpc_method_handlers
+    )
     server.add_generic_rpc_handlers((generic_handler,))
 
 
- # This class is part of an EXPERIMENTAL API.
+# This class is part of an EXPERIMENTAL API.
 class Users(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def AuthorizationLikeTeammate(request,
+    def AuthorizationLikeUser(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Users/AuthorizationLikeTeammate',
+            "/pb.Users/AuthorizationLikeUser",
             connection_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
             connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )
 
     @staticmethod
-    def CheckPermission(request,
+    def AuthorizationLikeTeammate(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Users/CheckPermission',
+            "/pb.Users/AuthorizationLikeTeammate",
+            connection_dot_pb_dot_users__pb2.AuthorizationRequest.SerializeToString,
+            connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )
+
+    @staticmethod
+    def CheckPermission(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/pb.Users/CheckPermission",
             connection_dot_pb_dot_users__pb2.PermissionRequest.SerializeToString,
             connection_dot_pb_dot_users__pb2.AuthorizationResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )

@@ -1,14 +1,15 @@
-from app.features import get_permission, authorization_like_teammate, get_token
-from flask.testing import FlaskClient
-from tests.helpers import create_user, serve, check_model_fields
-from unittest.mock import patch, Mock
-from models import TaskUser
 import uuid
+from unittest.mock import Mock, patch
+
+from flask.testing import FlaskClient
+
+from app.features import authorization_like_teammate, get_permission, get_token
+from models import TaskUser
+from tests.helpers import check_model_fields, create_user, serve
 
 
 class TestFeatures:
-
-    def test_get_token(self):
+    def test_get_token(self) -> None:
         auth_header = "Token 11111"
         token = get_token(auth_header)
         assert token == "11111"
@@ -18,13 +19,15 @@ class TestFeatures:
         self,
         mock_get_token: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         mock_get_token.return_value = "11111"
-        create_user({
-            "id": uuid.uuid4(),
-            "username": "username",
-            "image": "http://image",
-        })
+        create_user(
+            {
+                "id": uuid.uuid4(),
+                "username": "username",
+                "image": "http://image",
+            }
+        )
         serve()
 
         request = type("", (), {"headers": {"Authorization": "11111"}})
@@ -34,17 +37,15 @@ class TestFeatures:
         assert user == TaskUser.query.all()[0]
 
     @patch("app.features.get_token")
-    def test_get_permission(
-        self,
-        mock_get_token: Mock,
-        client: FlaskClient
-    ):
+    def test_get_permission(self, mock_get_token: Mock, client: FlaskClient) -> None:
         mock_get_token.return_value = "11111"
-        create_user({
-            "id": uuid.uuid4(),
-            "username": "username",
-            "image": "http://image",
-        })
+        create_user(
+            {
+                "id": uuid.uuid4(),
+                "username": "username",
+                "image": "http://image",
+            }
+        )
         serve()
 
         request = type("", (), {"headers": {"Authorization": "11111"}})

@@ -1,34 +1,38 @@
-from users.methods import suggest_username
-from .models import ConfirmEmail, Profile
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
-from rest_framework.permissions import IsAuthenticated
-from . import serializers
-from rest_framework.authtoken.models import Token
-from .methods import suggest_username
 import datetime
-from django.utils import timezone
 import random
-from django.core.mail import send_mail
+
 from django.conf import settings
-from account.permissions import EmailPermission
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.db.models import Q
+from django.utils import timezone
+from google.protobuf.timestamp_pb2 import Timestamp  # type: ignore
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from account.notifications_client import notifications_client
 from account.pb.notifications_pb2 import NotificationRequest
-from google.protobuf.timestamp_pb2 import Timestamp
-from rest_framework.authtoken.models import Token
-from account.tasks_client import tasks_client
 from account.pb.tasks_pb2 import UserRequest
-from django.contrib.auth import get_user_model
-from account.permissions import AdminTeamPermission, CreatorTeamPermission
-from django.db.models import Q
+from account.permissions import (
+    AdminTeamPermission,
+    CreatorTeamPermission,
+    EmailPermission,
+)
+from account.tasks_client import tasks_client
+from users.methods import suggest_username
+
+from . import serializers
+from .methods import suggest_username
+from .models import ConfirmEmail, Profile
 
 User = get_user_model()
 
 
-class LoginView(APIView):
-    def post(self, request, format=None):
+class LoginView(APIView):  # type: ignore
+    def post(self, request, format=None) -> Response:
         serializer = serializers.LoginSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
@@ -36,8 +40,8 @@ class LoginView(APIView):
         return Response({"token": token[0].key}, status=status.HTTP_200_OK)
 
 
-class RegisterView(APIView):
-    def post(self, request, format=None):
+class RegisterView(APIView):  # type: ignore
+    def post(self, request, format=None) -> Response:
         serializer = serializers.RegisterSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
@@ -84,10 +88,10 @@ class RegisterView(APIView):
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
 
-class ChangePasswordView(APIView):
+class ChangePasswordView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         serializer = serializers.ChangePasswordSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         password = serializer.validated_data["password"]
@@ -109,10 +113,10 @@ class ChangePasswordView(APIView):
         return Response(None, status.HTTP_200_OK)
 
 
-class ChangeUsernameView(APIView):
+class ChangeUsernameView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         serializer = serializers.ChangeUsernameSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data["username"]
@@ -142,23 +146,25 @@ class ChangeUsernameView(APIView):
         return Response(None, status.HTTP_200_OK)
 
 
-class CheckUsernameView(APIView):
-    def post(self, request, format=None):
+class CheckUsernameView(APIView):  # type: ignore
+    def post(self, request, format=None) -> Response:
         serializer = serializers.UsernameSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=False)
         username = serializer.data["username"]
         response = {}
         if User.objects.filter(username=username).exists():
             response["exist"] = True
-            response["available"] = suggest_username(username)
+            suggested_username = suggest_username(username)
+            if suggested_username is not None:
+                response["available"] = suggest_username(username)  # type: ignore
         else:
             response["exist"] = False
 
         return Response(response, status=status.HTTP_200_OK)
 
 
-class CheckEmailView(APIView):
-    def post(self, request, format=None):
+class CheckEmailView(APIView):  # type: ignore
+    def post(self, request, format=None) -> Response:
         serializer = serializers.EmailSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=False)
         email = serializer.data["email"]
@@ -171,29 +177,29 @@ class CheckEmailView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class Authorization(APIView):
+class Authorization(APIView):  # type: ignore
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         return Response(status=status.HTTP_200_OK)
 
 
-class AuthorizationWithEmail(APIView):
+class AuthorizationWithEmail(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         return Response(status=status.HTTP_200_OK)
 
 
-class ConfirmEmailView(APIView):
+class ConfirmEmailView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         confirm = ConfirmEmail.objects.get(user=self.request.user)
         serializer = serializers.EmailAvailableTriesSerializer(confirm)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, format=None):
+    def post(self, request, format=None) -> Response:
         serializer = serializers.EmailCodeSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=False)
         code = serializer.data["code"]
@@ -222,15 +228,15 @@ class ConfirmEmailView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class SettingsProfileView(APIView):
+class SettingsProfileView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         profile = self.request.user.profile
         serializer = serializers.ProfileSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         profile = self.request.user.profile
         profile.job_title = self.request.data["job_title"]
         profile.description = self.request.data["description"]
@@ -251,7 +257,7 @@ class SettingsProfileView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
-    def delete(self, request, format=None):
+    def delete(self, request, format=None) -> Response:
         user = self.request.user
         user_id = str(user.id)
         user.delete()
@@ -260,18 +266,18 @@ class SettingsProfileView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class AvatarView(APIView):
+class AvatarView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission]
 
-    def get(self, request, format=None):
+    def get(self, request, format=None) -> Response:
         serializer = serializers.AvatarSerializer(self.request.user.profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GroupView(APIView):
+class GroupView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission, AdminTeamPermission]
 
-    def put(self, request, format=None):
+    def put(self, request, format=None) -> Response:
         serializer = serializers.GroupPutSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         supervisor_user = serializer.validated_data["supervisor_user"]
@@ -303,7 +309,7 @@ class GroupView(APIView):
             supervisor_user.profile.save()
             return Response(status=status.HTTP_200_OK)
 
-    def delete(self, request, format=None):
+    def delete(self, request, format=None) -> Response:
         serializer = serializers.GroupDeleteSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
@@ -313,17 +319,16 @@ class GroupView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class SuggestEmployeeView(APIView):
+class SuggestEmployeeView(APIView):  # type: ignore
     permission_classes = [IsAuthenticated, EmailPermission, CreatorTeamPermission]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None) -> Response:
         serializer = serializers.UsernameSerializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data["username"]
         if request.team.admin == self.request.team.admin:
             user = User.objects.filter(
-                Q(profile__team=request.team)
-                & Q(username__icontains=username)
+                Q(profile__team=request.team) & Q(username__icontains=username)
             ).first()
         else:
             user = User.objects.filter(

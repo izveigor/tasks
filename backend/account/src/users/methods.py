@@ -1,5 +1,7 @@
 import re
+
 from django.contrib.auth import get_user_model
+from typing import Optional
 
 User = get_user_model()
 
@@ -7,7 +9,7 @@ DIGITS_PATTERN = "^[0-9]+$"
 DIGIT_PATTERN = "[0-9]"
 
 
-def suggest_username(username):
+def suggest_username(username: str) -> Optional[str]:
     if re.match(DIGITS_PATTERN, username):
         return None
 

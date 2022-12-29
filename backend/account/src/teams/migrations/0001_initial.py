@@ -7,17 +7,37 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []  # type: ignore
 
     operations = [
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=30, unique=True, verbose_name='Название команды:')),
-                ('description', models.TextField(max_length=1500, verbose_name='Описание команды:')),
-                ('image', models.ImageField(upload_to='images', verbose_name='Изображение команды:')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=30, unique=True, verbose_name="Название команды:"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(max_length=1500, verbose_name="Описание команды:"),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        upload_to="images", verbose_name="Изображение команды:"
+                    ),
+                ),
             ],
         ),
     ]

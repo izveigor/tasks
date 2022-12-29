@@ -1,11 +1,13 @@
-import grpc
 from concurrent import futures
+
+import grpc
 from flask import Blueprint, current_app
 
 from constants import TASKS_HOST
-from .pb.tasks_pb2_grpc import TasksServicer, add_TasksServicer_to_server
-from .pb.tasks_pb2 import UserResponse
 from models import TaskUser, db
+
+from .pb.tasks_pb2 import UserResponse  # type: ignore
+from .pb.tasks_pb2_grpc import TasksServicer, add_TasksServicer_to_server
 
 
 class TasksService(TasksServicer):

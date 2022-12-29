@@ -1,16 +1,17 @@
-from tests.unit_tests.base import UnitTest
-from django.contrib.auth import get_user_model
-from rest_framework.authtoken.models import Token
-from users.models import ConfirmEmail, Profile
-from teams.models import Team
-from account.constants import TEST_PREFIX_HOST
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.conf import settings
 import json
-from unittest.mock import patch, Mock
-from account.pb.notifications_pb2 import NotificationRequest
-from google.protobuf.timestamp_pb2 import Timestamp
+from unittest.mock import Mock, patch
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from google.protobuf.timestamp_pb2 import Timestamp # type: ignore
+from rest_framework.authtoken.models import Token
+
+from account.constants import TEST_PREFIX_HOST
+from account.pb.notifications_pb2 import NotificationRequest
+from teams.models import Team
+from tests.unit_tests.base import UnitTest
+from users.models import ConfirmEmail, Profile
 
 User = get_user_model()
 user_data = {
@@ -23,7 +24,7 @@ user_data = {
 
 
 class TestAuthorizationLikeTeammate(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         admin = User.objects.create_user(**user_data)
 
         changed_user_data = user_data.copy()
@@ -44,13 +45,17 @@ class TestAuthorizationLikeTeammate(UnitTest):
                 user=u,
                 image=SimpleUploadedFile(
                     name="default.png",
-                    content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                    content=open(
+                        settings.MEDIA_ROOT + "/" + "default.png", "rb"
+                    ).read(),
                     content_type="image/png",
                 ),
             )
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_teammate/")
+        unauthorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_like_teammate/"
+        )
 
         team = Team.objects.create(
             name="Название",
@@ -66,14 +71,16 @@ class TestAuthorizationLikeTeammate(UnitTest):
         user.profile.team = team
         user.profile.save()
 
-        authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_teammate/")
+        authorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_like_teammate/"
+        )
 
         self.assertEqual(unauthorized_response.status_code, 403)
         self.assertEqual(authorized_response.status_code, 200)
 
 
 class TestAuthorizationLikeAdmin(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         admin = User.objects.create_user(**user_data)
         token = Token.objects.create(user=admin)
 
@@ -93,7 +100,9 @@ class TestAuthorizationLikeAdmin(UnitTest):
         )
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_admin/")
+        unauthorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_like_admin/"
+        )
 
         team = Team.objects.create(
             name="Название",
@@ -109,14 +118,16 @@ class TestAuthorizationLikeAdmin(UnitTest):
         admin.profile.team = team
         admin.profile.save()
 
-        authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_admin/")
+        authorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_like_admin/"
+        )
 
         self.assertEqual(unauthorized_response.status_code, 403)
         self.assertEqual(authorized_response.status_code, 200)
 
 
 class TestAuthorizationLikeCreator(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         admin = User.objects.create_user(**user_data)
 
         first_changed_user_data = user_data.copy()
@@ -171,19 +182,23 @@ class TestAuthorizationLikeCreator(UnitTest):
         supervisor.profile.save()
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        unauthorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_creator/")
+        unauthorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_like_creator/"
+        )
 
         user_profile.supervisor = supervisor
         user_profile.save()
 
-        authorized_response = self.client.get(TEST_PREFIX_HOST+"authorization_like_creator/")
+        authorized_response = self.client.get(
+            TEST_PREFIX_HOST + "authorization_like_creator/"
+        )
 
         self.assertEqual(unauthorized_response.status_code, 403)
         self.assertEqual(authorized_response.status_code, 200)
 
 
 class TestCheckTeamNameView(UnitTest):
-    def test_post(self):
+    def test_post(self) -> None:
         user = User.objects.create_user(**user_data)
 
         Team.objects.create(
@@ -198,13 +213,13 @@ class TestCheckTeamNameView(UnitTest):
         )
 
         first_response = self.client.post(
-            TEST_PREFIX_HOST+"check_team_name/",
+            TEST_PREFIX_HOST + "check_team_name/",
             data=json.dumps({"name": "name"}),
             content_type="application/json",
         )
 
         second_response = self.client.post(
-            TEST_PREFIX_HOST+"check_team_name/",
+            TEST_PREFIX_HOST + "check_team_name/",
             data=json.dumps({"name": "name1"}),
             content_type="application/json",
         )
@@ -217,7 +232,7 @@ class TestCheckTeamNameView(UnitTest):
 
 
 class TestTeamView(UnitTest):
-    def test_get(self):
+    def test_get(self) -> None:
         user = User.objects.create_user(**user_data)
 
         Profile.objects.create(user=user)
@@ -244,7 +259,7 @@ class TestTeamView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.get(
-            TEST_PREFIX_HOST+"team/",
+            TEST_PREFIX_HOST + "team/",
         )
 
         self.assertEqual(response.status_code, 200)
@@ -252,7 +267,7 @@ class TestTeamView(UnitTest):
         self.assertEqual(response.data["name"], "Название")
         self.assertEqual(response.data["description"], "Описание.")
 
-    def test_put(self):
+    def test_put(self) -> None:
         user = User.objects.create_user(**user_data)
 
         Profile.objects.create(user=user)
@@ -279,21 +294,23 @@ class TestTeamView(UnitTest):
         token = Token.objects.create(user=user)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"team/",
+            TEST_PREFIX_HOST + "team/",
             data={
                 "name": "Новое название",
                 "description": "Описание.",
                 "image": SimpleUploadedFile(
                     name="default.png",
-                    content=open(settings.MEDIA_ROOT + "/" + "default.png", "rb").read(),
+                    content=open(
+                        settings.MEDIA_ROOT + "/" + "default.png", "rb"
+                    ).read(),
                     content_type="image/png",
                 ),
-            }
+            },
         )
 
         self.assertEqual(response.status_code, 200)
 
-    def test_delete(self):
+    def test_delete(self) -> None:
         admin = User.objects.create_user(**user_data)
 
         first_changed_user_data = user_data.copy()
@@ -338,7 +355,7 @@ class TestTeamView(UnitTest):
 
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        response = self.client.delete(TEST_PREFIX_HOST+"team/")
+        response = self.client.delete(TEST_PREFIX_HOST + "team/")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(Team.objects.all()), 0)
@@ -354,7 +371,7 @@ class TestJoinTeamView(UnitTest):
         mock_notifications_client_Notify: Mock,
         mock_timestamp__init__: Mock,
         mock_timestamp_GetCurrentTime: Mock,
-    ):
+    ) -> None:
         timestamp = Timestamp()
         timestamp.GetCurrentTime()
         mock_timestamp_GetCurrentTime.return_value = timestamp
@@ -388,7 +405,7 @@ class TestJoinTeamView(UnitTest):
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + user_token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"join/",
+            TEST_PREFIX_HOST + "join/",
             data=json.dumps({"name": team.name}),
             content_type="application/json",
         )
@@ -413,7 +430,7 @@ class TestAcceptIntoTeamView(UnitTest):
         mock_notifications_client_Notify: Mock,
         mock_timestamp__init__: Mock,
         mock_timestamp_GetCurrentTime: Mock,
-    ):
+    ) -> None:
         timestamp = Timestamp()
         timestamp.GetCurrentTime()
         mock_timestamp_GetCurrentTime.return_value = timestamp
@@ -450,7 +467,7 @@ class TestAcceptIntoTeamView(UnitTest):
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + admin_token.key)
         response = self.client.put(
-            TEST_PREFIX_HOST+"accept/",
+            TEST_PREFIX_HOST + "accept/",
             data=json.dumps({"username": joined_user.username}),
             content_type="application/json",
         )
@@ -467,7 +484,7 @@ class TestAcceptIntoTeamView(UnitTest):
 
 
 class TestSuggestTeamView(UnitTest):
-    def test_post(self):
+    def test_post(self) -> None:
         admin = User.objects.create_user(**user_data)
         Profile.objects.create(user=admin)
         ConfirmEmail.objects.create(
@@ -490,19 +507,19 @@ class TestSuggestTeamView(UnitTest):
         token = Token.objects.create(user=admin)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
         first_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_team/",
+            TEST_PREFIX_HOST + "suggest_team/",
             data=json.dumps({"name": team.name}),
             content_type="application/json",
         )
 
         second_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_team/",
+            TEST_PREFIX_HOST + "suggest_team/",
             data=json.dumps({"name": team.name[:3]}),
             content_type="application/json",
         )
 
         third_response = self.client.post(
-            TEST_PREFIX_HOST+"suggest_team/",
+            TEST_PREFIX_HOST + "suggest_team/",
             data=json.dumps({"name": "Wrong name"}),
             content_type="application/json",
         )
@@ -527,7 +544,7 @@ class TestTeamsView(UnitTest):
         mock_notifications_client_Notify: Mock,
         mock_timestamp__init__: Mock,
         mock_timestamp_GetCurrentTime: Mock,
-    ):
+    ) -> None:
         timestamp = Timestamp()
         timestamp.GetCurrentTime()
         mock_timestamp_GetCurrentTime.return_value = timestamp
@@ -554,7 +571,7 @@ class TestTeamsView(UnitTest):
         }
 
         response = self.client.post(
-            TEST_PREFIX_HOST+"teams/",
+            TEST_PREFIX_HOST + "teams/",
             data=team_data,
         )
 
@@ -575,7 +592,7 @@ class TestTeamsView(UnitTest):
 
 
 class TestLeaveTeamView(UnitTest):
-    def test_put(self):
+    def test_put(self) -> None:
         admin = User.objects.create_user(**user_data)
 
         updated_user_data = user_data.copy()
@@ -603,7 +620,7 @@ class TestLeaveTeamView(UnitTest):
 
         token = Token.objects.create(user=teammate)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        response = self.client.put(TEST_PREFIX_HOST+"leave_team/")
+        response = self.client.put(TEST_PREFIX_HOST + "leave_team/")
 
         self.assertEqual(response.status_code, 200)
 

@@ -1,25 +1,28 @@
+import re
+import uuid
+from dataclasses import dataclass
+from enum import Enum
+
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
 from account.constants import (
+    DEFAULT_PROFILE_DESCRIPTION,
+    DEFAULT_PROFILE_IMAGE,
+    DEFAULT_PROFILE_JOB_TITLE,
     EXPIRY_TIME,
     MAX_AVAILABLE_TRIES,
-    DEFAULT_PROFILE_IMAGE,
-    DEFAULT_PROFILE_DESCRIPTION,
-    DEFAULT_PROFILE_JOB_TITLE,
 )
-from django.conf import settings
-from django.db import models
-import re
-from enum import Enum
-from dataclasses import dataclass
-import uuid
-from django.contrib.auth.models import AbstractUser
 from teams.models import Team
+from typing import Any
 
 
-class User(AbstractUser):
+class User(AbstractUser):  # type: ignore
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
 
-class Profile(models.Model):
+class Profile(models.Model):  # type: ignore
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -47,10 +50,10 @@ class Profile(models.Model):
         null=True,
     )
 
-    def get_subordinates(self):
+    def get_subordinates(self) -> list[User]:
         result: list[User] = []
 
-        def _search(subordinates):
+        def _search(subordinates: Any) -> None:
             for profile in subordinates:
                 user = profile.user
                 result.append(user)
@@ -64,7 +67,7 @@ class Profile(models.Model):
         return result
 
 
-class ConfirmEmail(models.Model):
+class ConfirmEmail(models.Model):  # type: ignore
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

@@ -1,10 +1,11 @@
+import uuid
+from datetime import datetime, timezone
+
 from flask.testing import FlaskClient
 
-from models import TaskUser, db, Task
-from tests.helpers import check_model_fields, create_user
 from constants import TASK_STATUS
-from datetime import datetime, timezone
-import uuid
+from models import Task, TaskUser, db
+from tests.helpers import check_model_fields, create_user
 
 
 class TestModels:
@@ -123,7 +124,7 @@ class TestModels:
             "all_subsequent_tasks",
         )
 
-    def test_current_task(self, client: FlaskClient):
+    def test_current_task(self, client: FlaskClient) -> None:
         receiver_user_id = uuid.uuid4()
         sender_user_id = uuid.uuid4()
         create_user(

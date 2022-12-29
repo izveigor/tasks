@@ -11,6 +11,18 @@ defaults:
 
 jobs:
   account-tests:
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: user
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+
     runs-on: [ubuntu-latest]
 
     steps:

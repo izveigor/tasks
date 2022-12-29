@@ -1,12 +1,23 @@
-from unittest.mock import patch, Mock
-from flask.testing import FlaskClient
-from constants import TASK_STATUS, TASKS_NUMBER_FOR_PAGE, PREFIX_HOST, PROCESSING_TASK_STATUS
-from tests.helpers import create_user, check_model_fields, create_receiver_and_sender_users
-from models import TaskUser, Task, db
-from datetime import datetime
-from app.serializers import task_schema
 import json
 import uuid
+from datetime import datetime
+from unittest.mock import Mock, patch
+
+from flask.testing import FlaskClient
+
+from app.serializers import task_schema
+from constants import (
+    PREFIX_HOST,
+    PROCESSING_TASK_STATUS,
+    TASK_STATUS,
+    TASKS_NUMBER_FOR_PAGE,
+)
+from models import Task, TaskUser, db
+from tests.helpers import (
+    check_model_fields,
+    create_receiver_and_sender_users,
+    create_user,
+)
 
 
 class TestTaskView:
@@ -15,9 +26,12 @@ class TestTaskView:
         self,
         mock_authorization_like_user: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization_like_user.return_value = ("11111", TaskUser.query.get(receiver_user["id"]))
+        mock_authorization_like_user.return_value = (
+            "11111",
+            TaskUser.query.get(receiver_user["id"]),
+        )
         time = datetime.now()
         first_task = Task(
             id=1,
@@ -47,7 +61,7 @@ class TestTaskView:
         )
         db.session.commit()
 
-        response = client.get(PREFIX_HOST+"/task/1/")
+        response = client.get(PREFIX_HOST + "/task/1/")
         assert response.status == "200 OK"
         assert json.loads(response.data.decode("utf-8")) == {
             "id": first_task.id,
@@ -55,7 +69,7 @@ class TestTaskView:
             "description": first_task.description,
             "time": first_task.time.strftime("%Y-%m-%dT%H:%M:%S.%f"),
             "status": first_task.status,
-            "receiver_user": {"image": receiver_user["image"]}
+            "receiver_user": {"image": receiver_user["image"]},
         }
 
     @patch("app.views.authorization_like_teammate")
@@ -65,10 +79,13 @@ class TestTaskView:
         mock_validate_task_data: Mock,
         mock_authorization: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         mock_validate_task_data.return_value.get.return_value = True
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization.return_value = ("11111", TaskUser.query.get(sender_user["id"]))
+        mock_authorization.return_value = (
+            "11111",
+            TaskUser.query.get(sender_user["id"]),
+        )
 
         time = datetime.now()
         first_task = Task(
@@ -122,7 +139,7 @@ class TestTaskView:
         changed_task = Task(**changed_task_data)
 
         response = client.put(
-            PREFIX_HOST+"/task/2/",
+            PREFIX_HOST + "/task/2/",
             data=json.dumps(
                 {
                     **task_schema.dump(changed_task),
@@ -157,9 +174,12 @@ class TestTaskView:
         self,
         mock_authorization: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization.return_value = ("11111", TaskUser.query.get(sender_user["id"]))
+        mock_authorization.return_value = (
+            "11111",
+            TaskUser.query.get(sender_user["id"]),
+        )
         time = datetime.now()
         first_task = Task(
             id=1,
@@ -189,7 +209,7 @@ class TestTaskView:
         )
         db.session.commit()
 
-        response = client.delete(PREFIX_HOST+"/task/1/")
+        response = client.delete(PREFIX_HOST + "/task/1/")
 
         assert response.status == "200 OK"
         assert Task.query.all() == [second_task]
@@ -201,9 +221,12 @@ class TestCurrentTaskView:
         self,
         mock_authorization: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization.return_value = ("11111", TaskUser.query.get(receiver_user["id"]))
+        mock_authorization.return_value = (
+            "11111",
+            TaskUser.query.get(receiver_user["id"]),
+        )
 
         time = datetime.now()
         first_task = Task(
@@ -235,7 +258,7 @@ class TestCurrentTaskView:
         TaskUser.query.get(receiver_user["id"]).current_task = second_task
         db.session.commit()
 
-        response = client.get(PREFIX_HOST+"/current_task/")
+        response = client.get(PREFIX_HOST + "/current_task/")
 
         assert response.status == "200 OK"
         assert json.loads(response.data.decode("utf-8")) == {
@@ -255,9 +278,12 @@ class TestCurrentTaskView:
         mock_task_topological_sort__init__: Mock,
         mock_authorization: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization.return_value = ("11111", TaskUser.query.get(receiver_user["id"]))
+        mock_authorization.return_value = (
+            "11111",
+            TaskUser.query.get(receiver_user["id"]),
+        )
 
         time = datetime.now()
         first_task = Task(
@@ -289,7 +315,7 @@ class TestCurrentTaskView:
 
         mock_get_next_task.return_value = Task.query.get(2)
 
-        response = client.put(PREFIX_HOST+"/current_task/")
+        response = client.put(PREFIX_HOST + "/current_task/")
 
         assert response.status == "200 OK"
         assert TaskUser.query.get(receiver_user["id"]).current_task == second_task
@@ -301,9 +327,12 @@ class TestProcessingView:
         self,
         mock_authorization: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization.return_value = ("11111", TaskUser.query.get(receiver_user["id"]))
+        mock_authorization.return_value = (
+            "11111",
+            TaskUser.query.get(receiver_user["id"]),
+        )
 
         time = datetime.now()
         first_task = Task(
@@ -317,7 +346,7 @@ class TestProcessingView:
 
         db.session.add(first_task)
 
-        response = client.get(PREFIX_HOST+"/processing/")
+        response = client.get(PREFIX_HOST + "/processing/")
         assert response.status == "200 OK"
 
 
@@ -327,12 +356,16 @@ class TestTasksView:
         self,
         mock_authorization: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization.return_value = ("11111", TaskUser.query.get(receiver_user["id"]))
+        mock_authorization.return_value = (
+            "11111",
+            TaskUser.query.get(receiver_user["id"]),
+        )
 
         time = datetime.now()
-        tasks = [Task(
+        tasks = [
+            Task(
                 id=id_,
                 title=str(id_),
                 time=time,
@@ -340,19 +373,23 @@ class TestTasksView:
                 status=TASK_STATUS[0],
                 receiver_user_id=receiver_user["id"],
                 sender_user_id=sender_user["id"],
-        ) for id_ in range(1, 24)]
+            )
+            for id_ in range(1, 24)
+        ]
 
         db.session.add_all(tasks)
         db.session.commit()
 
-        response_with_first_page = client.get(PREFIX_HOST+"/tasks/?page=1",)
+        response_with_first_page = client.get(
+            PREFIX_HOST + "/tasks/?page=1",
+        )
 
         first_json_tasks = json.loads(response_with_first_page.data.decode("utf-8"))
         assert len(first_json_tasks) == TASKS_NUMBER_FOR_PAGE
         for id_, json_task in enumerate(first_json_tasks, start=1):
             assert json_task["title"] == str(id_)
 
-        response_with_second_page = client.get(PREFIX_HOST+"/tasks/?page=2")
+        response_with_second_page = client.get(PREFIX_HOST + "/tasks/?page=2")
 
         second_json_tasks = json.loads(response_with_second_page.data.decode("utf-8"))
         assert len(second_json_tasks) == TASKS_NUMBER_FOR_PAGE
@@ -372,11 +409,14 @@ class TestTasksView:
         mock_NotificationRequest: Mock,
         mock_authorization: Mock,
         client: FlaskClient,
-    ):
+    ) -> None:
         mock_get_permission.return_value = True
         mock_validate_task_data.return_value.get.return_value = True
         receiver_user, sender_user = create_receiver_and_sender_users()
-        mock_authorization.return_value = ("11111", TaskUser.query.get(sender_user["id"]))
+        mock_authorization.return_value = (
+            "11111",
+            TaskUser.query.get(sender_user["id"]),
+        )
 
         time = datetime.now()
         first_task = Task(
@@ -409,7 +449,7 @@ class TestTasksView:
         subsequent_tasks_ids = [second_task.id]
 
         response = client.post(
-            PREFIX_HOST+"/tasks/",
+            PREFIX_HOST + "/tasks/",
             data=json.dumps(
                 {
                     "title": "Задание",
