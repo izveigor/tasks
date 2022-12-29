@@ -1,0 +1,46 @@
+name: notifications-tests
+on:
+  push:
+    paths:
+      - .github/workflows/notifications-tests.yml
+      - backend/notifications/**
+
+defaults:
+  run:
+    working-directory: ./backend/notifications/src
+
+jobs:
+  api-tests:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Cache Go modules
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+
+      - name: Run tests
+        run: make test
+        env:
+          MONGODB_HOST: localhost
+          MONGODB_PORT: 27017
