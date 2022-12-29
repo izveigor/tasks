@@ -1,9 +1,10 @@
+from typing import Any
+
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 
 from .methods import suggest_username
 from .models import ConfirmEmail, Profile
-from typing import Any
 
 User = get_user_model()
 
@@ -12,7 +13,9 @@ class LoginSerializer(serializers.Serializer):  # type: ignore
     username = serializers.CharField(max_length=150, write_only=True)
     password = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
+    def validate(
+        self, kwargs: dict[str, Any]
+    ) -> dict[str, Any] | serializers.ValidationError:
         username = kwargs.get("username")
         password = kwargs.get("password")
 
@@ -41,7 +44,9 @@ class RegisterSerializer(serializers.ModelSerializer):  # type: ignore
         model = User
         fields = ["first_name", "last_name", "username", "email", "password"]
 
-    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
+    def validate(
+        self, kwargs: dict[str, Any]
+    ) -> dict[str, Any] | serializers.ValidationError:
         first_name = kwargs.get("first_name")
         last_name = kwargs.get("last_name")
         username = kwargs.get("username")
@@ -84,7 +89,9 @@ class ChangeUsernameSerializer(serializers.ModelSerializer):  # type: ignore
         model = User
         fields = ["username"]
 
-    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
+    def validate(
+        self, kwargs: dict[str, Any]
+    ) -> dict[str, Any] | serializers.ValidationError:
         username = kwargs.get("username")
         msg = ""
         if not username:
@@ -106,7 +113,9 @@ class ChangePasswordSerializer(serializers.Serializer):  # type: ignore
     password = serializers.CharField(write_only=True)
     repeated_password = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
+    def validate(
+        self, kwargs: dict[str, Any]
+    ) -> dict[str, Any] | serializers.ValidationError:
         password = kwargs.get("password")
         repeated_password = kwargs.get("repeated_password")
         msg = ""
@@ -170,7 +179,9 @@ class GroupPutSerializer(serializers.Serializer):  # type: ignore
     supervisor_username = serializers.CharField(write_only=True)
     subordinate_username = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
+    def validate(
+        self, kwargs: dict[str, Any]
+    ) -> dict[str, Any] | serializers.ValidationError:
         supervisor_username = kwargs.get("supervisor_username")
         subordinate_username = kwargs.get("subordinate_username")
 
@@ -194,7 +205,9 @@ class GroupPutSerializer(serializers.Serializer):  # type: ignore
 class GroupDeleteSerializer(serializers.Serializer):  # type: ignore
     username = serializers.CharField(write_only=True)
 
-    def validate(self, kwargs: dict[str, Any]) -> dict[str, Any] | serializers.ValidationError:
+    def validate(
+        self, kwargs: dict[str, Any]
+    ) -> dict[str, Any] | serializers.ValidationError:
         username = kwargs.get("username")
 
         try:

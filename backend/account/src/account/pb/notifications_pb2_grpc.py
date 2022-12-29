@@ -15,10 +15,10 @@ class NotificationsStub(object):
             channel: A grpc.Channel.
         """
         self.Notify = channel.unary_unary(
-                '/pb.Notifications/Notify',
-                request_serializer=account_dot_pb_dot_notifications__pb2.NotificationRequest.SerializeToString,
-                response_deserializer=account_dot_pb_dot_notifications__pb2.NotificationResponse.FromString,
-                )
+            "/pb.Notifications/Notify",
+            request_serializer=account_dot_pb_dot_notifications__pb2.NotificationRequest.SerializeToString,
+            response_deserializer=account_dot_pb_dot_notifications__pb2.NotificationResponse.FromString,
+        )
 
 
 class NotificationsServicer(object):
@@ -27,40 +27,53 @@ class NotificationsServicer(object):
     def Notify(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
 
 def add_NotificationsServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Notify': grpc.unary_unary_rpc_method_handler(
-                    servicer.Notify,
-                    request_deserializer=account_dot_pb_dot_notifications__pb2.NotificationRequest.FromString,
-                    response_serializer=account_dot_pb_dot_notifications__pb2.NotificationResponse.SerializeToString,
-            ),
+        "Notify": grpc.unary_unary_rpc_method_handler(
+            servicer.Notify,
+            request_deserializer=account_dot_pb_dot_notifications__pb2.NotificationRequest.FromString,
+            response_serializer=account_dot_pb_dot_notifications__pb2.NotificationResponse.SerializeToString,
+        ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'pb.Notifications', rpc_method_handlers)
+        "pb.Notifications", rpc_method_handlers
+    )
     server.add_generic_rpc_handlers((generic_handler,))
 
 
- # This class is part of an EXPERIMENTAL API.
+# This class is part of an EXPERIMENTAL API.
 class Notifications(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Notify(request,
+    def Notify(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/pb.Notifications/Notify',
+            "/pb.Notifications/Notify",
             account_dot_pb_dot_notifications__pb2.NotificationRequest.SerializeToString,
             account_dot_pb_dot_notifications__pb2.NotificationResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+        )

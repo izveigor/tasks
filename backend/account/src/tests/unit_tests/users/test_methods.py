@@ -1,8 +1,9 @@
+from typing import Any
+
 from django.contrib.auth import get_user_model
 
 from tests.unit_tests.base import UnitTest
 from users.methods import suggest_username
-from typing import Any
 
 User = get_user_model()
 

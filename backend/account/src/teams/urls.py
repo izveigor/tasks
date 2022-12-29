@@ -5,9 +5,9 @@ from django.urls import path
 from users import views
 
 urlpatterns = [
-    path("authorization_like_teammate/", views.AuthorizationLikeTeammate.as_view()),   # type: ignore
-    path("authorization_like_admin/", views.AuthorizationLikeAdmin.as_view()),   # type: ignore
-    path("authorization_like_creator/", views.AuthorizationLikeCreator.as_view()),   # type: ignore
+    path("authorization_like_teammate/", views.AuthorizationLikeTeammate.as_view()),  # type: ignore
+    path("authorization_like_admin/", views.AuthorizationLikeAdmin.as_view()),  # type: ignore
+    path("authorization_like_creator/", views.AuthorizationLikeCreator.as_view()),  # type: ignore
     path("check_team_name/", views.CheckTeamNameView.as_view()),  # type: ignore
     path("team/", views.TeamView.as_view()),  # type: ignore
     path("join/", views.JoinTeamView.as_view()),  # type: ignore

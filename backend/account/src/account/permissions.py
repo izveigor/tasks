@@ -1,8 +1,10 @@
+from typing import Any
+
 from rest_framework import permissions
 
 from teams.models import Team
 from users.models import ConfirmEmail
-from typing import Any
+
 
 class EmailPermission(permissions.BasePermission):  # type: ignore
     """

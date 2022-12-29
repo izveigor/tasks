@@ -1,4 +1,5 @@
 from concurrent import futures
+from typing import Any
 
 import grpc
 from django.contrib.auth.models import User
@@ -7,21 +8,22 @@ from rest_framework.authtoken.models import Token
 from account.constants import USERS_HOST
 from account.pb.users_pb2 import (
     ConfirmEmailRequest,
-    GetTokenFromUsernameRequest,
-    GetUserFromTokenRequest,
-    PermissionRequest,
     ConfirmEmailResponse,
+    GetTokenFromUsernameRequest,
     GetTokenFromUsernameResponse,
+    GetUserFromTokenRequest,
     GetUserFromTokenResponse,
+    PermissionRequest,
     PermissionResponse,
 )
 from account.pb.users_pb2_grpc import UsersServicer, add_UsersServicer_to_server
 from users.models import ConfirmEmail
-from typing import Any
 
 
 class UsersService(UsersServicer):  # type: ignore
-    def CheckPermission(self, request: PermissionRequest, context: Any) -> PermissionResponse:
+    def CheckPermission(
+        self, request: PermissionRequest, context: Any
+    ) -> PermissionResponse:
         receiver_username = request.receiverUsername
         sender_username = request.senderUsername
 
@@ -45,7 +47,9 @@ class UsersService(UsersServicer):  # type: ignore
             is_permission_exist=result,
         )
 
-    def GetTokenFromUsername(self, request: GetTokenFromUsernameRequest, context: Any) -> GetTokenFromUsernameResponse:
+    def GetTokenFromUsername(
+        self, request: GetTokenFromUsernameRequest, context: Any
+    ) -> GetTokenFromUsernameResponse:
         username = request.username
         user = User.objects.get(username=username)
         token = Token.objects.get(user=user)
@@ -54,7 +58,9 @@ class UsersService(UsersServicer):  # type: ignore
             token=token,
         )
 
-    def GetUserFromToken(self, request: GetUserFromTokenRequest, context: Any) -> GetUserFromTokenResponse:
+    def GetUserFromToken(
+        self, request: GetUserFromTokenRequest, context: Any
+    ) -> GetUserFromTokenResponse:
         token = request.token
         user = Token.objects.get(key=token).user
 
@@ -62,7 +68,9 @@ class UsersService(UsersServicer):  # type: ignore
             username=user.username,
         )
 
-    def ConfirmEmail(self, request: ConfirmEmailRequest, context: Any) -> ConfirmEmailResponse:
+    def ConfirmEmail(
+        self, request: ConfirmEmailRequest, context: Any
+    ) -> ConfirmEmailResponse:
         username = request.username
         user = User.objects.get(username=username)
         confirm = ConfirmEmail.objects.get(user=user)

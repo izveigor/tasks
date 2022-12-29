@@ -1,7 +1,8 @@
+from typing import Any
+
 from rest_framework import serializers
 
 from .models import Team
-from typing import Any
 
 
 class TeamNameSerializer(serializers.Serializer):  # type: ignore

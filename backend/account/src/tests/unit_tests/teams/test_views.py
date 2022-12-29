@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from google.protobuf.timestamp_pb2 import Timestamp # type: ignore
+from google.protobuf.timestamp_pb2 import Timestamp  # type: ignore
 from rest_framework.authtoken.models import Token
 
 from account.constants import TEST_PREFIX_HOST

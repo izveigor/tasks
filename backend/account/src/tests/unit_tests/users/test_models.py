@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -8,7 +9,6 @@ from account.constants import EXPIRY_TIME, MAX_AVAILABLE_TRIES
 from tests.helpers import check_model_fields, create_user
 from tests.unit_tests.base import UnitTest
 from users.models import ConfirmEmail, Profile, Team
-from typing import Any
 
 User = get_user_model()
 

@@ -1,5 +1,6 @@
 import datetime
 import json
+from typing import Any
 from unittest.mock import Mock, patch
 
 from django.conf import settings
@@ -22,7 +23,6 @@ from account.pb.tasks_pb2 import UserRequest
 from tests.helpers import check_model_fields
 from tests.unit_tests.base import UnitTest
 from users.models import ConfirmEmail, Profile, Team
-from typing import Any
 
 User = get_user_model()
 user_data: dict[str, Any] = {

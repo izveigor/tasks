@@ -2,6 +2,7 @@ import re
 import uuid
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -15,7 +16,6 @@ from account.constants import (
     MAX_AVAILABLE_TRIES,
 )
 from teams.models import Team
-from typing import Any
 
 
 class User(AbstractUser):  # type: ignore
