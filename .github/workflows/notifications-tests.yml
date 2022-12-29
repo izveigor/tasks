@@ -10,7 +10,7 @@ defaults:
     working-directory: ./backend/notifications/src
 
 jobs:
-  api-tests:
+  notifications-tests:
     services:
       mongodb:
         image: mongo
