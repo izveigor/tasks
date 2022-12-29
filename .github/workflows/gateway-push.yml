@@ -29,6 +29,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./docker-compose.yml
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tasks-gateway:latest

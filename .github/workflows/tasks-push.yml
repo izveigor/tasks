@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./backend/tasks
+    working-directory: ./backend/tasks/src
 
 jobs:
   tasks-push:

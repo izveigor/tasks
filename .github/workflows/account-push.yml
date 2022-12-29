@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./backend/account
+    working-directory: ./backend/account/src
 
 jobs:
   account-push:
