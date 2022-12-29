@@ -11,6 +11,7 @@ defaults:
 
 jobs:
   api-tests:
+    services:
       mongodb:
         image: mongo
         ports:
