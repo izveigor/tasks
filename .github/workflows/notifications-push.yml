@@ -12,7 +12,6 @@ defaults:
 jobs:
   frontend-push:
     runs-on: [ubuntu-latest]
-    needs: notifications-tests
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -30,6 +29,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./docker-compose.yml
+          file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tasks-notifications:latest
