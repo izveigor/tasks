@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
-from users import views
+from . import views
 
 urlpatterns = [
     path("authorization_like_teammate/", views.AuthorizationLikeTeammate.as_view()),  # type: ignore
