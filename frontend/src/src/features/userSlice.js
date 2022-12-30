@@ -54,6 +54,7 @@ const userSlice = createSlice({
             state.image = image;
         }
     },
+    /* eslint-disable */
     extraReducers: builder => {
         builder.addCase(fetchIsTeammate.fulfilled, (state, { payload }) => {
             state.isTeammate = payload;

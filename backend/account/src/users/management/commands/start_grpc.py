@@ -3,11 +3,11 @@ from typing import Any
 
 from django.core.management.base import BaseCommand
 
-from users.tasks_server import tasks_serve
+from account.users_server import users_serve
 
 
 class Command(BaseCommand):  # type: ignore
     help = "start grpc server"
 
     def handle(self, *args: Any, **options: Any) -> None:
-        asyncio.run(tasks_serve())
+        asyncio.run(users_serve())  # type: ignore

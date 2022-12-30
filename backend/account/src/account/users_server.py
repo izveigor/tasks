@@ -7,14 +7,9 @@ from rest_framework.authtoken.models import Token
 
 from account.constants import USERS_HOST
 from account.pb.users_pb2 import (
-    ConfirmEmailRequest,
-    ConfirmEmailResponse,
-    GetTokenFromUsernameRequest,
-    GetTokenFromUsernameResponse,
-    GetUserFromTokenRequest,
-    GetUserFromTokenResponse,
+    AuthorizationRequest,
+    AuthorizationResponse,
     PermissionRequest,
-    PermissionResponse,
 )
 from account.pb.users_pb2_grpc import UsersServicer, add_UsersServicer_to_server
 from users.models import ConfirmEmail
@@ -23,12 +18,12 @@ from users.models import ConfirmEmail
 class UsersService(UsersServicer):  # type: ignore
     def CheckPermission(
         self, request: PermissionRequest, context: Any
-    ) -> PermissionResponse:
+    ) -> AuthorizationResponse:
         receiver_username = request.receiverUsername
-        sender_username = request.senderUsername
+        sender_token = request.senderToken
 
         receiver_user = User.objects.get(username=receiver_username)
-        sender_user = User.objects.get(username=sender_username)
+        sender_user = User.objects.get(token=sender_token)
 
         if receiver_user.profile.team == sender_user.profile.team:
             team = receiver_user.profile.team
@@ -43,48 +38,42 @@ class UsersService(UsersServicer):  # type: ignore
         else:
             result = False
 
-        return PermissionResponse(
+        return AuthorizationResponse(
             is_permission_exist=result,
+            username=sender_user.username,
         )
 
-    def GetTokenFromUsername(
-        self, request: GetTokenFromUsernameRequest, context: Any
-    ) -> GetTokenFromUsernameResponse:
-        username = request.username
-        user = User.objects.get(username=username)
-        token = Token.objects.get(user=user)
-
-        return GetTokenFromUsernameResponse(
-            token=token,
-        )
-
-    def GetUserFromToken(
-        self, request: GetUserFromTokenRequest, context: Any
-    ) -> GetUserFromTokenResponse:
+    def AuthorizationLikeUser(
+        self, request: AuthorizationRequest, context: Any
+    ) -> AuthorizationResponse:
         token = request.token
-        user = Token.objects.get(key=token).user
+        user = User.objects.get(token=token)
+        email = user.confirm_email
+        result = False
+        if email.confirmed:  # type: ignore
+            result = True
 
-        return GetUserFromTokenResponse(
+        return AuthorizationResponse(
+            is_permission_exist=result,
             username=user.username,
         )
 
-    def ConfirmEmail(
-        self, request: ConfirmEmailRequest, context: Any
-    ) -> ConfirmEmailResponse:
-        username = request.username
-        user = User.objects.get(username=username)
-        confirm = ConfirmEmail.objects.get(user=user)
-
+    def AuthorizationLikeTeammate(
+        self, request: AuthorizationRequest, context: Any
+    ) -> AuthorizationResponse:
+        token = request.token
+        user = User.objects.get(token=token)
+        result = False
         if user.profile.team:
-            result = confirm.confirmed
-        else:
-            result = False
-        return ConfirmEmailResponse(
+            result = True
+
+        return AuthorizationResponse(
             is_permission_exist=result,
+            username=user.username,
         )
 
 
-def tasks_serve() -> None:
+def users_serve() -> None:
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     add_UsersServicer_to_server(UsersService(), server)
     server.add_insecure_port(USERS_HOST)

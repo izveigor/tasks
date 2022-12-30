@@ -16,6 +16,7 @@ services:
       - 50053:50053
     networks:
       - gateway_network
+      - mongo_network
     depends_on:
       - mongo
   
@@ -24,10 +25,11 @@ services:
     container_name: tasks_notifications_production_mongo
     ports:
       - 27017:27017
-    env_file:
-      - ./src/pkg/config/envs/.env.prod.mongo
+    networks:
+      - mongo_network
 
 
 networks:
   gateway_network:
     external: true
+  mongo_network:

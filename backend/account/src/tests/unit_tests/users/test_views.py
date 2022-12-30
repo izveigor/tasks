@@ -917,7 +917,7 @@ class TestSuggestEmployeeView(UnitTest):
             second_response.data["user"]["first_name"], teammate.first_name
         )
         self.assertEqual(second_response.data["user"]["last_name"], teammate.last_name)
-        self.assertEqual(second_response.data["user"]["username"], "username1")
+        self.assertEqual(second_response.data["user"]["username"], "username")
 
     def test_post_if_not_admin(self) -> None:
         admin = User.objects.create_user(**user_data)
@@ -992,4 +992,4 @@ class TestSuggestEmployeeView(UnitTest):
             second_response.data["user"]["first_name"], teammate.first_name
         )
         self.assertEqual(second_response.data["user"]["last_name"], teammate.last_name)
-        self.assertEqual(second_response.data["user"]["username"], "username1")
+        self.assertEqual(second_response.data["user"]["username"], "username")
